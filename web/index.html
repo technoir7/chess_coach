@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berkeley Chaos Chess Coach</title>
+
+    <!-- Chessboard.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar - Settings Only -->
+        <aside class="left-sidebar">
+            <div class="coach-status">
+                <h3>Position</h3>
+                <div id="position-theme" class="position-theme">
+                    Opening development
+                </div>
+                <div style="font-size: 10px; color: #666; margin-top: 5px;">
+                    Opening data via <a href="https://lichess.org/api" target="_blank" style="color: #666;">Lichess
+                        API</a>
+                </div>
+            </div>
+
+            <button id="explain-btn" class="explain-btn">
+                Explain Position
+            </button>
+
+            <button id="export-btn" class="explain-btn" style="margin-top: 10px; background: #2c3e50;">
+                Export Game Record
+            </button>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <button type="button" id="resign-btn" class="explain-btn" style="background: #c0392b;">Resign</button>
+                <button type="button" id="draw-btn" class="explain-btn" style="background: #7f8c8d;">Offer Draw</button>
+            </div>
+
+            <button type="button" id="new-game-btn" class="explain-btn" style="margin-top: 10px; background: #27ae60;">
+                New Game
+            </button>
+
+            <div class="settings-panel">
+                <div class="setting">
+                    <h4>Difficulty</h4>
+                    <select id="difficulty-select">
+                        <option value="club">Club (200cp)</option>
+                        <option value="strong_club">Strong Club (100cp)</option>
+                        <option value="master">Master (50cp)</option>
+                        <option value="engine">Engine (Best)</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <h4>Playing Style</h4>
+                    <select id="style-select">
+                        <option value="neutral">Neutral</option>
+                        <option value="aggressive">Aggressive</option>
+                        <option value="passive">Passive</option>
+                        <option value="positional">Positional</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <h4>LLM Model</h4>
+                    <select id="model-select">
+                        <option>Loading models...</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center - Chess Board -->
+        <main class="board-container">
+            <div id="board"></div>
+        </main>
+
+        <!-- Right Sidebar - Combined Move List + Analysis -->
+        <aside class="right-sidebar">
+            <div class="eval-bar-container">
+                <div class="eval-bar" style="width: 50%"></div>
+            </div>
+
+            <div class="analysis-panel">
+                <h3>Game & Analysis</h3>
+                <div id="game-log" class="game-log">
+                    <!-- Moves and analysis will be added here -->
+                </div>
+
+                <div class="chat-input-area">
+                    <textarea id="chat-input" placeholder="Ask a question..."></textarea>
+                    <button id="send-chat-btn" class="send-btn">Send</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
+    <!-- App Scripts -->
+    <script src="/static/js/api.js?v=2"></script>
+    <script src="/static/js/app.js?v=2"></script>
+</body>
+
+</html>

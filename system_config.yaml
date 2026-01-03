@@ -1,0 +1,189 @@
+system:
+  name: BerkeleyChaosChessCoach
+  version: 0.4
+  philosophy:
+    - logic_gated_ai
+    - no_hallucination
+    - coaching_truth_invariant
+    - opponent_strength_scalable
+    - coaching_strength_fixed
+
+axes:
+  coaching_quality:
+    scalable: false
+    description: Always full-strength, engine-grounded
+  opponent_strength:
+    scalable: true
+    description: Controlled via move-selection policy only
+
+engines:
+  analysis_engine:
+    name: Stockfish
+    version: 17
+    mode: full_strength
+    depth_policy: fixed
+    multipv: true
+
+  intuition_engine:
+    name: LeelaChessZero
+    mode: evaluation_only
+    purpose: positional_vibe_detection
+
+llm:
+  model: Gemini_2_Flash
+  role: explanation_and_critique_only
+  constraints:
+    - may_only_use_truth_packet
+    - may_not_generate_moves_unless_explicitly_allowed
+    - may_not_invent_tactics
+    - may_not_praise_vague_reasoning
+
+opponent:
+  role: plays_moves
+  engine_source: Stockfish
+  move_selection_policy:
+    description: sample_from_near_optimal_moves
+    parameters:
+      eval_window_cp: variable_by_difficulty
+      style_bias:
+        enabled: true
+        rules:
+          - prefer_development
+          - prefer_natural_recaptures
+          - avoid_speculative_sacrifices_if_low_level
+
+difficulty_levels:
+  club:
+    eval_window_cp: 250
+  strong_club:
+    eval_window_cp: 120
+  master:
+    eval_window_cp: 60
+  engine:
+    eval_window_cp: 0
+
+truth_packet:
+  required_fields:
+    - fen
+    - engine_eval
+    - multipv_lines
+    - null_move_result
+    - opponent_threats
+    - game_phase
+    - chaos_score
+    - database_stats_optional
+
+logic_gate:
+  advice_allowed_if_any:
+    - eval_drop_exceeds_threshold
+    - null_move_fails
+    - phase_transition_detected
+    - chaos_score_exceeds_threshold
+  forbid_advice_if:
+    - no_truth_packet
+    - eval_stable
+    - no_concrete_threat
+
+coaching_modes:
+  silent_killer:
+    allows_move_names: false
+    verbosity: minimal
+  strategic_nudge:
+    allows_move_names: false
+    verbosity: medium
+  chaos_maximizer:
+    allows_move_names: false
+    verbosity: medium
+  explain_after:
+    allows_move_names: false
+    timing: post_move_only
+
+player_interaction:
+  analysis_input:
+    enabled: true
+    formats:
+      - free_text
+      - structured
+  structured_fields:
+    - candidate_moves
+    - plan
+    - threat_assessment
+    - evaluation_guess
+
+analysis_critique:
+  enabled: true
+  critique_packet:
+    required_fields:
+      - player_claims
+      - engine_facts
+      - contradictions
+      - missing_considerations
+      - eval_alignment_score
+  critique_modes:
+    - error_flagging
+    - gap_highlighting
+    - eval_calibration
+    - adversarial_pushback
+
+coach_speech_rules:
+  must:
+    - reference_concrete_engine_fact
+    - identify_specific_contradiction_if_present
+  must_not:
+    - invent_alternatives
+    - escalate_complexity_without_trigger
+    - reward_imprecise_language
+
+key_moment_detector:
+  triggers:
+    phase_transition:
+      enabled: true
+    irreversibility:
+      enabled: true
+      events:
+        - pawn_break
+        - exchange_sacrifice
+        - king_commitment
+    eval_inflection:
+      threshold_cp: 100
+    choice_explosion:
+      min_candidate_moves: 3
+      eval_divergence_cp: 150
+
+coach_prompts:
+  type: socratic
+  source: predefined_templates_only
+  examples:
+    - "What is the opponent threatening?"
+    - "Which piece is least effective?"
+    - "Is this tactical or structural?"
+    - "What happens if you do nothing?"
+
+meta_coaching:
+  enabled: true
+  tracked_patterns:
+    - threat_blindness
+    - eval_miscalibration
+    - overaggression
+    - endgame_avoidance
+  output:
+    frequency: post_game
+    grounded_in_stats: true
+
+ui_constraints:
+  default:
+    show_best_move: false
+    show_arrows: false
+    show_eval_bar: true
+  override_requires_explicit_user_action: true
+
+anti_cheating:
+  rules:
+    - no_unrequested_move_names
+    - advice_frequency_capped
+    - no_real_time_engine_spoonfeeding
+
+termination_conditions:
+  coach_silence_if:
+    - no_logic_gate_trigger
+    - no_player_query

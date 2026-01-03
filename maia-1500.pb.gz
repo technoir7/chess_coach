@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>404 Page not found - Leela Chess Zero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="icon" href="/favicon.ico">
+
+  
+  
+  <link rel="stylesheet" href="/css/style.min.711c4d9fe35874d063910096d0c7feda9628d3a004184d320b6a0e1755c5d7c6.css">
+  
+
+    
+
+  
+
+</head>
+
+<body class='page '>
+  <div id="main-menu-mobile" class="main-menu-mobile">
+  <ul>
+    
+    
+    <li class="menu-item-play">
+      <a href="/play/quickstart">
+        <span>Play</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-watch">
+      <a href="/watch">
+        <span>Watch</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-contribute">
+      <a href="/contribute">
+        <span>Contribute</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-development">
+      <a href="/dev">
+        <span>Development</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-about">
+      <a href="/about">
+        <span>About</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-blog">
+      <a href="/blog">
+        <span>Blog</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+  <div class="wrapper">
+    <div class='header'>
+  <div class="container">
+    <div class="logo">
+      <a href="/"><img alt="Logo" src="/images/logo.svg" /></a>
+    </div>
+    <div class="logo-mobile">
+      <a href="/"><img alt="Logo" src="/images/logo.svg" /></a>
+    </div>
+    <div id="main-menu" class="main-menu">
+  <ul>
+    
+    
+    
+    <li class="menu-item-play
+        ">
+      <a href="/play/quickstart">
+        <span>Play</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-watch
+        ">
+      <a href="/watch">
+        <span>Watch</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-contribute
+        ">
+      <a href="/contribute">
+        <span>Contribute</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-development
+        ">
+      <a href="/dev">
+        <span>Development</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-about
+        ">
+      <a href="/about">
+        <span>About</span>
+      </a>
+    </li>
+    
+    <li class="menu-item-blog
+        ">
+      <a href="/blog">
+        <span>Blog</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+    <button id="toggle-main-menu-mobile" class="hamburger hamburger--slider" type="button">
+  <span class="hamburger-box">
+    <span class="hamburger-inner"></span>
+  </span>
+</button>
+  </div>
+</div>
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+<div class="container pt-4 pt-10">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-9">
+      <h1>404 Page Not Found</h1>
+    </div>
+  </div>
+</div>
+
+    
+  </div>
+
+  <div class="sub-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="sub-footer-inner">
+          <ul>
+            <li class="zerostatic"><a href="https://github.com/LeelaChessZero/">GitHub</a></li>
+            <li class="zerostatic"><a href="https://discord.gg/pKujYxD">Discord</a></li>
+            <li class="zerostatic"><a href="https://groups.google.com/forum/#!forum/lczero">Forum</a></li>
+            <li class="zerostatic"><a href="https://x.com/leelachesszero">x.com</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/scripts.min.fb89b075a7aed451d683a10df19436342e03d719a938658db3ecf33c4cabe8ad.js"></script>
+  
+
+  
+  
+  
+    
+      
+      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-100707634-4"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-100707634-4');
+      </script>
+    
+  
+
+
+</body>
+
+</html>
