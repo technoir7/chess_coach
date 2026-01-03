@@ -1,10 +1,4 @@
-Here’s a **clean, tightened rewrite** that incorporates everything we discussed: clearer stakes, better transfer beyond chess, sharper epistemic framing, and a stronger ending. I’ve kept your voice and architecture, but made it read like a serious reference artifact rather than a product README.
-
-You can drop this in as-is.
-
----
-
-# ♟️ Berkeley Chaos
+# ♟️ Chess Coach
 
 ## Logic-Gated, Verifier-Bound AI Explanations in a Closed-World Decision System
 
