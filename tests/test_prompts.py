@@ -83,6 +83,35 @@ class TestRecentMoves:
         assert "omitted" not in prompts.recent_moves(board)
 
 
+class TestVibeReading:
+    def test_reported_in_words_not_as_a_comparable_number(self):
+        """The regression: printing Maia's raw value beside a depth-15
+        Stockfish eval let the model report that the two "agreed", when
+        1.15 and 2.41 are not even on the same scale."""
+        facts = prompts.position_facts(
+            chess.Board(), packet(engine_eval=115, vibe_score=2.41), ""
+        )
+        assert "2.41" not in facts
+        assert "club-strength human" in facts
+        assert "NOT a second" in facts
+
+    def test_direction_is_preserved(self):
+        assert "White" in prompts.vibe_reading(2.41)
+        assert "Black" in prompts.vibe_reading(-2.41)
+
+    def test_small_readings_are_balanced(self):
+        assert "balanced" in prompts.vibe_reading(0.3)
+        assert "balanced" in prompts.vibe_reading(-0.3)
+
+    def test_missing_reading(self):
+        assert prompts.vibe_reading(None) == "unavailable"
+
+    def test_the_rules_forbid_treating_it_as_a_second_evaluation(self):
+        facts = prompts.position_facts(chess.Board(), packet(), "")
+        text = prompts.explain_prompt(facts, "Game just started")
+        assert "ONLY evaluation" in text
+
+
 class TestHistoryReachesEveryPrompt:
     def test_explain_prompt_carries_the_move_history(self):
         """The regression: explain got no history at all, so the model invented
@@ -157,9 +186,10 @@ class TestPromptAssembly:
         assert "35 centipawns" in facts
         assert "Nf3, Nc3" in facts
 
-    def test_missing_vibe_renders_as_na_not_none(self):
+    def test_missing_vibe_does_not_render_as_none(self):
         facts = prompts.position_facts(chess.Board(), packet(), "")
-        assert "Leela Vibe Score: N/A" in facts
+        assert "unavailable" in facts
+        assert "None" not in facts
 
     def test_every_prompt_carries_the_grounding_rules(self):
         """The no-invented-variations rule must reach the model in both paths."""

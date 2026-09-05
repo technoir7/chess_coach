@@ -40,20 +40,23 @@ class IntuitionEngine:
         Analyzes the position to get a 'vibe' (positional score).
         Lc0's WDL (Win/Draw/Loss) is a great 'vibe' indicator.
         """
+        # None, not 0.0: this engine is optional and the coach runs without it.
+        # Zero would be read downstream as "the position is balanced" - a claim
+        # from an engine that never started.
         if not self.engine:
-            return {"vibe_score": 0.0, "top_choice": None}
+            return {"vibe_score": None, "top_choice": None}
 
         # Analyze very quickly (depth 1 or small time limit) for intuition
         info: chess.engine.InfoDict = self.engine.analyse(
-            board, 
+            board,
             chess.engine.Limit(nodes=100) # Fast intuition check
         )
 
         # Lc0 provides WDL in the info dict if supported
-        wdl = info.get("wdl") 
+        wdl = info.get("wdl")
         score = info.get("score")
-        
-        vibe_score = 0.0
+
+        vibe_score = None
         if score:
              vibe_score = score.white().score(mate_score=10000) / 100.0
 

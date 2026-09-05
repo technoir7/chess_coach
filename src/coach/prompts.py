@@ -23,6 +23,9 @@ EVALUATION_SCALE = """EVALUATION SCALE (Centipawns):
 GROUNDING_RULES = """INSTRUCTIONS:
 1. Use the scale above to describe the evaluation. Do NOT call +36cp "significant".
 2. Before mentioning a piece on a square, verify it exists in the position listing above.
+2b. The Stockfish evaluation is the ONLY evaluation. The human-intuition reading
+   is a separate signal on a different scale - describe it as how a club player
+   would feel, and do NOT say the two "agree", compare them, or quote a number for it.
 3. LEGAL MOVES CHECK: You MUST NOT suggest any move for the current player that is NOT in the "LEGAL MOVES" list above.
    - If a move you want to suggest is not in that list, IT IS ILLEGAL (e.g. piece is pinned).
    - Do NOT say "Black can capture..." if the capture is not in the legal moves list.
@@ -145,6 +148,28 @@ def format_eval(eval_cp: Optional[float]) -> str:
     return "unknown" if eval_cp is None else str(int(eval_cp))
 
 
+def vibe_reading(vibe_score: Optional[float]) -> str:
+    """Describe the Leela reading in words rather than as a number.
+
+    Maia-1500 is a club-strength, human-like network searched at 100 nodes -
+    it answers "what would a 1500 player feel here", not "how good is this
+    position". Printing its raw value beside a depth-15 Stockfish evaluation
+    invited the model to treat the two as comparable and report that they
+    agreed, when they are not even on the same scale.
+    """
+    if vibe_score is None:
+        return "unavailable"
+
+    magnitude = abs(vibe_score)
+    if magnitude <= 0.5:
+        return "a club-strength human would read this as roughly balanced"
+
+    side = "White" if vibe_score > 0 else "Black"
+    if magnitude <= 1.5:
+        return f"a club-strength human would lean towards {side}"
+    return f"a club-strength human would clearly prefer {side}"
+
+
 def numbered_line(line_san: List[str], board: chess.Board) -> str:
     """Render a SAN sequence with correct move numbers from this position."""
     number = board.fullmove_number
@@ -195,7 +220,9 @@ LEGAL MOVES (STRICTLY ENFORCED):
 {legal_moves_list(board)}
 
 Stockfish Evaluation: {format_eval(packet.engine_eval)} centipawns
-Leela Vibe Score: {packet.vibe_score if packet.vibe_score is not None else 'N/A'}
+Human intuition (Maia-1500, a club-strength human-like net - NOT a second
+evaluation, and not on the same scale as the number above):
+{vibe_reading(packet.vibe_score)}
 Top Moves: {', '.join(packet.top_moves_san) if packet.top_moves_san else 'N/A'}
 
 {engine_lines(packet, board)}
