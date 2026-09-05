@@ -8,6 +8,12 @@ from src.engine.leela import IntuitionEngine
 from src.coach.gate import LogicGate
 from src.coach.llm import LLMClient
 from src.opponent.policy import OpponentPolicy
+from src.utils.paths import repo_path
+
+# lc0 silently falls back to whichever net ships with the build when no weights
+# are given, so the default belongs here rather than only in start_server.sh.
+DEFAULT_LEELA_WEIGHTS = repo_path("maia-1500.pb.gz")
+
 
 class BerkeleyChaosChessCoach:
     def __init__(self, config: SystemConfig, engine_path: str = "stockfish"):
@@ -30,7 +36,7 @@ class BerkeleyChaosChessCoach:
         # Note: We use 'lc0' as default path, but users can override
         self.intuition_engine = IntuitionEngine(
             engine_path=os.getenv("LEELA_ENGINE_PATH", "lc0"),
-            weights_path=os.getenv("LEELA_WEIGHTS_PATH")
+            weights_path=os.getenv("LEELA_WEIGHTS_PATH", DEFAULT_LEELA_WEIGHTS)
         )
         self.opening_db = OpeningDB() # Initialize opening database
         self.gate = LogicGate(config.logic_gate)

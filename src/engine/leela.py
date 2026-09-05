@@ -16,19 +16,17 @@ class IntuitionEngine:
 
     def start(self):
         try:
-            # Lc0 often needs arguments for weights
-            args = []
+            # lc0 takes its network on the command line - without it, the engine
+            # silently falls back to whichever net ships with the build - and only
+            # accepts --weights=PATH; the space-separated form is rejected as an
+            # unknown argument and the process exits.
+            command = [self.engine_path]
             if self.weights_path:
-                args.extend(["--weights", self.weights_path])
-            
-            self.engine = chess.engine.SimpleEngine.popen_uci(self.engine_path)
-            # Some UCI engines need options set immediately
-            if self.weights_path:
-                # Note: This depends on how lc0 is compiled; standard is passing via command line 
-                # or setting a UCI option.
-                pass
-            
-            logger.info(f"Started Intuition Engine: {self.engine_path}")
+                command.append(f"--weights={self.weights_path}")
+
+            self.engine = chess.engine.SimpleEngine.popen_uci(command)
+
+            logger.info(f"Started Intuition Engine: {' '.join(command)}")
         except FileNotFoundError:
             logger.error(f"Lc0 engine not found at {self.engine_path}.")
             raise
