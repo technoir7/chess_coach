@@ -29,6 +29,19 @@ class OpponentPolicy:
 
     def set_style(self, style: str):
         self.style = style
+
+    # A draw is only accepted once the position is genuinely level and the
+    # opening is behind us, so the opponent does not concede a playable game.
+    DRAW_EVAL_MARGIN_CP = 50
+    MIN_PLIES_BEFORE_DRAW = 20
+
+    def accepts_draw(self, board: chess.Board) -> bool:
+        """Whether the opponent accepts a draw offer in this position."""
+        if len(board.move_stack) <= self.MIN_PLIES_BEFORE_DRAW:
+            return False
+
+        eval_cp = self.engine.analyze(board).get("eval_cp") or 0
+        return abs(eval_cp) < self.DRAW_EVAL_MARGIN_CP
     
     def select_move(self, board: chess.Board) -> chess.Move:
         """

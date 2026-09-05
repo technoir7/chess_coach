@@ -1,7 +1,8 @@
 import chess
 import os
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from src.models import SystemConfig, TruthPacket, CoachSpeechRules
+from src.coach import prompts
 from src.coach.opening_db import OpeningDB
 from src.engine.stockfish import AnalysisEngine
 from src.engine.leela import IntuitionEngine
@@ -82,22 +83,8 @@ class BerkeleyChaosChessCoach:
         # "Coach" usually advises on the current position or reacts to the previous move.
         # Let's assume we analyze the position AFTER the user moved to see if they messed up.
         
-        analysis = self.engine.analyze(self.board)
-        current_eval = analysis.get("eval_cp")
-        
-        # 2b. Run Intuition Analysis
-        leela_vibe = self.intuition_engine.get_vibe(self.board)
-        
-        # 3. Construct Truth Packet
-        packet = TruthPacket(
-            fen=self.board.fen(),
-            engine_eval=current_eval,
-            multipv_lines=analysis.get("multipv_lines", []),
-            opponent_threats=[], # TODO: Implement threat detection
-            chaos_score=0.0, # TODO: Implement Chaos metric
-            game_phase="middlegame" # Placeholder
-        )
-        # You could also add leela_vibe here if you extend TruthPacket model
+        packet = self.build_truth_packet()
+        current_eval = packet.engine_eval
 
         # 4. Logic Gate
         advice = None
@@ -146,66 +133,46 @@ class BerkeleyChaosChessCoach:
         """Reset the LLM cooldown"""
         self._last_quota_error = 0
 
-    def _get_piece_listing(self) -> str:
-        """Generate explicit listing of all pieces for LLM clarity"""
-        piece_map = self.board.piece_map()
-        white_pieces = []
-        black_pieces = []
-        
-        for square, piece in piece_map.items():
-            square_name = chess.square_name(square)
-            piece_name = piece.symbol().upper()
-            piece_names = {
-                'P': 'Pawn', 'N': 'Knight', 'B': 'Bishop', 
-                'R': 'Rook', 'Q': 'Queen', 'K': 'King'
-            }
-            full_name = piece_names.get(piece_name, piece_name)
-            
-            if piece.color == chess.WHITE:
-                white_pieces.append(f"{full_name} on {square_name}")
-            else:
-                black_pieces.append(f"{full_name} on {square_name}")
-        
-        listing = "White pieces: " + ", ".join(sorted(white_pieces)) + "\n"
-        listing += "Black pieces: " + ", ".join(sorted(black_pieces))
-        return listing
+    def opponent_accepts_draw(self) -> bool:
+        """Whether the opponent accepts a draw in the current position."""
+        return self.opponent.accepts_draw(self.board)
 
-    def _get_development_status(self) -> str:
-        """State which pieces have left their starting squares.
+    def build_truth_packet(self) -> TruthPacket:
+        """Run both engines and collect the verified facts for this position.
 
-        The model infers development from the piece listing and gets it
-        backwards, claiming developed bishops and knights on move 1. Stating
-        it as a fact removes the inference.
+        This is the only place engine output enters the coach, so everything
+        downstream - the logic gate and every prompt - reads the same facts.
         """
-        start = chess.Board()
-        moved = {chess.WHITE: [], chess.BLACK: []}
+        analysis = self.engine.analyze(self.board)
+        vibe = self.intuition_engine.get_vibe(self.board)
 
-        for square, original in start.piece_map().items():
-            if original.piece_type == chess.PAWN:
-                continue
-            if self.board.piece_at(square) != original:
-                moved[original.color].append(
-                    f"{chess.piece_name(original.piece_type)} from {chess.square_name(square)}"
-                )
+        return TruthPacket(
+            fen=self.board.fen(),
+            engine_eval=analysis.get("eval_cp"),
+            multipv_lines=analysis.get("multipv_lines", []),
+            opponent_threats=[],  # TODO: Implement threat detection
+            chaos_score=0.0,  # TODO: Implement Chaos metric
+            game_phase=prompts.game_phase(self.board),
+            vibe_score=vibe.get("vibe_score"),
+            top_moves_san=self._top_moves_san(analysis),
+        )
 
-        lines = []
-        for color, label in ((chess.WHITE, "White"), (chess.BLACK, "Black")):
-            if moved[color]:
-                lines.append(f"{label} has moved: " + ", ".join(sorted(moved[color])))
-            else:
-                lines.append(f"{label} has NOT developed any piece - all pieces are on their starting squares.")
-        return "\n".join(lines)
+    def _top_moves_san(self, analysis: Dict) -> List[str]:
+        """Convert the engine's principal variations to SAN."""
+        moves = []
+        for line in analysis.get("multipv_lines", [])[:3]:
+            pv = line.get("pv")
+            if pv:
+                board = self.board.copy()
+                moves.append(board.san(board.parse_uci(str(pv[0]))))
+        return moves
 
-    def _get_legal_moves_list(self) -> str:
-        """Generate comma-separated list of all legal SAN moves"""
-        # Create a temporary board to ensure we get SAN correctly
-        # (though self.board should be fine, we want to be safe with move generation)
-        legal_moves = []
-        for move in self.board.legal_moves:
-            legal_moves.append(self.board.san(move))
-        
-        return ", ".join(sorted(legal_moves))
-    
+    def _facts_block(self, packet: TruthPacket) -> str:
+        """Render a packet into the prompt's verified-facts section."""
+        return prompts.position_facts(
+            self.board, packet, self._get_opening_info(self.board.fen())
+        )
+
     def _get_opening_info(self, fen: str) -> str:
         """Fetch and format opening info for the prompt"""
         data = self.opening_db.get_opening(fen)
@@ -231,212 +198,46 @@ class BerkeleyChaosChessCoach:
         return info
 
     def explain_position(self) -> str:
-        """
-        Generates a detailed explanation of the current position.
-        Uses both engines and the LLM to provide insights.
-        """
-        # Analyze current position
-        analysis = self.engine.analyze(self.board)
-        current_eval = analysis.get("eval_cp")
-        leela_vibe = self.intuition_engine.get_vibe(self.board)
-        
-        # Get top moves in SAN notation (human-readable)
-        top_moves_san = []
-        for line in analysis.get('multipv_lines', [])[:3]:
-            pv = line.get('pv')
-            if pv:
-                # Clone board to safely convert UCI to SAN
-                temp_board = self.board.copy()
-                try:
-                    move = temp_board.parse_uci(str(pv[0]))
-                    top_moves_san.append(temp_board.san(move))
-                except:
-                    pass
-        
-        move_count = len(self.board.move_stack)
-        game_phase = "Opening" if move_count < 15 else ("Middlegame" if move_count < 40 else "Endgame")
-        
-        # Build explanation prompt
-        explanation_prompt = f"""
-You are a chess coach analyzing this position.
+        """Explain the current position, grounded in the Truth Packet."""
+        packet = self.build_truth_packet()
 
-GAME STATE: Move {move_count} - {game_phase} phase
-
-CURRENT POSITION:
-{self._get_piece_listing()}
-
-DEVELOPMENT:
-{self._get_development_status()}
-
-{self._get_opening_info(self.board.fen())}
-
-LEGAL MOVES (STRICTLY ENFORCED):
-{self._get_legal_moves_list()}
-
-Stockfish Evaluation: {current_eval} centipawns
-Leela Vibe Score: {leela_vibe.get('vibe_score', 'N/A')}
-Top Moves: {', '.join(top_moves_san)}
-
-EVALUATION SCALE (Centipawns):
-- 0 to 40: Equal / Normal opening edge
-- 41 to 100: Slight advantage
-- 101 to 250: Clear/Significant advantage
-- 251+: Decisive advantage / Winning
-
-INSTRUCTIONS:
-1. Use the scale above to describe the evaluation. Do NOT call +36cp "significant".
-2. Before mentioning a piece on a square, verify it exists in the position listing above.
-3. LEGAL MOVES CHECK: You MUST NOT suggest any move for the current player that is NOT in the "LEGAL MOVES" list above.
-   - If a move you want to suggest is not in that list, IT IS ILLEGAL (e.g. piece is pinned).
-   - Do NOT say "Black can capture..." if the capture is not in the legal moves list.
-
-4. CRITICAL - NO CALCULATING VARIATIONS:
-   - You CANNOT calculate multi-move sequences yourself. You will hallucinate.
-   - Do NOT write lines like "1. Bxb5 Qxb5 2. Bxd7+ Kxd7 3. Qxc7+" - you WILL get this wrong.
-   - ONLY mention the engine's "Top Moves" above. Do NOT invent follow-up moves.
-   - If asked "what happens after X?", say "I recommend checking the engine analysis for that line."
-   - Focus on describing the CURRENT position, themes, and piece activity.
-
-Provide a concise, accurate explanation of the current position only.
-"""
-        
-        if self._check_llm_available():
-            try:
-                response = self.llm.generate_content(explanation_prompt)
-                return response.text
-            except Exception as e:
-                # Log the full error for debugging
-                print(f"[Coach Debug] Full LLM Error: {type(e).__name__}: {str(e)}")
-                
-                if "429" in str(e) or "quota" in str(e).lower():
-                    self._handle_quota_error(str(e))
-                
-                eval_text = self._get_eval_text(current_eval)
-                fallback_moves = ", ".join(top_moves_san) if top_moves_san else "N/A"
-                return f"Coach (Offline): {eval_text} ({current_eval}cp). \nBest follows: {fallback_moves} \n(Reason: {str(e)[:100]})"
-        else:
+        if not self._check_llm_available():
             reason = "Cooldown (quota exceeded)" if self._last_quota_error > 0 else "LLM Disabled"
-            eval_text = self._get_eval_text(current_eval)
-            fallback_moves = ", ".join(top_moves_san) if top_moves_san else "N/A"
-            return f"Coach (Offline): {eval_text} ({current_eval}cp). \nBest follows: {fallback_moves} \n(Reason: {reason})"
+            return self._offline_summary(packet, reason)
+
+        try:
+            prompt = prompts.explain_prompt(self._facts_block(packet))
+            return self.llm.generate_content(prompt).text
+        except Exception as e:
+            print(f"[Coach Debug] Full LLM Error: {type(e).__name__}: {str(e)}")
+            if "429" in str(e) or "quota" in str(e).lower():
+                self._handle_quota_error(str(e))
+            return self._offline_summary(packet, str(e)[:100])
+
+    def _offline_summary(self, packet: TruthPacket, reason: str) -> str:
+        """Engine-only fallback when the LLM is unavailable."""
+        moves = ", ".join(packet.top_moves_san) if packet.top_moves_san else "N/A"
+        return (
+            f"Coach (Offline): {self._get_eval_text(packet.engine_eval)} "
+            f"({packet.engine_eval}cp). \nBest follows: {moves} \n(Reason: {reason})"
+        )
 
     def chat(self, message: str) -> str:
-        """
-        Handles interactive chat about the position.
-        """
-        analysis = self.engine.analyze(self.board)
-        current_eval = analysis.get("eval_cp")
-        leela_vibe = self.intuition_engine.get_vibe(self.board)
-        
-        # Get top moves in SAN notation
-        top_moves_san = []
-        for line in analysis.get('multipv_lines', [])[:3]:
-            pv = line.get('pv')
-            if pv:
-                temp_board = self.board.copy()
-                try:
-                    move = temp_board.parse_uci(str(pv[0]))
-                    top_moves_san.append(temp_board.san(move))
-                except:
-                    pass
-        
-        # Get move history in SAN notation with correct numbering
-        move_history_lines = []
-        if len(self.board.move_stack) > 0:
-            # Create a copy and pop last 10 moves to get to past state
-            temp_board = self.board.copy()
-            last_moves = []
-            num_moves_to_show = min(10, len(self.board.move_stack))
-            
-            for _ in range(num_moves_to_show):
-                last_moves.append(temp_board.pop())
-            
-            # Now play them forward
-            last_moves.reverse() # Oldest first
-            
-            current_line = ""
-            for i, move in enumerate(last_moves):
-                # Calculate move number
-                move_num = temp_board.fullmove_number
-                san = temp_board.san(move)
-                
-                if temp_board.turn == chess.WHITE:
-                    current_line = f"{move_num}. {san}"
-                else:
-                    if current_line:
-                        current_line += f" {san}"
-                        move_history_lines.append(current_line)
-                        current_line = ""
-                    else:
-                        # Started with black move (e.g. at start of history window)
-                        move_history_lines.append(f"{move_num}. ... {san}")
-                
-                temp_board.push(move)
-            
-            # Append trailing white move if any
-            if current_line:
-                move_history_lines.append(current_line)
+        """Answer a question about the position, grounded in the Truth Packet."""
+        if not self._check_llm_available():
+            return "Coach: I'm taking a short break from talking (Offline). I'll be back in a minute!"
 
-        history_str = "\n".join(move_history_lines) if move_history_lines else "Game just started"
+        packet = self.build_truth_packet()
+        prompt = prompts.chat_prompt(
+            self._facts_block(packet), prompts.recent_moves(self.board), message
+        )
 
-        move_count = len(self.board.move_stack)
-        game_phase = "Opening" if move_count < 15 else ("Middlegame" if move_count < 40 else "Endgame")
-        
-        chat_prompt = f"""
-You are an interactive chess coach. The user is asking about the current position.
-
-GAME STATE: Move {move_count} - {game_phase} phase
-
-CURRENT POSITION:
-{self._get_piece_listing()}
-
-DEVELOPMENT:
-{self._get_development_status()}
-
-{self._get_opening_info(self.board.fen())}
-
-LEGAL MOVES (STRICTLY ENFORCED):
-{self._get_legal_moves_list()}
-
-Stockfish Eval: {current_eval}cp
-Leela Vibe: {leela_vibe.get('vibe_score', 'N/A')}
-Top Engine Moves: {', '.join(top_moves_san) if top_moves_san else 'N/A'}
-
-RECENT MOVES:
-{history_str}
-
-EVALUATION SCALE (Centipawns):
-- 0 to 40: Equal / Normal opening edge
-- 41 to 100: Slight advantage
-- 101 to 250: Clear/Significant advantage
-- 251+: Decisive advantage / Winning
-
-User's Question: {message}
-
-INSTRUCTIONS:
-1. Use the scale above for your language. +36cp is "Equal" or "Slight white edge", NOT significant.
-2. Before claiming any piece is on a square, verify it exists in the position listing above.
-3. LEGAL MOVES CHECK: You MUST NOT suggest any move for the current player that is NOT in the "LEGAL MOVES" list above.
-   - If a move is not listed, it is illegal (pinned, blocked, etc.). Do not suggest it.
-
-4. CRITICAL - NO CALCULATING VARIATIONS:
-   - You CANNOT calculate multi-move sequences yourself. You will hallucinate.
-   - Do NOT write lines like "1. Bxb5 Qxb5 2. Bxd7+ Kxd7 3. Qxc7+" - you WILL invent pieces or moves.
-   - ONLY mention the engine's "Top Engine Moves" above. Do NOT invent follow-up moves.
-   - If asked "what happens after X?", say "I can't reliably calculate lines. The engine's top moves are..."
-   - Focus on describing the CURRENT position, themes, and piece activity.
-
-Provide a helpful, accurate response about the current position only.
-"""
-        if self._check_llm_available():
-            try:
-                response = self.llm.generate_content(chat_prompt)
-                return response.text
-            except Exception as e:
-                if "429" in str(e):
-                    self._handle_quota_error(str(e))
-                return f"Coach: I'm focusing on the game right now (Offline). (Error: {str(e)[:50]})"
-        return "Coach: I'm taking a short break from talking (Offline). I'll be back in a minute!"
+        try:
+            return self.llm.generate_content(prompt).text
+        except Exception as e:
+            if "429" in str(e):
+                self._handle_quota_error(str(e))
+            return f"Coach: I'm focusing on the game right now (Offline). (Error: {str(e)[:50]})"
     
     def get_position_theme(self) -> str:
         """
@@ -451,30 +252,19 @@ Provide a helpful, accurate response about the current position only.
         if fen_key in self._theme_cache:
             return self._theme_cache[fen_key]
 
+        current_eval = self.engine.analyze(self.board).get("eval_cp")
+
         if self._check_llm_available():
             try:
-                analysis = self.engine.analyze(self.board)
-                current_eval = analysis.get("eval_cp")
-                
-                prompt = f"""
-Chess coach: 3 word positional theme for FEN: {fen} (Eval: {current_eval})
-Example: "Closed tactical middlegame"
-Respond ONLY with the theme.
-"""
-                response = self.llm.generate_content(prompt)
+                response = self.llm.generate_content(prompts.theme_prompt(fen, current_eval))
                 theme = response.text.strip().replace('"', '')
                 self._theme_cache[fen_key] = theme
                 return theme
             except Exception as e:
                 if "429" in str(e):
                     self._handle_quota_error(str(e))
-                
-                analysis = self.engine.analyze(self.board)
-                return self._get_basic_theme(analysis.get("eval_cp"))
-        
-        # Fallback: Basic heuristic
-        analysis = self.engine.analyze(self.board)
-        return self._get_basic_theme(analysis.get("eval_cp"))
+
+        return self._get_basic_theme(current_eval)
 
     def _get_eval_text(self, cp: Optional[float]) -> str:
         """Converts centipawns to human-readable chess terms"""

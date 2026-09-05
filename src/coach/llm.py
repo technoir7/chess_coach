@@ -58,13 +58,18 @@ class LLMClient:
     def _fetch_ollama_models(self):
         """Helper to get list of local Ollama models"""
         import requests
+        # Only a missing/unreachable Ollama is expected here; anything else is a
+        # real bug and should surface rather than silently disable local models.
         try:
             response = requests.get(f"{self.ollama_base_url}/api/tags", timeout=1)
-            if response.status_code == 200:
-                data = response.json()
-                return [m["name"] for m in data.get("models", [])]
-        except:
+        except requests.RequestException as e:
+            logger.info(f"No local Ollama at {self.ollama_base_url}: {e}")
             return []
+
+        if response.status_code != 200:
+            logger.warning(f"Ollama returned status {response.status_code}")
+            return []
+        return [m["name"] for m in response.json().get("models", [])]
 
     def _is_ollama_model(self, model_name: str) -> bool:
         """Check if model is likely an Ollama model"""
@@ -115,16 +120,7 @@ class LLMClient:
             "ollama": []
         }
         
-        # Fetch Ollama models
-        import requests
-        try:
-            response = requests.get(f"{self.ollama_base_url}/api/tags", timeout=2)
-            if response.status_code == 200:
-                data = response.json()
-                models["ollama"] = [m["name"] for m in data.get("models", [])]
-        except:
-            logger.warning("Could not fetch Ollama models (is Ollama running?)")
-            
+        models["ollama"] = self._fetch_ollama_models()
         return models
 
     def _call_google_model(self, model_name: str, prompt: str):

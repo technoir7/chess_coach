@@ -56,6 +56,13 @@ class DifficultyLevels(BaseModel):
 
 # --- Truth Packet ---
 class TruthPacket(BaseModel):
+    """Engine-verified facts about a position.
+
+    Everything the coach is allowed to say must be derivable from here - the
+    narration layer gets this and nothing else.
+    """
+    model_config = {"arbitrary_types_allowed": True}
+
     fen: str
     engine_eval: Optional[float]
     multipv_lines: List[Dict] = []
@@ -63,6 +70,8 @@ class TruthPacket(BaseModel):
     opponent_threats: List[str] = []
     game_phase: str = "middlegame"
     chaos_score: float = 0.0
+    vibe_score: Optional[float] = None
+    top_moves_san: List[str] = []
 
 class TruthPacketConfig(BaseModel):
     required_fields: List[str]

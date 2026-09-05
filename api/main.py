@@ -115,14 +115,15 @@ async def explain_position(game_id: str) -> ExplainResponse:
     try:
         session = game_manager.get_game(game_id)
         explanation = session.coach.explain_position()
-        
-        # Get current analysis
-        analysis = session.coach.engine.analyze(session.coach.board)
-        
+
+        # The coach owns its engines and board; ask it for facts rather than
+        # reaching through to them.
+        packet = session.coach.build_truth_packet()
+
         return ExplainResponse(
             explanation=explanation,
-            eval_cp=analysis.get("eval_cp"),
-            top_moves=[str(line.get('pv', [''])[0]) for line in analysis.get('multipv_lines', [])[:3] if line.get('pv')]
+            eval_cp=packet.engine_eval,
+            top_moves=packet.top_moves_san
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -163,17 +164,11 @@ async def offer_draw(game_id: str) -> dict:
     try:
         session = game_manager.get_game(game_id)
         
-        # Simple evaluation-based logic for draw acceptance
-        analysis = session.coach.engine.analyze(session.coach.board)
-        eval_cp = analysis.get("eval_cp", 0)
-        move_count = len(session.coach.board.move_stack)
-        
-        accepted = False
-        # Accept draw if position is dead equal and after opening
-        if abs(eval_cp) < 50 and move_count > 20:
-            accepted = True
+        accepted = session.coach.opponent_accepts_draw()
+        if accepted:
             session.draw_agreed = True
-            
+
+
         return {
             "accepted": accepted,
             "state": session.get_state_dict(),
