@@ -170,6 +170,32 @@ class BerkeleyChaosChessCoach:
         listing += "Black pieces: " + ", ".join(sorted(black_pieces))
         return listing
 
+    def _get_development_status(self) -> str:
+        """State which pieces have left their starting squares.
+
+        The model infers development from the piece listing and gets it
+        backwards, claiming developed bishops and knights on move 1. Stating
+        it as a fact removes the inference.
+        """
+        start = chess.Board()
+        moved = {chess.WHITE: [], chess.BLACK: []}
+
+        for square, original in start.piece_map().items():
+            if original.piece_type == chess.PAWN:
+                continue
+            if self.board.piece_at(square) != original:
+                moved[original.color].append(
+                    f"{chess.piece_name(original.piece_type)} from {chess.square_name(square)}"
+                )
+
+        lines = []
+        for color, label in ((chess.WHITE, "White"), (chess.BLACK, "Black")):
+            if moved[color]:
+                lines.append(f"{label} has moved: " + ", ".join(sorted(moved[color])))
+            else:
+                lines.append(f"{label} has NOT developed any piece - all pieces are on their starting squares.")
+        return "\n".join(lines)
+
     def _get_legal_moves_list(self) -> str:
         """Generate comma-separated list of all legal SAN moves"""
         # Create a temporary board to ensure we get SAN correctly
@@ -184,18 +210,24 @@ class BerkeleyChaosChessCoach:
         """Fetch and format opening info for the prompt"""
         data = self.opening_db.get_opening(fen)
         if not data or not data.get("name"):
-            return "OPENING: Unknown / Custom position"
-            
+            # Never describe the position as unknown or custom: the model reads
+            # that as licence to call a standard opening "unusual".
+            return ("OPENING: Not in the opening book. "
+                    "Do not comment on whether it is common or unusual.")
+
         info = f"OPENING: {data['name']} ({data.get('eco', '')})\n"
-        info += "MASTER MOVES:\n"
-        for m in data.get("moves", [])[:3]:
-            # Calculate percentages
-            total = m["total"]
-            if total > 0:
-                w_pct = int(m["white"] / total * 100)
-                d_pct = int(m["draw"] / total * 100)
-                b_pct = int(m["black"] / total * 100)
-                info += f"- {m['san']}: White {w_pct}%, Draw {d_pct}%, Black {b_pct}% ({total} games)\n"
+
+        moves = data.get("moves", [])[:3]
+        if moves:
+            info += "MASTER MOVES:\n"
+            for m in moves:
+                # Calculate percentages
+                total = m["total"]
+                if total > 0:
+                    w_pct = int(m["white"] / total * 100)
+                    d_pct = int(m["draw"] / total * 100)
+                    b_pct = int(m["black"] / total * 100)
+                    info += f"- {m['san']}: White {w_pct}%, Draw {d_pct}%, Black {b_pct}% ({total} games)\n"
         return info
 
     def explain_position(self) -> str:
@@ -232,6 +264,9 @@ GAME STATE: Move {move_count} - {game_phase} phase
 
 CURRENT POSITION:
 {self._get_piece_listing()}
+
+DEVELOPMENT:
+{self._get_development_status()}
 
 {self._get_opening_info(self.board.fen())}
 
@@ -354,6 +389,9 @@ GAME STATE: Move {move_count} - {game_phase} phase
 
 CURRENT POSITION:
 {self._get_piece_listing()}
+
+DEVELOPMENT:
+{self._get_development_status()}
 
 {self._get_opening_info(self.board.fen())}
 
