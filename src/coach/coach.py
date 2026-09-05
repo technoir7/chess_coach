@@ -5,6 +5,7 @@ from src.models import SystemConfig, TruthPacket, CoachSpeechRules
 from src.coach import prompts
 from src.coach.opening_db import OpeningDB
 from src.coach.threats import detect_threats
+from src.coach import verifier
 from src.engine.stockfish import AnalysisEngine
 from src.engine.leela import IntuitionEngine
 from src.coach.gate import LogicGate
@@ -145,7 +146,10 @@ class BerkeleyChaosChessCoach:
             self._facts_block(packet), self.config.coach_speech_rules
         )
         try:
-            return self.llm.generate_content(prompt).text
+            # Advice that fails verification is dropped entirely rather than
+            # replaced: the gate decided this moment warranted speaking, but
+            # silence beats an invented move mid-game.
+            return self._verified_completion(prompt)
         except Exception as e:
             if "429" in str(e) or "quota" in str(e).lower():
                 self._handle_quota_error(str(e))
@@ -225,19 +229,44 @@ class BerkeleyChaosChessCoach:
 
         try:
             prompt = prompts.explain_prompt(self._facts_block(packet))
-            return self.llm.generate_content(prompt).text
+            verified = self._verified_completion(prompt)
+            if verified is None:
+                return self._offline_summary(packet, "response failed verification")
+            return verified
         except Exception as e:
             print(f"[Coach Debug] Full LLM Error: {type(e).__name__}: {str(e)}")
             if "429" in str(e) or "quota" in str(e).lower():
                 self._handle_quota_error(str(e))
             return self._offline_summary(packet, str(e)[:100])
 
+    def _verified_completion(self, prompt: str, attempts: int = 2) -> Optional[str]:
+        """Generate text and only return it if it survives verification.
+
+        The prompts ask the model not to invent moves; this checks that it
+        actually didn't. A response naming an impossible move is discarded
+        rather than shown, because a confident invention is worse to a learning
+        player than saying less.
+        """
+        for attempt in range(attempts):
+            response = self.llm.generate_content(prompt).text
+            result = verifier.verify(response, self.board)
+            if result.ok:
+                return response
+
+            print(
+                f"[Coach] Rejected response (attempt {attempt + 1}/{attempts}): "
+                f"{'; '.join(result.violations)}"
+            )
+
+        return None
+
     def _offline_summary(self, packet: TruthPacket, reason: str) -> str:
         """Engine-only fallback when the LLM is unavailable."""
         moves = ", ".join(packet.top_moves_san) if packet.top_moves_san else "N/A"
         return (
             f"Coach (Offline): {self._get_eval_text(packet.engine_eval)} "
-            f"({packet.engine_eval}cp). \nBest follows: {moves} \n(Reason: {reason})"
+            f"({prompts.format_eval(packet.engine_eval)}cp). "
+            f"\nBest follows: {moves} \n(Reason: {reason})"
         )
 
     def chat(self, message: str) -> str:
@@ -251,7 +280,10 @@ class BerkeleyChaosChessCoach:
         )
 
         try:
-            return self.llm.generate_content(prompt).text
+            verified = self._verified_completion(prompt)
+            if verified is None:
+                return self._offline_summary(packet, "response failed verification")
+            return verified
         except Exception as e:
             if "429" in str(e):
                 self._handle_quota_error(str(e))
