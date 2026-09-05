@@ -30,7 +30,7 @@ engines:
     purpose: positional_vibe_detection
 
 llm:
-  model: Gemini_2_Flash
+  model: gemma3:12b
   role: explanation_and_critique_only
   constraints:
     - may_only_use_truth_packet

@@ -93,7 +93,7 @@ class LLMClient:
                     "messages": [{"role": "user", "content": prompt}],
                     "stream": False
                 },
-                timeout=30
+                timeout=120
             )
             response.raise_for_status()
             return response.json()["message"]["content"]
