@@ -4,7 +4,6 @@ import os
 import logging
 import concurrent.futures
 from typing import Optional
-from src.models import TruthPacket, CoachSpeechRules
 
 logger = logging.getLogger(__name__)
 
@@ -171,34 +170,3 @@ class LLMClient:
                 continue
         
         raise Exception(f"All models failed. Errors: {'; '.join(errors)}")
-
-    def generate_advice(self, truth_packet: TruthPacket, rules: CoachSpeechRules) -> str:
-        """Generate coaching advice based on truth packet"""
-        # Check if we have ANY capability (client or ollama)
-        # We can't easily check for Ollama availability here without making a request, 
-        # so we let generate_content handle it via exceptions.
-        
-        prompt = self._construct_prompt(truth_packet, rules)
-        
-        try:
-            response = self.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            logger.error(f"Error generating advice: {e}")
-            return f"Coach: I'm having trouble thinking right now. (Error: {str(e)[:50]}...)"
-
-    def _construct_prompt(self, packet: TruthPacket, rules: CoachSpeechRules) -> str:
-        """Construct prompt from truth packet and rules"""
-        return f"""
-        You are a chess coach. 
-        Situation:
-        FEN: {packet.fen}
-        Eval: {packet.engine_eval}
-        Threats: {packet.opponent_threats}
-        
-        Rules:
-        Must: {rules.must}
-        Must Not: {rules.must_not}
-        
-        Give me a short, punchy piece of advice for the player.
-        """

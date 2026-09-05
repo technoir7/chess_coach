@@ -1,53 +1,80 @@
-from typing import List, Optional
+from typing import Optional
+
 from src.models import LogicGateConfig, TruthPacket
 
+
 class LogicGate:
+    """Decides whether an epistemic event justifies speaking at all.
+
+    Silence is the default: a forbid condition vetoes advice outright, and at
+    least one allow condition must fire before the coach says anything.
+    """
+
+    # A swing smaller than this is noise, not an event.
+    EVAL_STABLE_CP = 20
+    # A collapse this large means the player gave something up.
+    EVAL_DROP_CP = 100
+    NULL_MOVE_DROP_CP = 100
+    CHAOS_THRESHOLD = 0.7
+
     def __init__(self, config: LogicGateConfig):
         self.config = config
 
-    def should_advise(self, truth_packet: Optional[TruthPacket], previous_eval: Optional[float] = None) -> bool:
-        """
-        Determines if the coach should provide advice based on the truth packet and logic gate configuration.
-        """
+    def should_advise(
+        self,
+        truth_packet: Optional[TruthPacket],
+        previous_packet: Optional[TruthPacket] = None,
+    ) -> bool:
         if not truth_packet:
-            # Forbid advice if no truth packet (implied by "no_truth_packet" rule)
             return False
-
-        # Check forbidding conditions first
-        if self._check_forbid_conditions(truth_packet, previous_eval):
+        if self._forbidden(truth_packet, previous_packet):
             return False
+        return self._allowed(truth_packet, previous_packet)
 
-        # Check allowing conditions
-        if self._check_allow_conditions(truth_packet, previous_eval):
-            return True
+    @staticmethod
+    def _eval_swing(
+        packet: TruthPacket, previous: Optional[TruthPacket]
+    ) -> Optional[float]:
+        """How much ground the player lost since the previous position.
 
-        return False
+        Engine evaluations are White-relative and the player is White, so a
+        positive result means the player's position got worse. Returns None
+        when either evaluation is unknown, which is not an event either way.
+        """
+        if previous is None or packet.engine_eval is None or previous.engine_eval is None:
+            return None
+        return previous.engine_eval - packet.engine_eval
 
-    def _check_forbid_conditions(self, packet: TruthPacket, previous_eval: Optional[float]) -> bool:
+    def _forbidden(self, packet: TruthPacket, previous: Optional[TruthPacket]) -> bool:
+        swing = self._eval_swing(packet, previous)
+
         for condition in self.config.forbid_advice_if:
             if condition == "eval_stable":
-                # Simplistic check: if eval hasn't changed much (placeholder threshold 20cp)
-                if previous_eval is not None and abs(packet.engine_eval - previous_eval) < 20:
+                if swing is not None and abs(swing) < self.EVAL_STABLE_CP:
                     return True
             elif condition == "no_concrete_threat":
                 if not packet.opponent_threats:
                     return True
         return False
 
-    def _check_allow_conditions(self, packet: TruthPacket, previous_eval: Optional[float]) -> bool:
+    def _allowed(self, packet: TruthPacket, previous: Optional[TruthPacket]) -> bool:
+        swing = self._eval_swing(packet, previous)
+
         for condition in self.config.advice_allowed_if_any:
             if condition == "eval_drop_exceeds_threshold":
-                # Placeholder threshold: 100cp
-                if previous_eval is not None and (previous_eval - packet.engine_eval) > 100:
+                if swing is not None and swing > self.EVAL_DROP_CP:
                     return True
             elif condition == "null_move_fails":
-                # If null move result is significantly worse than current eval
-                if packet.null_move_result is not None and (packet.engine_eval - packet.null_move_result) > 100:
+                if (
+                    packet.null_move_result is not None
+                    and packet.engine_eval is not None
+                    and (packet.engine_eval - packet.null_move_result) > self.NULL_MOVE_DROP_CP
+                ):
                     return True
             elif condition == "phase_transition_detected":
-                # This would typically be a state change flag passed in or detected
-                pass 
+                if previous is not None and previous.game_phase != packet.game_phase:
+                    return True
             elif condition == "chaos_score_exceeds_threshold":
-                if packet.chaos_score > 0.7: # Placeholder threshold
+                if packet.chaos_score > self.CHAOS_THRESHOLD:
                     return True
         return False

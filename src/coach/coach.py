@@ -4,6 +4,7 @@ from typing import Optional, Dict, List
 from src.models import SystemConfig, TruthPacket, CoachSpeechRules
 from src.coach import prompts
 from src.coach.opening_db import OpeningDB
+from src.coach.threats import detect_threats
 from src.engine.stockfish import AnalysisEngine
 from src.engine.leela import IntuitionEngine
 from src.coach.gate import LogicGate
@@ -45,6 +46,7 @@ class BerkeleyChaosChessCoach:
         self.opponent = OpponentPolicy(self.engine, difficulty="club")  # Default to club level
         self.board = chess.Board()
         self.previous_eval: Optional[float] = None
+        self._previous_packet: Optional[TruthPacket] = None
         self.player_color = chess.WHITE  # User plays White by default
         self._theme_cache = {}  # Cache for position themes to save API quota
         self._last_quota_error = 0  # Timestamp of last 429 error
@@ -88,9 +90,10 @@ class BerkeleyChaosChessCoach:
 
         # 4. Logic Gate
         advice = None
-        if self.gate.should_advise(packet, self.previous_eval):
-            advice = self.llm.generate_advice(packet, self.config.coach_speech_rules)
+        if self.gate.should_advise(packet, self._previous_packet):
+            advice = self._generate_advice(packet)
 
+        self._previous_packet = packet
         self.previous_eval = current_eval
         
         result = {
@@ -133,6 +136,21 @@ class BerkeleyChaosChessCoach:
         """Reset the LLM cooldown"""
         self._last_quota_error = 0
 
+    def _generate_advice(self, packet: TruthPacket) -> Optional[str]:
+        """Short in-game advice, grounded in the packet the gate just approved."""
+        if not self._check_llm_available():
+            return None
+
+        prompt = prompts.advice_prompt(
+            self._facts_block(packet), self.config.coach_speech_rules
+        )
+        try:
+            return self.llm.generate_content(prompt).text
+        except Exception as e:
+            if "429" in str(e) or "quota" in str(e).lower():
+                self._handle_quota_error(str(e))
+            return None
+
     def opponent_accepts_draw(self) -> bool:
         """Whether the opponent accepts a draw in the current position."""
         return self.opponent.accepts_draw(self.board)
@@ -150,7 +168,7 @@ class BerkeleyChaosChessCoach:
             fen=self.board.fen(),
             engine_eval=analysis.get("eval_cp"),
             multipv_lines=analysis.get("multipv_lines", []),
-            opponent_threats=[],  # TODO: Implement threat detection
+            opponent_threats=detect_threats(self.board, self.player_color),
             chaos_score=0.0,  # TODO: Implement Chaos metric
             game_phase=prompts.game_phase(self.board),
             vibe_score=vibe.get("vibe_score"),
