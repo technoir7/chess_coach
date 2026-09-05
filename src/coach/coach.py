@@ -268,7 +268,9 @@ class BerkeleyChaosChessCoach:
             return self._offline_summary(packet, reason)
 
         try:
-            prompt = prompts.explain_prompt(self._facts_block(packet))
+            prompt = prompts.explain_prompt(
+                self._facts_block(packet), prompts.recent_moves(self.board)
+            )
             verified = self._verified_completion(prompt, packet)
             if verified is None:
                 return self._offline_summary(packet, "response failed verification")

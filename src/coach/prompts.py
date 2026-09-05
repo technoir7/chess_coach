@@ -58,22 +58,36 @@ def piece_listing(board: chess.Board) -> str:
 
 
 def development_status(board: chess.Board) -> str:
-    """Which non-pawn pieces have left their starting squares."""
-    start = chess.Board()
-    moved = {chess.WHITE: [], chess.BLACK: []}
+    """Which non-pawn pieces are off their starting squares, and where they are.
 
-    for square, original in start.piece_map().items():
-        if original.piece_type == chess.PAWN:
+    Naming the square a piece now occupies matters: an earlier version reported
+    only the square a piece had left ("knight from g1"), and the model filled in
+    the destination itself - claiming White had played Nc3 in a game where it
+    had played Nf3.
+    """
+    start_squares = {
+        (piece.piece_type, piece.color): set()
+        for piece in chess.Board().piece_map().values()
+    }
+    for square, piece in chess.Board().piece_map().items():
+        start_squares[(piece.piece_type, piece.color)].add(square)
+
+    developed = {chess.WHITE: [], chess.BLACK: []}
+
+    for square, piece in board.piece_map().items():
+        if piece.piece_type == chess.PAWN:
             continue
-        if board.piece_at(square) != original:
-            moved[original.color].append(
-                f"{chess.piece_name(original.piece_type)} from {chess.square_name(square)}"
+        if square not in start_squares.get((piece.piece_type, piece.color), set()):
+            developed[piece.color].append(
+                f"{chess.piece_name(piece.piece_type).capitalize()} on "
+                f"{chess.square_name(square)}"
             )
 
     lines = []
     for color, label in ((chess.WHITE, "White"), (chess.BLACK, "Black")):
-        if moved[color]:
-            lines.append(f"{label} has moved: " + ", ".join(sorted(moved[color])))
+        if developed[color]:
+            lines.append(f"{label} pieces off their starting squares: "
+                         + ", ".join(sorted(developed[color])))
         else:
             lines.append(
                 f"{label} has NOT developed any piece - all pieces are on their starting squares."
@@ -92,10 +106,16 @@ def game_phase(board: chess.Board) -> str:
     return "Middlegame" if move_count < 40 else "Endgame"
 
 
-def recent_moves(board: chess.Board, limit: int = 10) -> str:
-    """Move history in SAN with correct numbering, most recent `limit` plies."""
+def recent_moves(board: chess.Board, limit: int = 30) -> str:
+    """Move history in SAN with correct numbering, most recent `limit` plies.
+
+    Truncation is stated explicitly - the prompt tells the model this is the
+    whole game, so a silently clipped history would make that a lie.
+    """
     if not board.move_stack:
         return "Game just started"
+
+    truncated = len(board.move_stack) > limit
 
     replay = board.copy()
     moves = [replay.pop() for _ in range(min(limit, len(board.move_stack)))]
@@ -115,6 +135,8 @@ def recent_moves(board: chess.Board, limit: int = 10) -> str:
 
     if current:
         lines.append(current)
+    if truncated:
+        lines.insert(0, "(earlier moves omitted)")
     return "\n".join(lines)
 
 
@@ -181,10 +203,18 @@ Top Moves: {', '.join(packet.top_moves_san) if packet.top_moves_san else 'N/A'}
 {EVALUATION_SCALE}"""
 
 
-def explain_prompt(facts: str) -> str:
+def explain_prompt(facts: str, history: str) -> str:
+    """Explanation of the current position.
+
+    The move history is included because without it the model invents one -
+    it described a move White had never played when given only the position.
+    """
     return f"""You are a chess coach analyzing this position.
 
 {facts}
+
+MOVES PLAYED SO FAR (this is the complete game - no other move has been played):
+{history}
 
 {GROUNDING_RULES}
 
@@ -197,7 +227,7 @@ def chat_prompt(facts: str, history: str, question: str) -> str:
 
 {facts}
 
-RECENT MOVES:
+MOVES PLAYED SO FAR (this is the complete game - no other move has been played):
 {history}
 
 User's Question: {question}

@@ -24,13 +24,22 @@ class TestDevelopmentStatus:
         assert "White has NOT developed any piece" in status
         assert "Black has NOT developed any piece" in status
 
-    def test_reports_a_developed_knight(self):
+    def test_names_the_square_a_piece_now_occupies(self):
+        """The regression: reporting only the square a piece LEFT ("knight from
+        g1") let the model invent the destination - it claimed White had played
+        Nc3 in a game where it had played Nf3."""
         status = prompts.development_status(board_after("e4", "c5", "Nf3"))
-        assert "White has moved: knight from g1" in status
+        assert "Knight on f3" in status
+        assert "c3" not in status
         assert "Black has NOT developed any piece" in status
 
     def test_pawn_moves_are_not_development(self):
         assert "White has NOT developed" in prompts.development_status(board_after("e4"))
+
+    def test_reports_both_sides(self):
+        status = prompts.development_status(board_after("e4", "c5", "Nf3", "Nc6"))
+        assert "Knight on f3" in status
+        assert "Knight on c6" in status
 
 
 class TestLegalMoves:
@@ -63,6 +72,32 @@ class TestRecentMoves:
 
     def test_numbers_moves_in_pairs(self):
         assert prompts.recent_moves(board_after("e4", "c5", "Nf3")) == "1. e4 c5\n2. Nf3"
+
+    def test_truncation_is_declared(self):
+        """The prompt calls this the complete game, so a silent clip would lie."""
+        board = board_after("e4", "c5", "Nf3", "Nc6")
+        assert "(earlier moves omitted)" in prompts.recent_moves(board, limit=2)
+
+    def test_short_history_is_not_marked_truncated(self):
+        board = board_after("e4", "c5")
+        assert "omitted" not in prompts.recent_moves(board)
+
+
+class TestHistoryReachesEveryPrompt:
+    def test_explain_prompt_carries_the_move_history(self):
+        """The regression: explain got no history at all, so the model invented
+        one - describing a move that had never been played."""
+        board = board_after("e4", "c5", "Nf3", "Nc6", "d4", "d6")
+        facts = prompts.position_facts(board, packet(), "")
+        text = prompts.explain_prompt(facts, prompts.recent_moves(board))
+        assert "1. e4 c5" in text
+        assert "3. d4 d6" in text
+
+    def test_chat_prompt_carries_the_move_history(self):
+        board = board_after("e4", "c5")
+        facts = prompts.position_facts(board, packet(), "")
+        text = prompts.chat_prompt(facts, prompts.recent_moves(board), "why?")
+        assert "1. e4 c5" in text
 
 
 class TestGamePhase:
@@ -131,7 +166,7 @@ class TestPromptAssembly:
         facts = prompts.position_facts(
             chess.Board(), packet(), "OPENING: Not in the opening book."
         )
-        for text in (prompts.explain_prompt(facts),
+        for text in (prompts.explain_prompt(facts, "Game just started"),
                      prompts.chat_prompt(facts, "Game just started", "why?")):
             assert "QUOTE LINES, NEVER CALCULATE THEM" in text
             assert "LEGAL MOVES CHECK" in text
