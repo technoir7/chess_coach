@@ -110,6 +110,61 @@ class TestQuotingEngineLines:
         assert verifier.find_illegal_moves("Then Nxd4 follows.", SICILIAN) == ["Nxd4"]
 
 
+D6_LINES = [
+    ["d5", "Nb8", "h4", "h5", "Bb5+", "Bd7", "Be2", "g6"],
+    ["dxc5", "Nf6", "Nc3", "Qa5", "Nd2", "Qxc5", "Nb3", "Qb6"],
+]
+D6_BOARD = board_after("e4", "c5", "Nf3", "Nc6", "d4", "d6")
+
+
+class TestCheckClaims:
+    def test_calling_a_real_check_a_check_is_fine(self):
+        text = "Bb5+ is check, and Black blocks with Bd7."
+        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == []
+
+    def test_calling_a_quiet_move_a_check_is_caught(self):
+        text = "Then Be2 gives check and Black must respond."
+        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == ["Be2"]
+
+    def test_prose_about_checks_without_a_move_is_ignored(self):
+        text = "White should look for checks in this position."
+        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == []
+
+
+class TestExchangeClaims:
+    def test_claiming_a_queen_trade_that_never_happens_is_caught(self):
+        """Verbatim from a real run: this line was described as leading to
+        'exchanges of Queens'. The black queen moves; none is captured."""
+        text = "This leads to exchanges of Queens and a simpler position."
+        assert verifier.find_false_exchange_claims(text, D6_BOARD, D6_LINES) == ["queen"]
+
+    def test_a_real_pawn_exchange_is_allowed(self):
+        text = "White trades pawns with dxc5."
+        assert verifier.find_false_exchange_claims(text, D6_BOARD, D6_LINES) == []
+
+    def test_phrasing_with_the_piece_first_is_caught(self):
+        text = "The rooks are exchanged shortly after."
+        assert verifier.find_false_exchange_claims(text, D6_BOARD, D6_LINES) == ["rook"]
+
+
+class TestAttackClaims:
+    def test_a_checking_move_does_not_attack_a_bishop(self):
+        """Verbatim from a real run: Bb5+ gives check, so it bears on the king.
+        The coach called it an attack on the Black Bishop."""
+        text = "White plays Bb5+, attacking the Black Bishop."
+        assert verifier.find_false_attack_claims(text, D6_BOARD, D6_LINES) == [
+            "Bb5 does not attack a bishop"
+        ]
+
+    def test_a_true_attack_claim_passes(self):
+        text = "Bb5+ is strong, attacking the king directly."
+        assert verifier.find_false_attack_claims(text, D6_BOARD, D6_LINES) == []
+
+    def test_attack_talk_without_a_move_is_ignored(self):
+        text = "White should look to attack the king side."
+        assert verifier.find_false_attack_claims(text, D6_BOARD, D6_LINES) == []
+
+
 class TestVerify:
     def test_clean_response_passes(self):
         result = verifier.verify("Nf3 is the engine's choice.", SICILIAN)

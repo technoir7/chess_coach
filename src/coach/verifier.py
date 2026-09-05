@@ -17,6 +17,8 @@ from typing import List, Optional, Sequence
 
 import chess
 
+from src.coach import line_facts
+
 # Piece moves, pawn captures and castling are unambiguous claims about a move.
 #
 # Bare pawn pushes ("e4") are deliberately NOT matched: they are spelled exactly
@@ -148,6 +150,133 @@ def find_unsanctioned_lines(
     return unsanctioned
 
 
+# "check" attributed to a specific move, e.g. "Bb5+ gives check" or "Nf3, check".
+_CHECK_CLAIM = re.compile(
+    rf"\b({_MOVE})[+#]?[^.;\n]{{0,40}}?\b(?:is|gives|delivers|with|,)\s*(?:a\s+)?check\b",
+    re.IGNORECASE,
+)
+
+# A claimed exchange of a named piece: "exchange of queens", "trading rooks".
+_EXCHANGE_CLAIM = re.compile(
+    r"\b(?:exchange|exchanges|exchanged|trade|trades|traded|trading|swap|swapped)\b"
+    r"[^.;\n]{0,30}?\b(queen|rook|bishop|knight|pawn)s?\b",
+    re.IGNORECASE,
+)
+_EXCHANGE_CLAIM_REVERSED = re.compile(
+    r"\b(queen|rook|bishop|knight|pawn)s?\b[^.;\n]{0,20}?"
+    r"\b(?:are|is|get|gets|being)?\s*"
+    r"(?:exchange|exchanges|exchanged|trade|trades|traded|trading|swap|swapped)\b",
+    re.IGNORECASE,
+)
+
+
+def _line_facts(board: chess.Board, sanctioned_lines: Sequence[Sequence[str]]):
+    return [line_facts.describe(board, line) for line in sanctioned_lines]
+
+
+def find_false_check_claims(
+    text: str,
+    board: chess.Board,
+    sanctioned_lines: Optional[Sequence[Sequence[str]]] = None,
+) -> List[str]:
+    """Moves the text calls a check that do not give check anywhere.
+
+    Whether a move is check is settled by the board, so a wrong claim is a
+    plain falsehood rather than a matter of interpretation.
+    """
+    checking = set()
+    for facts in _line_facts(board, sanctioned_lines or []):
+        checking |= {_normalise(san) for san in facts.checking_moves()}
+
+    # A move that gives check from the current position counts too.
+    for move in board.legal_moves:
+        replay = board.copy()
+        san = replay.san(move)
+        replay.push(move)
+        if replay.is_check():
+            checking.add(_normalise(san))
+
+    false_claims = []
+    for match in _CHECK_CLAIM.finditer(text):
+        claimed = _normalise(match.group(1))
+        if claimed not in checking and claimed not in false_claims:
+            false_claims.append(claimed)
+    return false_claims
+
+
+def find_false_exchange_claims(
+    text: str,
+    board: chess.Board,
+    sanctioned_lines: Optional[Sequence[Sequence[str]]] = None,
+) -> List[str]:
+    """Piece types the text says are traded but which nothing ever captures.
+
+    The coach said a line "leads to exchanges of Queens" in a line where the
+    black queen simply moved about and no queen was ever taken.
+    """
+    exchanged = set()
+    for facts in _line_facts(board, sanctioned_lines or []):
+        exchanged |= facts.captured_types
+
+    claimed = set()
+    for pattern in (_EXCHANGE_CLAIM, _EXCHANGE_CLAIM_REVERSED):
+        for match in pattern.finditer(text):
+            claimed.add(match.group(1).lower())
+
+    return sorted(claimed - exchanged)
+
+
+# "Bb5+, attacking the Black Bishop" - a move said to bear on a named piece.
+_ATTACK_CLAIM = re.compile(
+    rf"\b({_MOVE})[+#]?[^.;\n]{{0,40}}?\battack(?:s|ing|ed)?\b[^.;\n]{{0,25}}?"
+    r"\b(king|queen|rook|bishop|knight|pawn)\b",
+    re.IGNORECASE,
+)
+
+
+def find_false_attack_claims(
+    text: str,
+    board: chess.Board,
+    sanctioned_lines: Optional[Sequence[Sequence[str]]] = None,
+) -> List[str]:
+    """Moves said to attack a piece type they do not bear on.
+
+    What a piece attacks from a square is fixed by the rules, so this settles
+    claims like "Bb5+, attacking the Black Bishop" - that move gives check, so
+    it attacks the king and nothing else of note.
+    """
+    attacks_by_move = {}
+    for facts in _line_facts(board, sanctioned_lines or []):
+        for fact in facts.moves:
+            attacks_by_move.setdefault(_normalise(fact.san), set()).update(fact.attacks)
+
+    # Moves available right now count too, played from the current position.
+    for move in board.legal_moves:
+        replay = board.copy()
+        san = _normalise(replay.san(move))
+        replay.push(move)
+        targets = set()
+        for square in replay.attacks(move.to_square):
+            piece = replay.piece_at(square)
+            if piece is not None and piece.color != (not replay.turn):
+                targets.add(chess.piece_name(piece.piece_type))
+        attacks_by_move.setdefault(san, set()).update(targets)
+
+    false_claims = []
+    for match in _ATTACK_CLAIM.finditer(text):
+        claimed_move = _normalise(match.group(1))
+        claimed_target = match.group(2).lower()
+
+        known = attacks_by_move.get(claimed_move)
+        if known is None:
+            continue  # not a move we can place; the move checks catch inventions
+
+        entry = f"{claimed_move} does not attack a {claimed_target}"
+        if claimed_target not in known and entry not in false_claims:
+            false_claims.append(entry)
+    return false_claims
+
+
 def verify(
     text: str,
     board: chess.Board,
@@ -161,5 +290,14 @@ def verify(
 
     for line in find_unsanctioned_lines(text, sanctioned_lines):
         violations.append(f"gave a line the engine did not search: {line}")
+
+    for move in find_false_check_claims(text, board, sanctioned_lines):
+        violations.append(f"called a move a check when it is not: {move}")
+
+    for piece in find_false_exchange_claims(text, board, sanctioned_lines):
+        violations.append(f"claimed an exchange of {piece}s that never happens")
+
+    for claim in find_false_attack_claims(text, board, sanctioned_lines):
+        violations.append(claim)
 
     return VerificationResult(ok=not violations, violations=violations)

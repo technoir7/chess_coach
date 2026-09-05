@@ -10,6 +10,7 @@ from typing import List, Optional
 import chess
 
 from src.models import CoachSpeechRules, TruthPacket
+from src.coach import line_facts
 
 # Small local models infer development from coordinates badly - they claimed
 # developed bishops on move 1 - so the facts below are stated rather than implied.
@@ -197,6 +198,10 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
             f"- after {line.move_san} ({format_eval(line.eval_cp)}cp): "
             f"{numbered_line(line.line_san, board)}"
         )
+        # Stated rather than left to inference: the model has described a
+        # checking move as an attack on a piece, and claimed queens were
+        # exchanged in a line where nothing was captured.
+        rendered.append(f"    FACTS: {line_facts.describe(board, line.line_san).summary()}")
     return "\n".join(rendered)
 
 
