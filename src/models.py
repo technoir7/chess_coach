@@ -55,6 +55,18 @@ class DifficultyLevels(BaseModel):
     engine: DifficultyLevel
 
 # --- Truth Packet ---
+class CandidateLine(BaseModel):
+    """One continuation the engine actually searched, in SAN.
+
+    The engine returns a full principal variation per candidate move. Keeping
+    it means the coach can answer "what happens after Nf3?" by quoting search
+    output rather than refusing - or worse, calculating.
+    """
+    move_san: str
+    eval_cp: Optional[float] = None
+    line_san: List[str] = []
+
+
 class TruthPacket(BaseModel):
     """Engine-verified facts about a position.
 
@@ -72,6 +84,7 @@ class TruthPacket(BaseModel):
     chaos_score: float = 0.0
     vibe_score: Optional[float] = None
     top_moves_san: List[str] = []
+    candidate_lines: List[CandidateLine] = []
 
 class TruthPacketConfig(BaseModel):
     required_fields: List[str]

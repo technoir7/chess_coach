@@ -26,12 +26,16 @@ GROUNDING_RULES = """INSTRUCTIONS:
 3. LEGAL MOVES CHECK: You MUST NOT suggest any move for the current player that is NOT in the "LEGAL MOVES" list above.
    - If a move you want to suggest is not in that list, IT IS ILLEGAL (e.g. piece is pinned).
    - Do NOT say "Black can capture..." if the capture is not in the legal moves list.
-4. CRITICAL - NO CALCULATING VARIATIONS:
-   - You CANNOT calculate multi-move sequences yourself. You will hallucinate.
-   - Do NOT write lines like "1. Bxb5 Qxb5 2. Bxd7+ Kxd7 3. Qxc7+" - you WILL get this wrong.
-   - ONLY mention the engine's "Top Moves" above. Do NOT invent follow-up moves.
-   - If asked "what happens after X?", say "I recommend checking the engine analysis for that line."
-   - Focus on describing the CURRENT position, themes, and piece activity."""
+4. CRITICAL - QUOTE LINES, NEVER CALCULATE THEM:
+   - You CANNOT work out a sequence of moves yourself. You WILL hallucinate.
+   - The ENGINE LINES above were searched by the engine. They are the ONLY
+     sequences you may give. Quote them exactly, in the order shown.
+   - You may quote part of a line, but you must NOT reorder it, extend it past
+     where it ends, or join moves from two different lines together.
+   - If asked "what happens after X?", quote the line that begins with X and
+     explain it in words. If no line above begins with X, say that the engine
+     did not search that continuation - do NOT work it out yourself.
+   - Explaining WHY a quoted line makes sense is welcome. Adding moves to it is not."""
 
 PIECE_NAMES = {
     "P": "Pawn", "N": "Knight", "B": "Bishop",
@@ -119,6 +123,36 @@ def format_eval(eval_cp: Optional[float]) -> str:
     return "unknown" if eval_cp is None else str(int(eval_cp))
 
 
+def numbered_line(line_san: List[str], board: chess.Board) -> str:
+    """Render a SAN sequence with correct move numbers from this position."""
+    number = board.fullmove_number
+    white_to_move = board.turn == chess.WHITE
+
+    parts = []
+    for index, san in enumerate(line_san):
+        if white_to_move:
+            parts.append(f"{number}. {san}")
+        else:
+            parts.append(san if index else f"{number}... {san}")
+            number += 1
+        white_to_move = not white_to_move
+    return " ".join(parts)
+
+
+def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
+    """The continuations the engine actually searched, quotable verbatim."""
+    if not packet.candidate_lines:
+        return "ENGINE LINES: none available - do not give any move sequence."
+
+    rendered = ["ENGINE LINES (searched by the engine - the ONLY sequences you may quote):"]
+    for line in packet.candidate_lines:
+        rendered.append(
+            f"- after {line.move_san} ({format_eval(line.eval_cp)}cp): "
+            f"{numbered_line(line.line_san, board)}"
+        )
+    return "\n".join(rendered)
+
+
 def position_facts(board: chess.Board, packet: TruthPacket, opening_info: str) -> str:
     """The verified-facts block shared by every coach prompt.
 
@@ -141,6 +175,8 @@ LEGAL MOVES (STRICTLY ENFORCED):
 Stockfish Evaluation: {format_eval(packet.engine_eval)} centipawns
 Leela Vibe Score: {packet.vibe_score if packet.vibe_score is not None else 'N/A'}
 Top Moves: {', '.join(packet.top_moves_san) if packet.top_moves_san else 'N/A'}
+
+{engine_lines(packet, board)}
 
 {EVALUATION_SCALE}"""
 

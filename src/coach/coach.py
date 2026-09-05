@@ -1,7 +1,7 @@
 import chess
 import os
 from typing import Optional, Dict, List
-from src.models import SystemConfig, TruthPacket, CoachSpeechRules
+from src.models import SystemConfig, TruthPacket, CoachSpeechRules, CandidateLine
 from src.coach import prompts
 from src.coach.opening_db import OpeningDB
 from src.coach.threats import detect_threats
@@ -48,6 +48,7 @@ class BerkeleyChaosChessCoach:
         self.board = chess.Board()
         self.previous_eval: Optional[float] = None
         self._previous_packet: Optional[TruthPacket] = None
+        self._packet_cache: Optional[TruthPacket] = None
         self.player_color = chess.WHITE  # User plays White by default
         self._theme_cache = {}  # Cache for position themes to save API quota
         self._last_quota_error = 0  # Timestamp of last 429 error
@@ -149,7 +150,7 @@ class BerkeleyChaosChessCoach:
             # Advice that fails verification is dropped entirely rather than
             # replaced: the gate decided this moment warranted speaking, but
             # silence beats an invented move mid-game.
-            return self._verified_completion(prompt)
+            return self._verified_completion(prompt, packet)
         except Exception as e:
             if "429" in str(e) or "quota" in str(e).lower():
                 self._handle_quota_error(str(e))
@@ -164,30 +165,69 @@ class BerkeleyChaosChessCoach:
 
         This is the only place engine output enters the coach, so everything
         downstream - the logic gate and every prompt - reads the same facts.
+
+        Cached per position. The engine is free to return a different principal
+        variation each time it searches, so without this a follow-up question
+        would be answered against different lines than the ones the player was
+        just shown - and every chat message would pay for a fresh deep search.
         """
+        fen = self.board.fen()
+        if self._packet_cache is not None and self._packet_cache.fen == fen:
+            return self._packet_cache
+
         analysis = self.engine.analyze(self.board)
         vibe = self.intuition_engine.get_vibe(self.board)
+        candidate_lines = self._candidate_lines(analysis)
 
-        return TruthPacket(
-            fen=self.board.fen(),
+        self._packet_cache = TruthPacket(
+            fen=fen,
             engine_eval=analysis.get("eval_cp"),
             multipv_lines=analysis.get("multipv_lines", []),
             opponent_threats=detect_threats(self.board, self.player_color),
             chaos_score=0.0,  # TODO: Implement Chaos metric
             game_phase=prompts.game_phase(self.board),
             vibe_score=vibe.get("vibe_score"),
-            top_moves_san=self._top_moves_san(analysis),
+            top_moves_san=[line.move_san for line in candidate_lines],
+            candidate_lines=candidate_lines,
         )
+        return self._packet_cache
+
+    # Deep enough to answer "what happens after this move?", short enough that
+    # three of them do not crowd out the rest of the prompt.
+    LINE_PLIES = 8
 
     def _top_moves_san(self, analysis: Dict) -> List[str]:
         """Convert the engine's principal variations to SAN."""
-        moves = []
-        for line in analysis.get("multipv_lines", [])[:3]:
-            pv = line.get("pv")
-            if pv:
-                board = self.board.copy()
-                moves.append(board.san(board.parse_uci(str(pv[0]))))
-        return moves
+        return [line.move_san for line in self._candidate_lines(analysis)]
+
+    def _candidate_lines(self, analysis: Dict) -> List[CandidateLine]:
+        """Render each searched principal variation into SAN.
+
+        The engine returns the whole line; keeping it is what lets the coach
+        answer questions about a continuation by quoting the search instead of
+        refusing or, worse, calculating.
+        """
+        lines = []
+        for info in analysis.get("multipv_lines", [])[:3]:
+            pv = info.get("pv")
+            if not pv:
+                continue
+
+            board = self.board.copy()
+            san = []
+            for move in pv[: self.LINE_PLIES]:
+                san.append(board.san(move))
+                board.push(move)
+
+            score = info.get("score")
+            lines.append(
+                CandidateLine(
+                    move_san=san[0],
+                    eval_cp=score.white().score(mate_score=10000) if score else None,
+                    line_san=san,
+                )
+            )
+        return lines
 
     def _facts_block(self, packet: TruthPacket) -> str:
         """Render a packet into the prompt's verified-facts section."""
@@ -229,7 +269,7 @@ class BerkeleyChaosChessCoach:
 
         try:
             prompt = prompts.explain_prompt(self._facts_block(packet))
-            verified = self._verified_completion(prompt)
+            verified = self._verified_completion(prompt, packet)
             if verified is None:
                 return self._offline_summary(packet, "response failed verification")
             return verified
@@ -239,17 +279,24 @@ class BerkeleyChaosChessCoach:
                 self._handle_quota_error(str(e))
             return self._offline_summary(packet, str(e)[:100])
 
-    def _verified_completion(self, prompt: str, attempts: int = 2) -> Optional[str]:
+    def _verified_completion(
+        self, prompt: str, packet: TruthPacket, attempts: int = 2
+    ) -> Optional[str]:
         """Generate text and only return it if it survives verification.
 
         The prompts ask the model not to invent moves; this checks that it
         actually didn't. A response naming an impossible move is discarded
         rather than shown, because a confident invention is worse to a learning
         player than saying less.
+
+        The engine's own lines are passed through as sanctioned, so quoting the
+        search is allowed while reordering or extending it is not.
         """
+        sanctioned = [line.line_san for line in packet.candidate_lines]
+
         for attempt in range(attempts):
             response = self.llm.generate_content(prompt).text
-            result = verifier.verify(response, self.board)
+            result = verifier.verify(response, self.board, sanctioned_lines=sanctioned)
             if result.ok:
                 return response
 
@@ -280,7 +327,7 @@ class BerkeleyChaosChessCoach:
         )
 
         try:
-            verified = self._verified_completion(prompt)
+            verified = self._verified_completion(prompt, packet)
             if verified is None:
                 return self._offline_summary(packet, "response failed verification")
             return verified

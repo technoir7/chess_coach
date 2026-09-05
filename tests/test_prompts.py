@@ -1,7 +1,7 @@
 import chess
 
 from src.coach import prompts
-from src.models import CoachSpeechRules, TruthPacket
+from src.models import CandidateLine, CoachSpeechRules, TruthPacket
 
 
 def board_after(*sans: str) -> chess.Board:
@@ -70,6 +70,46 @@ class TestGamePhase:
         assert prompts.game_phase(board_after("e4", "c5")) == "Opening"
 
 
+class TestEngineLines:
+    def test_renders_a_line_with_move_numbers(self):
+        board = board_after("e4", "c5")
+        text = prompts.engine_lines(
+            packet(candidate_lines=[
+                CandidateLine(move_san="Nf3", eval_cp=35,
+                              line_san=["Nf3", "Nc6", "d4", "cxd4"]),
+            ]),
+            board,
+        )
+        assert "after Nf3 (35cp)" in text
+        assert "2. Nf3 Nc6 3. d4 cxd4" in text
+
+    def test_numbers_correctly_when_black_is_to_move(self):
+        board = board_after("e4")
+        text = prompts.engine_lines(
+            packet(candidate_lines=[
+                CandidateLine(move_san="c5", line_san=["c5", "Nf3"]),
+            ]),
+            board,
+        )
+        assert "1... c5 2. Nf3" in text
+
+    def test_says_so_when_there_is_nothing_to_quote(self):
+        text = prompts.engine_lines(packet(), chess.Board())
+        assert "none available" in text
+        assert "do not give any move sequence" in text
+
+    def test_lines_reach_the_facts_block(self):
+        facts = prompts.position_facts(
+            board_after("e4", "c5"),
+            packet(candidate_lines=[
+                CandidateLine(move_san="Nf3", eval_cp=35, line_san=["Nf3", "Nc6"]),
+            ]),
+            "",
+        )
+        assert "ENGINE LINES" in facts
+        assert "2. Nf3 Nc6" in facts
+
+
 class TestPromptAssembly:
     def test_facts_block_carries_the_grounding_data(self):
         facts = prompts.position_facts(
@@ -93,7 +133,7 @@ class TestPromptAssembly:
         )
         for text in (prompts.explain_prompt(facts),
                      prompts.chat_prompt(facts, "Game just started", "why?")):
-            assert "NO CALCULATING VARIATIONS" in text
+            assert "QUOTE LINES, NEVER CALCULATE THEM" in text
             assert "LEGAL MOVES CHECK" in text
 
     def test_advice_prompt_is_grounded_like_the_others(self):
@@ -105,7 +145,7 @@ class TestPromptAssembly:
         text = prompts.advice_prompt(
             prompts.position_facts(chess.Board(), packet(), ""), rules
         )
-        assert "NO CALCULATING VARIATIONS" in text
+        assert "QUOTE LINES, NEVER CALCULATE THEM" in text
         assert "LEGAL MOVES CHECK" in text
         assert "reference_concrete_engine_fact" in text
         assert "invent_alternatives" in text
