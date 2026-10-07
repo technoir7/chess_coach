@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from api.models import MoveRequest, GameState, ExplainResponse, ChatRequest, OpponentSettings
 from api.game_manager import GameManager
 
-app = FastAPI(title="BerkeleyChaosChessCoach API")
+app = FastAPI(title="ChessCoach API")
 
 # CORS configuration for local development
 app.add_middleware(
@@ -42,7 +42,7 @@ async def root():
     index_path = os.path.join(web_dir, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    return {"message": "BerkeleyChaosChessCoach API", "docs": "/docs"}
+    return {"message": "ChessCoach API", "docs": "/docs"}
 
 @app.post("/api/game/new")
 async def create_game() -> dict:

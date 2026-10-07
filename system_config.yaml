@@ -1,5 +1,5 @@
 system:
-  name: BerkeleyChaosChessCoach
+  name: ChessCoach
   version: 0.4
   philosophy:
     - logic_gated_ai

@@ -1,17 +1,17 @@
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.panel import Panel
-from src.coach.coach import BerkeleyChaosChessCoach
+from src.coach.coach import ChessCoach
 import sys
 
 console = Console()
 
 class ChessCLI:
-    def __init__(self, coach: BerkeleyChaosChessCoach):
+    def __init__(self, coach: ChessCoach):
         self.coach = coach
 
     def run(self):
-        console.print(Panel.fit("Berkeley Chaos Chess Coach", style="bold magenta"))
+        console.print(Panel.fit("Chess Coach", style="bold magenta"))
         
         try:
             self.coach.start()

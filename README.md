@@ -4,9 +4,9 @@
 
 > **A working reference implementation of truth-invariant, logic-gated LLM explanations grounded in external verification.**
 
-Berkeley Chaos is a technical demonstration of **Truth-Invariant AI**: an architectural approach to eliminating hallucinations in complex explanations by strictly decoupling **calculation**, **verification**, and **narration**.
+Chess Coach is a technical demonstration of **Truth-Invariant AI**: an architectural approach to eliminating hallucinations in complex explanations by strictly decoupling **calculation**, **verification**, and **narration**.
 
-Rather than allowing a language model to reason freely, Berkeley Chaos binds all explanations to externally verified ground truth and enforces silence unless a genuine epistemic event has occurred.
+Rather than allowing a language model to reason freely, Chess Coach binds all explanations to externally verified ground truth and enforces silence unless a genuine epistemic event has occurred.
 
 Chess is used as the demonstration domain—not as the product.
 
@@ -28,7 +28,7 @@ Any system that hallucinates in chess—where truth is precise and verifiable—
 
 ## Architecture: The Truth Invariance Loop
 
-Berkeley Chaos enforces epistemic discipline through a three-layer architecture in which authority flows in only one direction.
+Chess Coach enforces epistemic discipline through a three-layer architecture in which authority flows in only one direction.
 
 ### 1. Ground Truth Layer (Verification Engines)
 
@@ -105,7 +105,7 @@ The result is explanation without invention.
 
 ## Failure Modes This Architecture Eliminates
 
-Berkeley Chaos is explicitly designed to remove common AI explanation pathologies at the **architectural** level, not via prompt tuning:
+Chess Coach is explicitly designed to remove common AI explanation pathologies at the **architectural** level, not via prompt tuning:
 
 * Illegal move hallucination
 * Post-hoc rationalization
@@ -154,7 +154,7 @@ The interface will be available at `http://localhost:8000`.
 
 ## Analysis & Scope
 
-Berkeley Chaos serves as a reference implementation for **high-stakes AI explanation systems**, where hallucination is not merely misleading but unacceptable.
+Chess Coach serves as a reference implementation for **high-stakes AI explanation systems**, where hallucination is not merely misleading but unacceptable.
 
 Chess exposes a core failure mode of contemporary AI: explanations that are fluent, persuasive, and wrong.
 This project demonstrates one viable alternative—systems where explanation is subordinate to verification, and restraint is a feature rather than a limitation.

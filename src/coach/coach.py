@@ -18,7 +18,7 @@ from src.utils.paths import repo_path
 DEFAULT_LEELA_WEIGHTS = repo_path("maia-1500.pb.gz")
 
 
-class BerkeleyChaosChessCoach:
+class ChessCoach:
     def __init__(self, config: SystemConfig, engine_path: str = "stockfish"):
         self.config = config
         if str(config.engines.analysis_engine.depth_policy) == "fixed":

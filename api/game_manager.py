@@ -7,11 +7,11 @@ import chess
 # Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.coach.coach import BerkeleyChaosChessCoach
+from src.coach.coach import ChessCoach
 from src.utils.config import load_config
 
 class GameSession:
-    def __init__(self, game_id: str, coach: BerkeleyChaosChessCoach):
+    def __init__(self, game_id: str, coach: ChessCoach):
         self.game_id = game_id
         self.coach = coach
         self.move_history: list = []
@@ -66,7 +66,7 @@ class GameManager:
     def create_game(self) -> str:
         """Create a new game session"""
         game_id = str(uuid.uuid4())
-        coach = BerkeleyChaosChessCoach(self.config)
+        coach = ChessCoach(self.config)
         coach.start()
         
         session = GameSession(game_id, coach)

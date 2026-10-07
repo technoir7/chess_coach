@@ -1,7 +1,7 @@
 import chess
 import pytest
 
-from src.coach.coach import BerkeleyChaosChessCoach
+from src.coach.coach import ChessCoach
 from src.utils.config import load_config
 from src.utils.paths import repo_path
 
@@ -28,7 +28,7 @@ class SilentIntuition:
 
 @pytest.fixture
 def coach():
-    coach = BerkeleyChaosChessCoach(load_config(repo_path("system_config.yaml")))
+    coach = ChessCoach(load_config(repo_path("system_config.yaml")))
     coach.engine = CountingEngine()
     coach.intuition_engine = SilentIntuition()
     return coach

@@ -6,7 +6,7 @@ import logging
 sys.path.append(os.getcwd())
 
 from src.utils.config import load_config
-from src.coach.coach import BerkeleyChaosChessCoach
+from src.coach.coach import ChessCoach
 
 # Configure logging to see engine output
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +17,7 @@ def test_advice_loop():
 
     # Initialize Coach
     print("Initializing Coach...")
-    coach = BerkeleyChaosChessCoach(config)
+    coach = ChessCoach(config)
     coach.start()
 
     try:
