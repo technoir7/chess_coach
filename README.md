@@ -1,171 +1,47 @@
-# ♟️ Chess Coach
+# Chess Coach
 
-## Logic-Gated, Verifier-Bound AI Explanations in a Closed-World Decision System
+A chess coach in which Stockfish and Leela establish the facts about a position and a language model only puts them into words. What the model says about moves is checked against the board before the player sees it.
 
-> **A working reference implementation of truth-invariant, logic-gated LLM explanations grounded in external verification.**
+## The problem
 
-Chess Coach is a technical demonstration of **Truth-Invariant AI**: an architectural approach to eliminating hallucinations in complex explanations by strictly decoupling **calculation**, **verification**, and **narration**.
+Asked to explain a position, an LLM will often name illegal moves, invent variations, or call a quiet move a check, in fluent prose a learning player can't fact-check. Chess is a good test case because each of those claims can be checked mechanically.
 
-Rather than allowing a language model to reason freely, Chess Coach binds all explanations to externally verified ground truth and enforces silence unless a genuine epistemic event has occurred.
+## How it works
 
-Chess is used as the demonstration domain—not as the product.
+1. **Engines.** Stockfish searches to depth 15 and returns its top three lines. Leela (lc0, optional) runs the bundled Maia-1500 network for 100 nodes; the model gets its reading in words, as how a club player would see the position, not as a second evaluation.
+2. **Facts.** Engine output goes into a `TruthPacket` (`src/models.py`): evaluation, the top lines as 8 plies of SAN, threats read off the board (hanging pieces, pieces attacked by something cheaper, check), and game phase. `line_facts.py` replays each line and states its checks, captures and material change. Packets are cached per position, so follow-up questions see the same lines.
+3. **Gate.** `gate.py` decides whether to give in-game advice: only if the player lost more than 100cp or the game phase changed, and never if the evaluation moved less than 20cp or nothing is under threat. Explanations and chat are on demand.
+4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines, gives a sequence that isn't a contiguous quote of an engine line, or misstates a check, an exchange or an attack. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
 
----
+The model is set in `system_config.yaml` (default `gemma3:12b` via local Ollama). On failure `llm.py` falls back to Gemini Flash, then other local Ollama models. The web UI (FastAPI) lets you play White against Stockfish at a chosen strength and style, switch models, ask questions, and export the annotated game as Markdown.
 
-## Why Chess?
+## Setup
 
-Chess is a closed-world, adversarial system with:
-
-* Perfectly formalized rules
-* Immediate falsifiability
-* A well-defined external oracle (engines)
-* Zero tolerance for illegal or invented actions
-
-These properties make chess an ideal **stress test for AI explanations**.
-Any system that hallucinates in chess—where truth is precise and verifiable—will fail catastrophically in open-ended, high-stakes domains.
-
----
-
-## Architecture: The Truth Invariance Loop
-
-Chess Coach enforces epistemic discipline through a three-layer architecture in which authority flows in only one direction.
-
-### 1. Ground Truth Layer (Verification Engines)
-
-This layer owns **all truth**.
-
-* **Calculation Engine (Stockfish 17)**
-  High-depth tactical search and centipawn evaluation.
-
-* **Intuition Engine (Leela Chess Zero)**
-  Neural-network–based positional evaluation capturing long-term structural pressure and instability.
-
-* **Truth Packet Generation**
-  The engines produce a structured, inspectable **Truth Packet** containing:
-
-  * FEN position
-  * Legal move subsets (SAN)
-  * Evaluation deltas and inflection points
-  * Tactical threats and irreversible commitments
-
-The Truth Packet is finite, auditable, and immutable.
-
----
-
-### 2. Logic Gate (Deterministic Middleware)
-
-Before any language model is invoked, a strict logic gate determines whether explanation is epistemically justified.
-
-* **Event-Triggered Cognition**
-  Explanations are permitted only when a detectable epistemic event occurs:
-
-  * Evaluation collapse (e.g. >50cp swing)
-  * Phase transitions (opening → middlegame → endgame)
-  * Volatility spikes where candidate moves diverge sharply
-
-* **Silence by Default**
-  If no trigger is hit, the system withholds explanation entirely.
-  This prevents autopilot learning, explanation spam, and false authority.
-
----
-
-### 3. Verifier-Bound Narrator (LLM)
-
-The language model functions strictly as a **translator**, never as a reasoner.
-
-* **No Independent Calculation**
-  The LLM is explicitly forbidden from generating variations, tactics, or evaluations.
-
-* **Truth-Packet-Only Context**
-  All narrative output must reference data present in the Truth Packet.
-
-* **Illegal Move Elimination**
-  A pre-verified list of legal SAN moves is injected into context, removing a common LLM failure mode: suggesting impossible actions.
-
-The result is explanation without invention.
-
----
-
-## Key Technical Capabilities
-
-* **Real-Time Inflection Detection**
-  Automatically identifies irreversible decisions (pawn breaks, exchange sacrifices, structural commitments) using engine-verified deltas.
-
-* **Adversarial Plan Critique**
-  Users may submit their own strategic plans.
-  The system evaluates claims by matching them against engine-verified contradictions rather than affirming intent.
-
-* **Failure-Resilient Model Orchestration**
-  Multi-model fallback across Gemini 2.0 / 2.5 and local Ollama models ensures uninterrupted real-time operation.
-
-* **Decision-Focused Interface**
-  A low-latency, glassmorphic UI designed to support reasoning—not dependency—paired with Markdown-annotated exports for post-hoc analysis.
-
----
-
-## Failure Modes This Architecture Eliminates
-
-Chess Coach is explicitly designed to remove common AI explanation pathologies at the **architectural** level, not via prompt tuning:
-
-* Illegal move hallucination
-* Post-hoc rationalization
-* Over-explanation in stable states
-* Confident but unfalsifiable narratives
-* Tactical invention disconnected from verification
-
-When explanation is not warranted, the system remains silent.
-
----
-
-## Stack & Implementation
-
-* **Core Logic**: Python 3.10+ (FastAPI)
-* **Verification Engines**: Stockfish 17 (UCI), Leela Chess Zero
-* **Narrative Layer**: Google Gemini (via `google-genai`)
-* **State Management**: Asynchronous game orchestration with structured Markdown export
-
----
-
-## Deployment
-
-### Requirements
-
-* Stockfish (installed and in PATH)
-* Leela Chess Zero (optional, for positional evaluation)
-* Python 3.10+
-
-### Configuration
-
-```env
-GOOGLE_API_KEY=your_gemini_key
-CHESS_ENGINE_PATH=/usr/local/bin/stockfish
-```
-
-### Execution
+Requires Python 3.10+ (tested on 3.13), Stockfish on `PATH`, optionally lc0, and either Ollama with `gemma3:12b` or a Google API key.
 
 ```bash
-pip install -r requirements.txt
-./start_server.sh
+python -m venv env
+env/bin/pip install -r requirements_backup.txt
+cp .env.template .env   # set GOOGLE_API_KEY; LEELA_ENGINE_PATH defaults to /opt/homebrew/bin/lc0
+./start_server.sh       # http://localhost:8000
 ```
 
-The interface will be available at `http://localhost:8000`.
+`start_server.sh` expects the virtualenv at `./env` and kills whatever is on port 8000. A terminal version runs with `env/bin/python main.py` and reads the Stockfish path from `CHESS_ENGINE_PATH`.
 
----
+## Tests
 
-## Analysis & Scope
+```bash
+env/bin/pip install pytest
+env/bin/python -m pytest tests
+```
 
-Chess Coach serves as a reference implementation for **high-stakes AI explanation systems**, where hallucination is not merely misleading but unacceptable.
+107 tests, mostly with stand-in engines. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
 
-Chess exposes a core failure mode of contemporary AI: explanations that are fluent, persuasive, and wrong.
-This project demonstrates one viable alternative—systems where explanation is subordinate to verification, and restraint is a feature rather than a limitation.
+## Limitations
 
----
-
-If you want, next we can:
-
-* Derive a **generalized “Truth-Packet” pattern** from this
-* Write the accompanying essay that turns this into intellectual leverage
-* Design a one-page architecture diagram suitable for non-chess audiences
-
-Just say which direction you want to push.
-# chess_coach
+- The verifier is pattern-based. It can't check strategic claims, and skips bare pawn moves in prose ("e4") because they look like square names.
+- The gate's chaos-score and null-move triggers never fire: nothing computes those values yet.
+- Game phase comes from move count alone; threat detection looks one move deep.
+- The opening book has names and ECO codes, no game statistics.
+- The player is always White, and games live in memory.
+- Some `system_config.yaml` sections (coaching modes, plan critique, meta-coaching) are parsed but unused.
