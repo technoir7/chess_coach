@@ -18,11 +18,11 @@ from api.game_manager import GameManager
 
 app = FastAPI(title="ChessCoach API")
 
-# CORS configuration for local development
+# Any origin may call the API, but without credentials: the web UI sends no cookies, and
+# a wildcard origin combined with credentials would let any site act as a logged-in user.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
