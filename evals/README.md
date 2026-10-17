@@ -15,6 +15,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 2 | 100 (2027) | `claude-sonnet` | after the fixes round 1 prompted (false alarms, line facts) |
 | 3 | 100 (2028) | `claude-sonnet`, `claude-opus` | as round 2; the prompt adds what each piece attacks, defends and pins, whose turn it is, and the real move number |
 | 4 | 100 (2029) | `claude-sonnet` | as round 3; the prompt adds, for each engine line, what the moved piece does after every move and whether the reply is forced, the full relations of the line's final position, and material and pawn-structure counts; the model then checks its draft against the facts before the checker sees it |
+| 5 | 100 (2030) | `claude-sonnet-rewrite`, `claude-sonnet-edit` | as round 4; the prompt adds each evaluation's band in words, whose piece each capture takes, the material after a line's cheapest recapture, where each line move's piece came from, and which minor pieces are still at home |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
