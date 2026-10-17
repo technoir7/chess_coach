@@ -141,13 +141,17 @@ def find_illegal_moves(
 ) -> List[str]:
     """Distinct moves named in `text` that the position cannot justify.
 
-    A move is justified if it is available now to either side, or if it appears
-    in a line the engine actually searched. Deduplicated: a move repeated four
-    times is one invention, not four.
+    A move is justified if it is available now to either side, if it appears
+    in a line the engine actually searched, or if it is the recapture the
+    line's facts name for a line cut mid-exchange. Deduplicated: a move
+    repeated four times is one invention, not four.
     """
     claimable = {_normalise(san) for san in _claimable_san(board)}
     for line in [*(sanctioned_lines or []), _game_so_far(board)]:
         claimable |= {_normalise(san) for san in line}
+    for facts in _line_facts(board, sanctioned_lines or []):
+        if facts.recapture_san:
+            claimable.add(_normalise(facts.recapture_san))
 
     illegal = []
     for match in _MOVE_PATTERN.finditer(text):

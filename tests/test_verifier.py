@@ -256,3 +256,13 @@ class TestVerify:
     def test_variation_fails_verification(self):
         result = verifier.verify("After 1. Nf3 d6 2. d4 cxd4 it's equal.", SICILIAN)
         assert result.ok is False
+
+
+class TestRecaptureNamedInTheFacts:
+    def test_the_recapture_the_facts_name_may_be_named(self):
+        """Round 5's first position: the facts said "if White takes back with
+        fxe3", the answer repeated it, and the checker called fxe3 illegal."""
+        board = board_after("e4", "c6")
+        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
+        text = "The line stops before the recapture. If White takes back with cxd3, material is level."
+        assert verifier.find_illegal_moves(text, board, [line]) == []
