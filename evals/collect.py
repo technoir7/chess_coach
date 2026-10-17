@@ -6,6 +6,11 @@ Each answer goes through `verified_completion`, the same check-and-retry the app
 runs, and every attempt is recorded with the checker's verdict. Resumable: a
 position already in the output file is skipped, since a local reasoning model
 can take hours over the whole set.
+
+From round 4 the model checks its own draft before the checker sees it. Each
+position's first draft is also written, as model `<name>-draft`, so the
+drafts can be labelled beside the checked answers: the difference between the
+two is what the self-check did.
 """
 
 import argparse
@@ -37,6 +42,11 @@ class RecordingLLM:
         return response
 
 
+def judge(text: str, board: chess.Board, lines) -> dict:
+    result = verifier.verify(text, board, sanctioned_lines=lines)
+    return {"text": text, "ok": result.ok, "violations": result.violations}
+
+
 def responses_path(number: int, model: str) -> Path:
     return round_dir(number) / f"responses-{model.replace(':', '-').replace('/', '-')}.jsonl"
 
@@ -56,7 +66,7 @@ def main() -> None:
     done = {json.loads(line)["id"] for line in out.read_text().splitlines()} if out.exists() else set()
     positions = [json.loads(line) for line in positions_path(args.round).read_text().splitlines()]
 
-    with out.open("a") as sink:
+    with out.open("a") as sink, responses_path(args.round, f"{args.model}-draft").open("a") as draft_sink:
         for position in positions:
             if position["id"] in done:
                 continue
@@ -67,13 +77,13 @@ def main() -> None:
             recorder.calls.clear()
             shown = verified_completion(recorder, position["prompt"], board, position["lines"])
 
-            attempts = []
-            for text, seconds in recorder.calls:
-                result = verifier.verify(text, board, sanctioned_lines=position["lines"])
-                attempts.append({
-                    "text": text, "ok": result.ok, "violations": result.violations,
-                    "seconds": round(seconds, 1),
-                })
+            # Calls alternate: a draft, then the model's check of it.
+            assert len(recorder.calls) % 2 == 0
+            drafts, checked = recorder.calls[0::2], recorder.calls[1::2]
+            attempts = [
+                {**judge(text, board, position["lines"]), "seconds": round(draft_seconds + seconds, 1)}
+                for (_, draft_seconds), (text, seconds) in zip(drafts, checked)
+            ]
             if shown is None:
                 outcome = "fallback"
             else:
@@ -84,6 +94,14 @@ def main() -> None:
                 "id": position["id"], "model": args.model, "outcome": outcome, "attempts": attempts,
             }) + "\n")
             sink.flush()
+
+            text, seconds = drafts[0]
+            draft = {**judge(text, board, position["lines"]), "seconds": round(seconds, 1)}
+            draft_sink.write(json.dumps({
+                "id": position["id"], "model": f"{args.model}-draft",
+                "outcome": "first" if draft["ok"] else "fallback", "attempts": [draft],
+            }) + "\n")
+            draft_sink.flush()
             print(f"{position['id']}  {outcome:<8} {sum(a['seconds'] for a in attempts):6.1f}s", flush=True)
 
 

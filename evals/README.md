@@ -14,9 +14,16 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 1 | 100 (2026) | `gemma3:12b`, `claude-sonnet` | as first built |
 | 2 | 100 (2027) | `claude-sonnet` | after the fixes round 1 prompted (false alarms, line facts) |
 | 3 | 100 (2028) | `claude-sonnet`, `claude-opus` | as round 2; the prompt adds what each piece attacks, defends and pins, whose turn it is, and the real move number |
+| 4 | 100 (2029) | `claude-sonnet` | as round 3; the prompt adds, for each engine line, what the moved piece does after every move and whether the reply is forced, the full relations of the line's final position, and material and pawn-structure counts; the model then checks its draft against the facts before the checker sees it |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
+
+Round 4 changes two things, and keeps them apart: each position's first draft
+is recorded as `claude-sonnet-draft` and labelled, blind, alongside the checked
+answers. Draft against round 3 measures the new facts; checked answer against
+draft, on the same positions and labelled by the same reviewers, measures the
+self-check. Only "wrong, no checker" means anything for the draft.
 
 ## Steps
 
