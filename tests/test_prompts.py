@@ -242,3 +242,38 @@ class TestPieceRelations:
         facts = prompts.position_facts(chess.Board(), packet(), "")
         text = prompts.explain_prompt(facts, "Game just started")
         assert "PIECE RELATIONS" in text.split("INSTRUCTIONS:")[1]
+
+
+class TestPositionsInsideLines:
+    def test_each_line_carries_its_move_by_move_and_end_facts(self):
+        """Half of round 3's false claims were about positions inside the
+        engine lines, which the prompt described only by checks and captures."""
+        text = prompts.engine_lines(
+            packet(candidate_lines=[
+                CandidateLine(move_san="Nf3", eval_cp=35, line_san=["Nf3", "Nc6"]),
+            ]),
+            board_after("e4", "e5"),
+        )
+        assert "2. Nf3: White Knight on f3 attacks Pawn on e5" in text
+        assert "POSITION AT THE END OF THIS LINE" in text
+
+    def test_the_current_position_states_material_and_pawns(self):
+        facts = prompts.position_facts(board_after("e4", "d5", "exd5"), packet(), "")
+        assert "White is 1 pawn ahead" in facts
+
+    def test_the_rules_cover_forced_moves_and_counting(self):
+        facts = prompts.position_facts(chess.Board(), packet(), "")
+        rules = prompts.explain_prompt(facts, "Game just started").split("INSTRUCTIONS:")[1]
+        assert "forced" in rules
+        assert "MATERIAL AND PAWNS" in rules
+
+
+class TestReviewPrompt:
+    def test_carries_the_brief_and_the_draft(self):
+        text = prompts.review_prompt("BRIEF WITH FACTS", "A DRAFT ANSWER")
+        assert "BRIEF WITH FACTS" in text
+        assert "A DRAFT ANSWER" in text
+
+    def test_asks_for_the_corrected_text_alone(self):
+        text = prompts.review_prompt("brief", "draft")
+        assert "corrected explanation only" in text

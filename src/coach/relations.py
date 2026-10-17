@@ -37,6 +37,12 @@ def _value(piece: chess.Piece) -> int:
     return 100 if piece.piece_type == chess.KING else PIECE_VALUES[piece.piece_type]
 
 
+def piece(board: chess.Board, square: int) -> str:
+    """What the piece on `square` attacks and defends, e.g. "White Knight on
+    f3 attacks Pawn on e5; defends nothing"."""
+    return _piece_line(board, square, board.piece_at(square))[2:].replace(":", "", 1)
+
+
 def _piece_line(board: chess.Board, square: int, piece: chess.Piece) -> str:
     attacks, defends = [], []
     for target in sorted(board.attacks(square)):
@@ -88,8 +94,12 @@ def _pin(board: chess.Board, square: int, piece: chess.Piece, step) -> Optional[
 
 
 def describe(board: chess.Board) -> str:
-    lines = [HEADER]
-    pins = []
+    return "\n".join([HEADER, *entries(board)])
+
+
+def entries(board: chess.Board) -> List[str]:
+    """The relations as lines, without a header, for a position inside a line."""
+    lines, pins = [], []
     for color in (chess.WHITE, chess.BLACK):
         for square, piece in sorted(board.piece_map().items(), key=lambda item: _name(item[1], item[0])):
             if piece.color != color:
@@ -99,5 +109,4 @@ def describe(board: chess.Board) -> str:
                 pin = _pin(board, square, piece, step)
                 if pin:
                     pins.append(pin)
-    lines += pins or ["- Pinned pieces: none."]
-    return "\n".join(lines)
+    return lines + (pins or ["- Pinned pieces: none."])

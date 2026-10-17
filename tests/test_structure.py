@@ -1,0 +1,48 @@
+import chess
+
+from src.coach import structure
+
+
+def board_after(*sans: str) -> chess.Board:
+    board = chess.Board()
+    for san in sans:
+        board.push_san(san)
+    return board
+
+
+class TestMaterial:
+    def test_counts_each_sides_pieces(self):
+        text = structure.describe(chess.Board())
+        assert "White has Queen, 2 Rooks, 2 Bishops, 2 Knights, 8 Pawns" in text
+        assert "material is level" in text
+
+    def test_says_who_is_ahead_and_by_how_much(self):
+        """From the eval: "material is level" with Black a bishop up."""
+        board = chess.Board("4k3/8/8/3b4/8/8/8/4K3 w - - 0 1")
+        assert "Black is 3 pawns ahead" in structure.describe(board)
+
+
+class TestPawns:
+    def test_doubled_pawns_need_two_on_one_file(self):
+        """From the eval: "Black has doubled c-pawns" with one c-pawn."""
+        single = chess.Board("4k3/2p5/8/8/8/8/8/4K3 w - - 0 1")
+        assert "Black doubled pawns: none" in structure.describe(single)
+        doubled = chess.Board("4k3/2p5/2p5/8/8/8/8/4K3 w - - 0 1")
+        assert "Black doubled pawns: c-file (c7, c6)" in structure.describe(doubled)
+
+    def test_an_isolated_pawn_has_no_friend_on_either_side_file(self):
+        board = chess.Board("4k3/8/8/8/3P4/8/PP6/4K3 w - - 0 1")
+        text = structure.describe(board)
+        assert "White isolated pawns: d4" in text
+        assert "White isolated pawns: a2" not in text
+
+    def test_a_passed_pawn_has_no_enemy_pawn_ahead_on_its_own_or_side_files(self):
+        board = chess.Board("4k3/6p1/8/P7/8/8/7P/4K3 w - - 0 1")
+        text = structure.describe(board)
+        assert "White passed pawns: a5" in text
+        assert "h2" not in text.split("White passed pawns:")[1].splitlines()[0]
+
+    def test_names_open_files(self):
+        board = board_after("e4", "d5", "exd5", "Qxd5", "d4", "e5", "dxe5", "Qxd1+", "Kxd1")
+        assert "Open files (no pawns): d\n" in structure.describe(board) + "\n"
+        assert "Open files (no pawns): none" in structure.describe(board_after("e4", "d5", "exd5", "Qxd5"))

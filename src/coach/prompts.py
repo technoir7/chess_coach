@@ -10,7 +10,7 @@ from typing import List, Optional
 import chess
 
 from src.models import CoachSpeechRules, TruthPacket
-from src.coach import line_facts, relations
+from src.coach import line_facts, relations, structure, walkthrough
 
 # Small local models infer development from coordinates badly - they claimed
 # developed bishops on move 1 - so the facts below are stated rather than implied.
@@ -41,8 +41,16 @@ GROUNDING_RULES = """INSTRUCTIONS:
      did not search that continuation - do NOT work it out yourself.
    - Explaining WHY a quoted line makes sense is welcome. Adding moves to it is not.
 5. WHAT PIECES DO: say a piece attacks, defends, protects, supports or pins
-   something only if PIECE RELATIONS above says so. Lines are blocked by any
-   piece in the way, and a bishop only ever reaches squares of its own colour."""
+   something only if PIECE RELATIONS above says so - or, for a position inside
+   an engine line, its MOVE BY MOVE or POSITION AT THE END OF THIS LINE facts.
+   Lines are blocked by any piece in the way, and a bishop only ever reaches
+   squares of its own colour.
+6. FORCED MOVES: an engine line shows the engine's choice, not the only move.
+   Say a reply is forced, or that a side must or has to play it, only if MOVE
+   BY MOVE says that reply is forced.
+7. COUNTING: take material, doubled, isolated and passed pawns and open files
+   from MATERIAL AND PAWNS (or a line's end-position facts). Do not count them
+   yourself."""
 
 PIECE_NAMES = {
     "P": "Pawn", "N": "Knight", "B": "Bishop",
@@ -205,6 +213,7 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
         # checking move as an attack on a piece, and claimed queens were
         # exchanged in a line where nothing was captured.
         rendered.append(f"    FACTS: {line_facts.describe(board, line.line_san).summary()}")
+        rendered.append(walkthrough.describe(board, line.line_san))
     return "\n".join(rendered)
 
 
@@ -221,6 +230,8 @@ CURRENT POSITION:
 {piece_listing(board)}
 
 {relations.describe(board)}
+
+{structure.describe(board)}
 
 DEVELOPMENT:
 {development_status(board)}
@@ -294,6 +305,44 @@ You must not: {', '.join(rules.must_not)}
 
 Give one short, punchy piece of advice for the player. Do not name a move unless
 it appears in the engine's top moves above.
+"""
+
+
+def review_prompt(brief: str, draft: str) -> str:
+    """A second pass over a draft, checking it against the facts it was written from.
+
+    Round 3 showed that adding facts to the brief had stopped helping: about a
+    quarter of answers still said something false. Checking a statement against
+    a list is an easier job than writing correctly from scratch, so the draft is
+    handed back with the facts and anything they do not support is removed.
+    """
+    return f"""You are checking a chess explanation for false statements before a student reads it.
+
+THE BRIEF the explanation was written from, with every verified fact about the position:
+<<<
+{brief}
+>>>
+
+THE DRAFT:
+<<<
+{draft}
+>>>
+
+Check every statement in the draft about the position, the game or the engine
+lines against the facts in the brief:
+- a piece attacking, defending, protecting, supporting or pinning something:
+  PIECE RELATIONS for the current position; MOVE BY MOVE and POSITION AT THE
+  END OF THIS LINE for positions inside an engine line
+- material, doubled, isolated or passed pawns, open files: MATERIAL AND PAWNS,
+  or a line's end-position facts
+- a move being forced, or a side having to play it: only if MOVE BY MOVE says
+  that reply is forced
+- checks and captures in a line: that line's FACTS
+- move sequences: only the ENGINE LINES, quoted exactly, or the moves played
+Delete or correct every statement the facts do not support. Keep everything
+else as it is, including opinions and plans, and keep the same tone and length.
+
+Reply with the corrected explanation only - no preamble and no list of changes.
 """
 
 
