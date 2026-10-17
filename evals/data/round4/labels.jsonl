@@ -1,0 +1,202 @@
+{"model": "claude-sonnet-draft", "id": "p063", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "adds protection to e4 and the Knight on f3", "why": "After 5. Bg2 the bishop's diagonal to e4 is blocked by the knight on f3; it defends only the Knight on f3 and the Rook on h1, and e4 is still defended only by the Knight on c3."}]}
+{"model": "claude-sonnet", "id": "p002", "attempt": 0, "claims": [{"kind": "wrong_capture", "about": "line", "quote": "White wins a rook, and the queens are traded.", "why": "In 31. Qxa7 Qxa7 only White's queen is captured; Black's queen survives on a7 (the line's facts list a single queen capture), and White only gets a new queen later by promoting."}]}
+{"model": "claude-sonnet", "id": "p026", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p018", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p067", "attempt": 0, "claims": [{"kind": "wrong_piece", "about": "current", "quote": "White's Bishop on c1 and the Knight on h2 are still undeveloped", "why": "The Knight on h2 has left its starting square (g1-f3-h2, listed under DEVELOPMENT as off its starting square); only the Bishop on c1 is undeveloped."}]}
+{"model": "claude-sonnet", "id": "p049", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p088", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p031", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p040", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p073", "attempt": 0, "claims": [{"kind": "wrong_capture", "about": "line", "quote": "White's recapture is not shown, since the line ends before it.", "why": "The Nd2 line ends on 7...b5, not right after a capture; the c4 pawn is then defended by b5 and the prompt's facts leave Black simply a pawn up with no pending recapture."}]}
+{"model": "claude-sonnet", "id": "p066", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p039", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p043", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p070", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p098", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p061", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "White is behind in development, with only the Knight on f3 out against Black's Bishop on e7", "why": "Each side has exactly one minor piece developed (Nf3 for White, Be7 for Black), so White is not behind in development."}]}
+{"model": "claude-sonnet", "id": "p082", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p003", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p041", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p080", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p025", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p065", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p053", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "in the line, the rook has already moved to d8 by the time the knight is attacking it", "why": "When 12. Ng6 is played the rook is still on f8 and is attacked; it only goes to d8 with 12...Rd8 afterwards."}]}
+{"model": "claude-sonnet", "id": "p028", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p006", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p074", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p092", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p094", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p055", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p051", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p008", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p023", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p068", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p076", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p027", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p084", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p073", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p060", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p052", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p037", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p076", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p023", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p077", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p008", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p028", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p012", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p027", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p080", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p033", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p044", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p078", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p085", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p047", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p025", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p034", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p056", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p007", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p087", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "Every line includes Black's Knight capturing on e2 with check, so White's Bishop on e2 can't be saved.", "why": "The bishop has legal moves to squares no Black piece attacks (Bf3, Bc4, Bb5); the three engine lines only show that the engine's top choices let it be taken."}]}
+{"model": "claude-sonnet-draft", "id": "p036", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "and the knight on b3 defends it too", "why": "The knight on b3 covers a1, c1, d2, d4, a5 and c5, not a3; only the b2 pawn defends the rook on a3."}]}
+{"model": "claude-sonnet-draft", "id": "p082", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p010", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p004", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p059", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p065", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p041", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p003", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p057", "attempt": 1, "claims": []}
+{"model": "claude-sonnet", "id": "p069", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p086", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p039", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p074", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "Black's rook on d4 is attacked by three White units: the pawn on e3, the rook on d1, and (after the exchange) the rook on c1 via the c-file pressure on the bishop.", "why": "Only the e3 pawn and the d1 rook attack d4; the rook on c1 attacks the bishop on c7, not the d4 rook."}]}
+{"model": "claude-sonnet-draft", "id": "p015", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p006", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p024", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p072", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p031", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p099", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "The knight attacks the rook on e4 and develops the passive c1 knight.", "why": "Nd2 can only be played by the knight on f3; the knight on c1 cannot reach d2 (its moves are a2, b3, d3, e2), so Nd2 does not develop it."}]}
+{"model": "claude-sonnet", "id": "p062", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p029", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p038", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p061", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p043", "attempt": 0, "claims": [{"kind": "wrong_eval", "about": "line", "quote": "the evaluation turns slightly in Black's favor", "why": "After h4 the engine gives -13cp, which the scale puts in the 0-40 'Equal' band, not a slight advantage (41-100)."}]}
+{"model": "claude-sonnet", "id": "p014", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p067", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p001", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "It resolves the e-file pin", "why": "After 15. e4 the Re8 still pins the e4 pawn to the Be2 (e7, e6, e5 and e3 are empty), so the pin is not resolved."}]}
+{"model": "claude-sonnet-draft", "id": "p058", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "with an extra bishop and pawn", "why": "Black has two bishops against none plus one extra pawn (Q, 2R, 2B, N, 5P against Q, 2R, N, 4P), which is the 7-point lead; one extra bishop and a pawn would be only 4."}, {"kind": "other", "about": "line", "quote": "adds a second attacker on e4", "why": "The Queen on h7 and the Rook on d4 already attack e4, so after Nd2 the knight is the third attacker, not the second."}]}
+{"model": "claude-sonnet-draft", "id": "p034", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "The Knight on d7, Bishop on e7 and Queen on d8 all guard each other and the rooks", "why": "The Knight on d7 defends neither the Bishop on e7 nor the Queen on d8, and the Bishop on e7 does not defend the Knight on d7."}]}
+{"model": "claude-sonnet", "id": "p083", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p097", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p063", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p059", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p077", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p096", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p091", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p058", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p095", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p021", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p047", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p055", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "White has no weaknesses: no doubled, isolated or passed pawns on either side.", "why": "Black has isolated pawns on a6 and c5 (as the answer itself says the sentence before), so it is false that neither side has isolated pawns."}]}
+{"model": "claude-sonnet", "id": "p053", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p064", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p087", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p100", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p075", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p032", "attempt": 0, "claims": [{"kind": "wrong_eval", "about": "line", "quote": "Even so, Black keeps a clear edge.", "why": "Rxd6+ is scored -670cp, which the prompt's scale puts in the 251+ decisive/winning band, not a clear (101-250) edge."}]}
+{"model": "claude-sonnet-draft", "id": "p060", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p032", "attempt": 0, "claims": [{"kind": "wrong_eval", "about": "line", "quote": "Even so, Black keeps a clear edge.", "why": "After Rxd6+ the engine gives -670cp, which the scale calls decisive (251+), not a clear advantage (101-250)."}]}
+{"model": "claude-sonnet", "id": "p011", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p009", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p035", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p020", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p056", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p004", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p022", "attempt": 0, "claims": [{"kind": "wrong_piece", "about": "current", "quote": "White holds it with both rooks behind the queen", "why": "Only the rook on d1 is on the d-file; the other rook is on e1."}, {"kind": "wrong_capture", "about": "line", "quote": "White has given up the queen for a bishop and rook", "why": "In the line White's queen takes only the bishop (Qxe7) and is captured by Rxe7; no black rook is taken, leaving Black 7 pawns ahead."}]}
+{"model": "claude-sonnet", "id": "p099", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "The knight attacks the rook on e4 and develops the passive c1 knight.", "why": "Nd2 can only be played by the knight on f3; the knight on c1 cannot reach d2 (its moves are a2, b3, d3, e2), so Nd2 does not develop it."}]}
+{"model": "claude-sonnet-draft", "id": "p020", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p050", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p089", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p062", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "leaves White a pawn up in a bishops-and-pawns ending", "why": "At the end of the Rxc6 line Black still has the Knight on h5 alongside the Bishop on c3, so it is two bishops against bishop and knight, not a bishops-and-pawns ending."}]}
+{"model": "claude-sonnet-draft", "id": "p046", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p044", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p017", "attempt": 0, "claims": [{"kind": "wrong_eval", "about": "line", "quote": "This line goes badly for White, who ends up 2 pawns behind", "why": "The engine rates Bb5 at +86 (White slightly better), and the line stops on Nxf3+, which White recaptures to stay a pawn up."}]}
+{"model": "claude-sonnet", "id": "p046", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p016", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p012", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p091", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p024", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p057", "attempt": 0, "claims": [{"kind": "wrong_piece", "about": "current", "quote": "develops the last minor piece", "why": "After Nbd2 the bishop on f1 is still on its starting square, so the knight is not White's last undeveloped minor piece."}]}
+{"model": "claude-sonnet-draft", "id": "p094", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p042", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p071", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p029", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p045", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p005", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p086", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p068", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p052", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p021", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p022", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p083", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "It gets the king to safety, connects the rooks, and the Rook on f1 then defends f4.", "why": "After O-O the rooks stand on b1 and f1 with White's own Bishop on c1 between them, so they are not connected."}]}
+{"model": "claude-sonnet", "id": "p036", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p048", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p025", "attempt": 1, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p026", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p090", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p054", "attempt": 0, "claims": [{"kind": "wrong_history", "about": "current", "quote": "White's last move, 35...Qxg3+, left the king in check.", "why": "35...Qxg3+ was Black's move (White's last move was 35. Rxf1)."}]}
+{"model": "claude-sonnet-draft", "id": "p013", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p064", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p019", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p035", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p001", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "It resolves the e-file pin", "why": "After 15. e4 the e-file between e8 and e4 is still empty, so the Rook on e8 now pins the e4 pawn to the Bishop on e2 instead; the pin is not resolved."}]}
+{"model": "claude-sonnet-draft", "id": "p079", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p092", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p002", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p057", "attempt": 0, "claims": [{"kind": "wrong_piece", "about": "current", "quote": "develops the last minor piece and unpins c2", "why": "After Nbd2 the bishop on f1 is still on its starting square, so the b1 knight is not White's last undeveloped minor piece."}, {"kind": "other", "about": "line", "quote": "The Knight on h4 attacks Bf5, which makes Black move the bishop.", "why": "After 6. Nh4 Black has 34 legal moves (the prompt says the reply is not forced), including ...e6 or ...g6 which defend the bishop on f5 instead of moving it."}]}
+{"model": "claude-sonnet", "id": "p088", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p054", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p071", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p011", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "gets the queen off the pinned line", "why": "The queen on d1 is on no pin line; the only pin is Ba6 on d3 to Rf1, and Qe2 puts the queen onto that a6-f1 diagonal behind the pinned d3 pawn."}]}
+{"model": "claude-sonnet", "id": "p015", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p084", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p030", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p081", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p018", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p040", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p095", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p090", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p051", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p049", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "since the knight on a3 is loose", "why": "The knight on a3 is defended by the pawn on b2 (and still is throughout the d4 line until Bxa3, which bxa3 can answer), so it is not loose."}]}
+{"model": "claude-sonnet-draft", "id": "p019", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p072", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p016", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p075", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p009", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p007", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p042", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p050", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p078", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p079", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p100", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p069", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p085", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p017", "attempt": 0, "claims": [{"kind": "wrong_eval", "about": "line", "quote": "This line goes badly for White, who ends up 2 pawns behind.", "why": "The engine rates the Bb5 line +86cp (slight White advantage), and the line stops before White recaptures on f3, after which White is a pawn up."}]}
+{"model": "claude-sonnet-draft", "id": "p014", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p010", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p098", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p093", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p037", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p048", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p089", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p038", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p033", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p030", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p096", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p093", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p013", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p097", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p005", "attempt": 0, "claims": [{"kind": "wrong_capture", "about": "line", "quote": "After White wins a pawn on b4, the engine sees White 1 pawn ahead.", "why": "17. b4 axb4 18. Bxb4 is a pawn exchange, not a pawn won; White's one-pawn lead comes from Qxf3 taking the knight."}]}
+{"model": "claude-sonnet", "id": "p045", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p081", "attempt": 0, "claims": []}
+{"model": "claude-sonnet-draft", "id": "p066", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p070", "attempt": 0, "claims": []}

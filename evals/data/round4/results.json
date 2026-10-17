@@ -1,0 +1,40 @@
+{
+  "claude-sonnet-draft": {
+    "positions": 100,
+    "wrong_unchecked": 24,
+    "wrong_shown": 23,
+    "caught": 1,
+    "wrong_in_scope": 9,
+    "caught_in_scope": 0,
+    "fallbacks": 3,
+    "rejections": 3,
+    "false_alarms": 2,
+    "kinds_unchecked": {
+      "wrong_attack": 6,
+      "wrong_capture": 3,
+      "other": 10,
+      "wrong_eval": 3,
+      "wrong_piece": 3,
+      "wrong_history": 1
+    },
+    "median_seconds": 7.0
+  },
+  "claude-sonnet": {
+    "positions": 100,
+    "wrong_unchecked": 6,
+    "wrong_shown": 5,
+    "caught": 1,
+    "wrong_in_scope": 1,
+    "caught_in_scope": 0,
+    "fallbacks": 0,
+    "rejections": 2,
+    "false_alarms": 1,
+    "kinds_unchecked": {
+      "other": 2,
+      "wrong_capture": 1,
+      "wrong_eval": 2,
+      "wrong_piece": 1
+    },
+    "median_seconds": 16.9
+  }
+}
