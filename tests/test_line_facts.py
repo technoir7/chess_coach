@@ -71,6 +71,28 @@ class TestMaterial:
         assert facts.material_swing == 0
 
 
+class TestMaterialBalance:
+    def test_a_promotion_counts_as_material(self):
+        """A reviewer found a line where Black made a queen while the facts
+        said White ended up ahead: only captures were being counted."""
+        board = chess.Board("4k3/P7/8/8/8/8/8/4K3 w - - 0 1")
+        facts = line_facts.describe(board, ["a8=Q"])
+        assert facts.material_swing == 8
+
+    def test_the_balance_after_the_line_is_stated_apart_from_the_gain(self):
+        """"White ends up 1 pawn ahead" was read as the final balance when it
+        meant the gain over the line; here Black stays far ahead throughout."""
+        board = chess.Board("4k3/8/8/3q4/8/8/4p3/4K3 w - - 0 1")
+        summary = line_facts.describe(board, ["Kxe2"]).summary()
+        assert "White gains 1 pawn of material" in summary
+        assert "afterwards Black is 9 pawns ahead" in summary
+
+    def test_level_material_is_said_plainly(self):
+        summary = line_facts.describe(SICILIAN_D6, ["dxc5", "dxc5"]).summary()
+        assert "material is unchanged over the line" in summary
+        assert "afterwards material is level" in summary
+
+
 class TestSummary:
     def test_summary_names_checks_and_captures(self):
         facts = line_facts.describe(SICILIAN_D6, ["dxc5", "Nf6", "Nc3", "Qa5"])

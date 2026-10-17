@@ -11,6 +11,7 @@ def board_after(*sans: str) -> chess.Board:
 
 
 SICILIAN = board_after("e4", "c5")
+SICILIAN_D6 = board_after("e4", "c5", "Nf3", "Nc6", "d4", "d6")
 
 
 class TestIllegalMoveDetection:
@@ -35,6 +36,16 @@ class TestIllegalMoveDetection:
         """White is to move, but 'Black can answer Nc6' is checkable against the
         position and must not be rejected as an invention."""
         assert verifier.find_illegal_moves("Black can answer Nc6.", SICILIAN) == []
+
+    def test_naming_a_piece_by_its_square_is_not_a_move(self):
+        """From the eval: "supported by Nc3, Nf3, Bd3" and "White's Qc3 and
+        Black's Qa5" name pieces where they stand. A piece cannot move to a
+        square it already occupies, so these are never move claims."""
+        text = "White's Nf3 eyes d4, and Black's Nc6 answers it."
+        assert verifier.find_illegal_moves(text, SICILIAN_D6) == []
+
+    def test_a_capture_onto_an_occupied_square_is_still_a_move(self):
+        assert verifier.find_illegal_moves("Nxc6 wins a piece.", SICILIAN_D6) == ["Nxc6"]
 
     def test_a_move_available_to_neither_side_is_still_flagged(self):
         assert verifier.find_illegal_moves("White plays Ra6.", SICILIAN) == ["Ra6"]
@@ -126,6 +137,12 @@ class TestCheckClaims:
         text = "Then Be2 gives check and Black must respond."
         assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == ["Be2"]
 
+    def test_the_check_belongs_to_the_move_nearest_it(self):
+        """From the eval: "25. Rf3 Rxe4+, and Black ends up a pawn ahead with
+        check" was charged to Rf3, though the check is Rxe4+."""
+        text = "After Be2 and Bb5+, with check, Black must block."
+        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == []
+
     def test_prose_about_checks_without_a_move_is_ignored(self):
         text = "White should look for checks in this position."
         assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == []
@@ -145,6 +162,47 @@ class TestExchangeClaims:
     def test_phrasing_with_the_piece_first_is_caught(self):
         text = "The rooks are exchanged shortly after."
         assert verifier.find_false_exchange_claims(text, D6_BOARD, D6_LINES) == ["rook"]
+
+
+QUIET_LINES = [["c3", "e6", "Bd3", "Nf6"]]
+
+
+class TestExchangeClaimsInContext:
+    """Each sentence is from the eval, where the checker rejected a correct
+    answer over it."""
+
+    def test_a_denied_exchange_is_not_a_claimed_one(self):
+        for text in (
+            "Material stays level and no queens are exchanged.",
+            "There are no checks and no queen exchange.",
+            "The knight then pressures the queenside pawns, and no pieces are traded.",
+        ):
+            assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == [], text
+
+    def test_a_piece_named_later_in_the_sentence_is_not_what_was_traded(self):
+        text = "The trade on e5 leaves the d-pawn on e5."
+        assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == []
+
+    def test_an_offered_trade_is_not_a_trade(self):
+        text = "White offers a rook trade on d3 before settling the bishop."
+        assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == []
+
+    def test_a_trade_earlier_in_the_game_is_a_true_claim(self):
+        board = board_after("d4", "d5", "Bf4", "Bf5", "e3", "e6", "Bd3", "Bxd3", "Qxd3")
+        text = "The light-squared bishops were traded on move 4."
+        assert verifier.find_false_exchange_claims(text, board, QUIET_LINES) == []
+
+    def test_an_earlier_trade_does_not_excuse_a_claim_about_a_line(self):
+        """From the eval: "resulting in a Bishop exchange" described an engine
+        line with no bishop capture; that bishops were traded earlier in the
+        game makes it no truer."""
+        board = board_after("d4", "d5", "Bf4", "Bf5", "e3", "e6", "Bd3", "Bxd3", "Qxd3")
+        text = "Nf3 develops, resulting in a bishop exchange."
+        assert verifier.find_false_exchange_claims(text, board, QUIET_LINES) == ["bishop"]
+
+    def test_a_plain_claimed_trade_is_still_caught(self):
+        text = "A queen trade follows, and the endgame is equal."
+        assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == ["queen"]
 
 
 class TestAttackClaims:

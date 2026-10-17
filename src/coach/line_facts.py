@@ -42,8 +42,14 @@ class MoveFact:
 class LineFacts:
     moves: List[MoveFact] = field(default_factory=list)
     captured_types: Set[str] = field(default_factory=set)
-    # Net material change over the line, in pawns, from White's point of view.
-    material_swing: int = 0
+    # Material balance in pawns, White minus Black, before and after the line.
+    material_before: int = 0
+    material_after: int = 0
+
+    @property
+    def material_swing(self) -> int:
+        """Net material change over the line, from White's point of view."""
+        return self.material_after - self.material_before
 
     def checking_moves(self) -> List[str]:
         return [m.san for m in self.moves if m.is_check]
@@ -74,13 +80,35 @@ class LineFacts:
         if "queen" not in self.captured_types:
             parts.append("no queens are exchanged")
 
+        # The change and the resulting balance are stated separately: "White
+        # ends up 3 pawns ahead" was read as the balance when it meant the
+        # gain, in lines that started with Black far ahead.
         if self.material_swing == 0:
-            parts.append("material is unchanged")
+            parts.append("material is unchanged over the line")
         else:
             side = "White" if self.material_swing > 0 else "Black"
-            parts.append(f"{side} ends up {abs(self.material_swing)} pawn(s) ahead")
+            parts.append(f"{side} gains {_pawns(abs(self.material_swing))} of material")
+
+        if self.material_after == 0:
+            parts.append("afterwards material is level")
+        else:
+            side = "White" if self.material_after > 0 else "Black"
+            parts.append(f"afterwards {side} is {_pawns(abs(self.material_after))} ahead")
 
         return "; ".join(parts)
+
+
+def _pawns(count: int) -> str:
+    return f"{count} pawn" if count == 1 else f"{count} pawns"
+
+
+def material_balance(board: chess.Board) -> int:
+    """White's material minus Black's, in pawns. Promotions count, because the
+    board is read rather than captures added up."""
+    return sum(
+        PIECE_VALUES.get(piece.piece_type, 0) * (1 if piece.color == chess.WHITE else -1)
+        for piece in board.piece_map().values()
+    )
 
 
 def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
@@ -89,8 +117,8 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
     Stops at the first move that will not play rather than raising: callers
     include the verifier, which is handed text written by a language model.
     """
-    facts = LineFacts()
     replay = board.copy()
+    facts = LineFacts(material_before=material_balance(replay))
 
     for san in line_san:
         try:
@@ -110,10 +138,7 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
         replay.push(move)
 
         if captured_piece is not None:
-            name = chess.piece_name(captured_piece)
-            facts.captured_types.add(name)
-            value = PIECE_VALUES.get(captured_piece, 0)
-            facts.material_swing += value if mover_is_white else -value
+            facts.captured_types.add(chess.piece_name(captured_piece))
 
         attacked = set()
         for square in replay.attacks(move.to_square):
@@ -132,4 +157,5 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
             )
         )
 
+    facts.material_after = material_balance(replay)
     return facts

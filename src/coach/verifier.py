@@ -110,6 +110,20 @@ def _is_quoted_from(run: Sequence[str], sanctioned_lines: Sequence[Sequence[str]
     return False
 
 
+def _names_a_standing_piece(token: str, board: chess.Board) -> bool:
+    """Whether `token` names a piece where it already stands ("White's Nf3").
+
+    Prose names pieces in move notation - "supported by Nc3, Nf3 and Bd3" - and
+    a piece cannot move to a square it occupies, so such a token is a reference
+    rather than a claimed move. A capture always moves, so it never qualifies.
+    """
+    token = token.rstrip("+#")
+    if token[0] not in "KQRBN" or "x" in token:
+        return False
+    piece = board.piece_at(chess.parse_square(token[-2:]))
+    return piece is not None and piece.symbol().upper() == token[0]
+
+
 def find_illegal_moves(
     text: str,
     board: chess.Board,
@@ -128,6 +142,8 @@ def find_illegal_moves(
     illegal = []
     for match in _MOVE_PATTERN.finditer(text):
         claimed = match.group(0)
+        if _names_a_standing_piece(claimed, board):
+            continue
         if _normalise(claimed) not in claimable and claimed not in illegal:
             illegal.append(claimed)
     return illegal
@@ -152,20 +168,29 @@ def find_unsanctioned_lines(
 
 # "check" attributed to a specific move, e.g. "Bb5+ gives check" or "Nf3, check".
 _CHECK_CLAIM = re.compile(
-    rf"\b({_MOVE})[+#]?[^.;\n]{{0,40}}?\b(?:is|gives|delivers|with|,)\s*(?:a\s+)?check\b",
+    rf"\b({_MOVE})[+#]?([^.;\n]{{0,40}}?)\b(?:is|gives|delivers|with|,)\s*(?:a\s+)?check\b",
     re.IGNORECASE,
 )
 
-# A claimed exchange of a named piece: "exchange of queens", "trading rooks".
+# A claimed exchange of a named piece: "exchange of queens", "trading rooks",
+# "the rooks are exchanged", "a queen trade". The piece must be the object of
+# the trade: in "the trade on e5 leaves the d-pawn on e5" no pawn is traded.
+_TRADE = r"(?:exchange|exchanges|exchanged|exchanging|trade|trades|traded|trading|swap|swaps|swapped)"
 _EXCHANGE_CLAIM = re.compile(
-    r"\b(?:exchange|exchanges|exchanged|trade|trades|traded|trading|swap|swapped)\b"
-    r"[^.;\n]{0,30}?\b(queen|rook|bishop|knight|pawn)s?\b",
+    rf"\b{_TRADE}\s+(?:of\s+)?(?:the\s+|both\s+|a\s+pair\s+of\s+|(?:light|dark)-squared\s+)?"
+    r"(queen|rook|bishop|knight|pawn)s?\b",
     re.IGNORECASE,
 )
 _EXCHANGE_CLAIM_REVERSED = re.compile(
-    r"\b(queen|rook|bishop|knight|pawn)s?\b[^.;\n]{0,20}?"
-    r"\b(?:are|is|get|gets|being)?\s*"
-    r"(?:exchange|exchanges|exchanged|trade|trades|traded|trading|swap|swapped)\b",
+    r"\b(queen|rook|bishop|knight|pawn)s?\s+"
+    rf"(?:(?:are|is|get|gets|being|were|was|been)\s+)?{_TRADE}\b",
+    re.IGNORECASE,
+)
+_PAST = re.compile(r"\b(?:were|was|been)\b", re.IGNORECASE)
+# "no queens are exchanged", "without trading rooks", "offers a rook trade":
+# the sentence mentions a trade without saying one happens.
+_NOT_A_TRADE = re.compile(
+    r"\b(?:no|not|never|without|avoid\w*|offer\w*|declin\w*|prevent\w*)\b[^.;\n]{0,12}$|n't\s*$",
     re.IGNORECASE,
 )
 
@@ -198,10 +223,25 @@ def find_false_check_claims(
 
     false_claims = []
     for match in _CHECK_CLAIM.finditer(text):
-        claimed = _normalise(match.group(1))
+        # In "Rf3 Rxe4+, ... with check" the check is Rxe4+'s, not Rf3's.
+        nearer = list(_MOVE_PATTERN.finditer(match.group(2)))
+        claimed = _normalise(nearer[-1].group(1) if nearer else match.group(1))
         if claimed not in checking and claimed not in false_claims:
             false_claims.append(claimed)
     return false_claims
+
+
+def _captured_so_far(board: chess.Board) -> set:
+    """Piece types taken earlier in the game: "the bishops were traded on move
+    7" is about the game, not an engine line, and can be true."""
+    replay, captured = board.root(), set()
+    for move in board.move_stack:
+        if replay.is_en_passant(move):
+            captured.add("pawn")
+        elif replay.is_capture(move):
+            captured.add(chess.piece_name(replay.piece_at(move.to_square).piece_type))
+        replay.push(move)
+    return captured
 
 
 def find_false_exchange_claims(
@@ -214,16 +254,23 @@ def find_false_exchange_claims(
     The coach said a line "leads to exchanges of Queens" in a line where the
     black queen simply moved about and no queen was ever taken.
     """
-    exchanged = set()
+    in_lines = set()
     for facts in _line_facts(board, sanctioned_lines or []):
-        exchanged |= facts.captured_types
+        in_lines |= facts.captured_types
+    # Only a trade told in the past tense can be about the game so far.
+    in_game_or_lines = in_lines | _captured_so_far(board)
 
-    claimed = set()
+    false_claims = set()
     for pattern in (_EXCHANGE_CLAIM, _EXCHANGE_CLAIM_REVERSED):
         for match in pattern.finditer(text):
-            claimed.add(match.group(1).lower())
+            if _NOT_A_TRADE.search(text[max(0, match.start() - 25):match.start()]):
+                continue
+            piece = match.group(1).lower()
+            happened = in_game_or_lines if _PAST.search(match.group(0)) else in_lines
+            if piece not in happened:
+                false_claims.add(piece)
 
-    return sorted(claimed - exchanged)
+    return sorted(false_claims)
 
 
 # "Bb5+, attacking the Black Bishop" - a move said to bear on a named piece.
