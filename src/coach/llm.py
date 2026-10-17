@@ -5,6 +5,8 @@ import logging
 import concurrent.futures
 from typing import Optional
 
+from src.coach import claude_cli
+
 logger = logging.getLogger(__name__)
 
 class LLMClient:
@@ -73,7 +75,7 @@ class LLMClient:
     def _is_ollama_model(self, model_name: str) -> bool:
         """Check if model is likely an Ollama model"""
         # If it starts with gemini, it's definitely Google
-        if model_name.startswith("gemini"):
+        if model_name.startswith("gemini") or claude_cli.is_claude_model(model_name):
             return False
             
         # Check known Google-hosted Gemma models
@@ -97,7 +99,9 @@ class LLMClient:
                     "messages": [{"role": "user", "content": prompt}],
                     "stream": False
                 },
-                timeout=120
+                # Reasoning models think before they answer: qwen3.6:27b spent
+                # two minutes on a one-sentence reply on an M5 with 32 GB.
+                timeout=600
             )
             response.raise_for_status()
             return response.json()["message"]["content"]
@@ -116,7 +120,8 @@ class LLMClient:
                 "gemma-3-12b-it",
                 "gemma-3-27b-it"
             ],
-            "ollama": []
+            "ollama": [],
+            "claude": claude_cli.available_models(),
         }
         
         models["ollama"] = self._fetch_ollama_models()
@@ -149,7 +154,9 @@ class LLMClient:
             try:
                 logger.info(f"Attempting LLM call with: {model_name}")
                 
-                if self._is_ollama_model(model_name):
+                if claude_cli.is_claude_model(model_name):
+                    return Response(claude_cli.generate(model_name, prompt))
+                elif self._is_ollama_model(model_name):
                     text = self._generate_ollama_content(model_name, prompt)
                     return Response(text)
                 else:

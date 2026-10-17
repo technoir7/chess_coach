@@ -77,6 +77,19 @@ class ChessCoachApp {
                 });
                 select.appendChild(group);
             }
+
+            // Claude, through the local `claude` login
+            if (models.claude && models.claude.length > 0) {
+                const group = document.createElement('optgroup');
+                group.label = 'Claude (your subscription)';
+                models.claude.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    group.appendChild(option);
+                });
+                select.appendChild(group);
+            }
         } catch (error) {
             console.error('Failed to load models:', error);
             this.showStatus('Failed to load LLM list', 'error');
