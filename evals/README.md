@@ -1,0 +1,63 @@
+# How often the coach says something false
+
+This measures what the README claims: that the coach's checker keeps invented
+moves away from the player. It counts how often each model's explanation says
+something false about the position, before and after the checker, and what the
+checker costs.
+
+Written before any model was run on these positions. A change made because of
+what the numbers show gets measured on a fresh set of positions, not this one.
+
+## Steps
+
+1. `python -m evals.positions` plays 50-odd games of the coach's club-strength
+   opponent against itself (seeded, searching to depth 8 to save time), takes one position from before move 15
+   and one from after in each, always with White to move, as when the player
+   asks for an explanation. It stores each position with its engine analysis
+   and the exact prompt, so every model explains the same facts. 100
+   positions, in `data/positions.jsonl`, generated once.
+2. `python -m evals.collect --model <name>` sends each prompt through
+   `verified_completion`, the app's own check-and-retry, and records every
+   attempt with the checker's verdict and how long it took.
+3. Every attempt is labelled by a reviewer who sees the position, the facts the
+   model was given and the answer, but not the checker's verdict and not which
+   model wrote it. Answers from all models are shuffled together first.
+4. `python -m evals.score` joins labels to answers and writes `results.json`.
+
+Models: `gemma3:12b` (the default, local), `qwen3.6:27b` (local, reasons before
+answering) and `claude-sonnet` (through a Claude subscription).
+
+## What counts as a false claim
+
+A statement about this position or this game that the board, the move list or
+the engine output contradicts. Opinions are not claims: "a solid position" and
+"White should aim for the kingside" are never labelled, however debatable.
+
+| Kind | The answer… | Checker looks for it |
+|---|---|---|
+| `illegal_move` | names a move that is legal for neither side and is not in an engine line | yes |
+| `invented_line` | gives a sequence of moves, as what happens or should happen, that is not a contiguous quote of an engine line | yes |
+| `wrong_check` | says a move gives check when it doesn't, or the reverse | yes |
+| `wrong_capture` | says a piece is captured or exchanged when it isn't, or the reverse | yes |
+| `wrong_attack` | says a move or piece attacks, threatens or defends something it doesn't | yes |
+| `wrong_piece` | puts a piece on a square it isn't on, or says a piece is or isn't developed contrary to the position | no |
+| `wrong_history` | says a move was played that wasn't, or misstates the game so far | no |
+| `wrong_eval` | gets the evaluation wrong: the wrong side better, or a size the scale in the prompt contradicts | no |
+| `other` | any other statement the position contradicts (a mate threat that doesn't exist, a wrong count of pawns) | no |
+
+An answer is **wrong** if it contains at least one false claim. Kinds are
+recorded so the checker's blind spots show up, but the headline counts answers.
+
+## What gets reported, per model
+
+- **Wrong, no checker:** answers wrong as first written, out of 100. This is what
+  a player would see if the model's text went straight through.
+- **Wrong, with checker:** positions where what the player sees is wrong. A
+  rejected answer is retried once; if the retry is also rejected the player
+  gets an engine-only summary, which can't be wrong about the position.
+- **Caught:** of the answers wrong as first written, how many the checker
+  rejected; separately, for those with a kind the checker looks for.
+- **Fallbacks:** how often the player got the engine-only summary instead of an
+  explanation.
+- **False alarms:** rejected answers that had nothing false in them.
+- **Median seconds** per answer.

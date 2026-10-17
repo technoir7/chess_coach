@@ -259,6 +259,12 @@ class ChessCoach:
                     info += f"- {m['san']}: White {w_pct}%, Draw {d_pct}%, Black {b_pct}% ({total} games)\n"
         return info
 
+    def explain_prompt(self, packet: TruthPacket) -> str:
+        """The prompt behind the Explain button, for the current position."""
+        return prompts.explain_prompt(
+            self._facts_block(packet), prompts.recent_moves(self.board)
+        )
+
     def explain_position(self) -> str:
         """Explain the current position, grounded in the Truth Packet."""
         packet = self.build_truth_packet()
@@ -268,9 +274,7 @@ class ChessCoach:
             return self._offline_summary(packet, reason)
 
         try:
-            prompt = prompts.explain_prompt(
-                self._facts_block(packet), prompts.recent_moves(self.board)
-            )
+            prompt = self.explain_prompt(packet)
             verified = self._verified_completion(prompt, packet)
             if verified is None:
                 return self._offline_summary(packet, "response failed verification")
@@ -284,30 +288,8 @@ class ChessCoach:
     def _verified_completion(
         self, prompt: str, packet: TruthPacket, attempts: int = 2
     ) -> Optional[str]:
-        """Generate text and only return it if it survives verification.
-
-        The prompts ask the model not to invent moves; this checks that it
-        actually didn't. A response naming an impossible move is discarded
-        rather than shown, because a confident invention is worse to a learning
-        player than saying less.
-
-        The engine's own lines are passed through as sanctioned, so quoting the
-        search is allowed while reordering or extending it is not.
-        """
         sanctioned = [line.line_san for line in packet.candidate_lines]
-
-        for attempt in range(attempts):
-            response = self.llm.generate_content(prompt).text
-            result = verifier.verify(response, self.board, sanctioned_lines=sanctioned)
-            if result.ok:
-                return response
-
-            print(
-                f"[Coach] Rejected response (attempt {attempt + 1}/{attempts}): "
-                f"{'; '.join(result.violations)}"
-            )
-
-        return None
+        return verified_completion(self.llm, prompt, self.board, sanctioned, attempts)
 
     def _offline_summary(self, packet: TruthPacket, reason: str) -> str:
         """Engine-only fallback when the LLM is unavailable."""
@@ -405,3 +387,30 @@ class ChessCoach:
     
     def get_board_visual(self) -> str:
         return str(self.board)
+
+
+def verified_completion(
+    llm, prompt: str, board: chess.Board, sanctioned_lines: List[List[str]], attempts: int = 2
+) -> Optional[str]:
+    """Generate text and only return it if it survives verification.
+
+    The prompts ask the model not to invent moves; this checks that it
+    actually didn't. A response naming an impossible move is discarded
+    rather than shown, because a confident invention is worse to a learning
+    player than saying less.
+
+    The engine's own lines are passed through as sanctioned, so quoting the
+    search is allowed while reordering or extending it is not.
+    """
+    for attempt in range(attempts):
+        response = llm.generate_content(prompt).text
+        result = verifier.verify(response, board, sanctioned_lines=sanctioned_lines)
+        if result.ok:
+            return response
+
+        print(
+            f"[Coach] Rejected response (attempt {attempt + 1}/{attempts}): "
+            f"{'; '.join(result.violations)}"
+        )
+
+    return None
