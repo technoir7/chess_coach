@@ -53,25 +53,33 @@ def score(responses: Iterable[Dict], labels: Iterable[Dict]) -> Dict[str, Dict]:
             "rejections": 0, "false_alarms": 0, "kinds_unchecked": Counter(),
             "seconds": [],
         })
-        kinds = [claims[(model, response["id"], i)] for i in range(len(response["attempts"]))]
+        # An attempt whose self-check could not be applied has no text: nothing
+        # was shown, so there is nothing to label.
+        kinds = [
+            None if a["text"] is None else claims[(model, response["id"], i)]
+            for i, a in enumerate(response["attempts"])
+        ]
+        written = [(a, k) for a, k in zip(response["attempts"], kinds) if k is not None]
 
         r["positions"] += 1
         r["seconds"] += [a["seconds"] for a in response["attempts"]]
-        r["kinds_unchecked"].update(kinds[0])
 
         # Without the checker, the first answer is the one the player would see.
-        first_rejected = not response["attempts"][0]["ok"]
-        if kinds[0]:
-            r["wrong_unchecked"] += 1
-            r["caught"] += first_rejected
-        if kinds[0] & IN_SCOPE:
-            r["wrong_in_scope"] += 1
-            r["caught_in_scope"] += first_rejected
+        if written:
+            first, first_kinds = written[0]
+            first_rejected = not first["ok"]
+            r["kinds_unchecked"].update(first_kinds)
+            if first_kinds:
+                r["wrong_unchecked"] += 1
+                r["caught"] += first_rejected
+            if first_kinds & IN_SCOPE:
+                r["wrong_in_scope"] += 1
+                r["caught_in_scope"] += first_rejected
 
         for attempt, attempt_kinds in zip(response["attempts"], kinds):
             if not attempt["ok"]:
                 r["rejections"] += 1
-                r["false_alarms"] += not attempt_kinds
+                r["false_alarms"] += attempt_kinds is not None and not attempt_kinds
 
         # With it, the player sees the last attempt if it passed, otherwise an
         # engine-only summary that cannot be wrong about the position.

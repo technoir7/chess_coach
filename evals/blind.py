@@ -34,6 +34,8 @@ def make(number: int) -> None:
         for response in map(json.loads, path.read_text().splitlines()):
             position = positions[response["id"]]
             for attempt, entry in enumerate(response["attempts"]):
+                if entry["text"] is None:
+                    continue
                 key = _key(response["model"], response["id"], attempt)
                 keys[key] = {"model": response["model"], "id": response["id"], "attempt": attempt}
                 items.append({

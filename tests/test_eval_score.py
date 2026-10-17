@@ -100,3 +100,18 @@ class TestScore:
         responses = [response("a", "first", attempt(True))]
         with pytest.raises(ValueError):
             score(responses, [label("a", 0, "vibes")])
+
+
+class TestFailedSelfCheck:
+    def test_an_attempt_whose_check_failed_has_no_text_to_label(self):
+        """The self-check's reply could not be applied, so nothing was shown
+        and nothing can be labelled; the retry is the first real answer."""
+        failed = {"text": None, "ok": False, "violations": ["self-check failed"], "seconds": 1.0}
+        results = score(
+            [response("p1", "retry", failed, attempt(True))],
+            [label("p1", 1, "other")],
+        )["m"]
+        assert results["rejections"] == 1
+        assert results["false_alarms"] == 0
+        assert results["wrong_unchecked"] == 1
+        assert results["wrong_shown"] == 1
