@@ -58,8 +58,6 @@ class ChessCoachApp {
                     const option = document.createElement('option');
                     option.value = model;
                     option.textContent = model;
-                    // Auto-select a good default
-                    if (model === 'gemini-2.5-flash') option.selected = true;
                     group.appendChild(option);
                 });
                 select.appendChild(group);
@@ -90,6 +88,9 @@ class ChessCoachApp {
                 });
                 select.appendChild(group);
             }
+
+            // Show the model the coach is actually using
+            select.value = models.default;
         } catch (error) {
             console.error('Failed to load models:', error);
             this.showStatus('Failed to load LLM list', 'error');

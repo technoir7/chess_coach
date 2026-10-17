@@ -57,7 +57,7 @@ async def get_models() -> dict:
     from src.coach.llm import LLMClient
     # Instantiate client just to fetch models
     client = LLMClient() 
-    return client.get_available_models()
+    return {**client.get_available_models(), "default": game_manager.config.llm.model}
 
 @app.get("/api/game/{game_id}")
 async def get_game(game_id: str) -> dict:

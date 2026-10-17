@@ -30,7 +30,7 @@ engines:
     purpose: positional_vibe_detection
 
 llm:
-  model: gemma3:12b
+  model: claude-sonnet
   role: explanation_and_critique_only
   constraints:
     - may_only_use_truth_packet

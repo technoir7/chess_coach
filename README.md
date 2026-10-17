@@ -13,11 +13,11 @@ Asked to explain a position, an LLM will often name illegal moves, invent variat
 3. **Gate.** `gate.py` decides whether to give in-game advice: only if the player lost more than 100cp or the game phase changed, and never if the evaluation moved less than 20cp or nothing is under threat. Explanations and chat are on demand.
 4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines, gives a sequence that isn't a contiguous quote of an engine line, or misstates a check, an exchange or an attack. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
 
-The model is set in `system_config.yaml` (default `gemma3:12b` via local Ollama). On failure `llm.py` falls back to Gemini Flash, then other local Ollama models. The web UI (FastAPI) lets you play White against Stockfish at a chosen strength and style, switch models, ask questions, and export the annotated game as Markdown.
+The model is set in `system_config.yaml` (default `claude-sonnet`, run through the `claude` command on your own Claude login, so no API key is needed). Any local Ollama model and Gemini can be picked in the UI instead. On failure `llm.py` falls back to Gemini Flash, then local Ollama models. The web UI (FastAPI) lets you play White against Stockfish at a chosen strength and style, switch models, ask questions, and export the annotated game as Markdown.
 
 ## Setup
 
-Requires Python 3.10+ (tested on 3.13), Stockfish on `PATH`, optionally lc0, and either Ollama with `gemma3:12b` or a Google API key.
+Requires Python 3.10+ (tested on 3.13), Stockfish on `PATH`, optionally lc0, and one of: the `claude` command logged in to a Claude subscription, Ollama with a local model, or a Google API key.
 
 ```bash
 python -m venv env
