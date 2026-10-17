@@ -33,6 +33,11 @@ Only the checked answers are labelled. The question for `edit` is whether it
 is as accurate as `rewrite` and faster; the comparison with round 4 is across
 different positions and reviewers, so only a large change in it means much.
 
+Round 5's first run was stopped after three positions and discarded, unlabelled:
+the checker rejected answers that repeated the new recapture fact ("if White
+takes back with fxe3") because the recapture is in no engine line. The checker
+now accepts it, and the run started again from the first position.
+
 ## Steps
 
 1. `python -m evals.positions --round N` plays 50-odd games of the coach's club-strength
