@@ -61,6 +61,11 @@ Naming a piece by where it stands ("the Nf3", "supported by Bd3") says where a
 piece is, not that a move is played: it is `wrong_piece` only if no such piece
 is on that square.
 
+Saying a move is "forced", or that a side "must" play it, is a false claim
+(`other`) when other legal moves exist, unless the answer makes clear it means
+within the engine line. Round 1's reviewers labelled this; round 2's mostly
+let it pass, so from round 3 it is stated.
+
 From round 3, each claim also records `about`: `current` if it is about the
 position on the board, `line` if it is about a position inside an engine line
 (after one or more of its moves). Round 2's prompt facts covered the current
