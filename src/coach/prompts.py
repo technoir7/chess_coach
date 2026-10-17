@@ -10,7 +10,7 @@ from typing import List, Optional
 import chess
 
 from src.models import CoachSpeechRules, TruthPacket
-from src.coach import line_facts
+from src.coach import line_facts, relations
 
 # Small local models infer development from coordinates badly - they claimed
 # developed bishops on move 1 - so the facts below are stated rather than implied.
@@ -39,7 +39,10 @@ GROUNDING_RULES = """INSTRUCTIONS:
    - If asked "what happens after X?", quote the line that begins with X and
      explain it in words. If no line above begins with X, say that the engine
      did not search that continuation - do NOT work it out yourself.
-   - Explaining WHY a quoted line makes sense is welcome. Adding moves to it is not."""
+   - Explaining WHY a quoted line makes sense is welcome. Adding moves to it is not.
+5. WHAT PIECES DO: say a piece attacks, defends, protects, supports or pins
+   something only if PIECE RELATIONS above says so. Lines are blocked by any
+   piece in the way, and a bishop only ever reaches squares of its own colour."""
 
 PIECE_NAMES = {
     "P": "Pawn", "N": "Knight", "B": "Bishop",
@@ -211,10 +214,13 @@ def position_facts(board: chess.Board, packet: TruthPacket, opening_info: str) -
     Renders the Truth Packet and the board it describes - nothing else reaches
     the model, which is what keeps the narration bound to verified facts.
     """
-    return f"""GAME STATE: Move {len(board.move_stack)} - {packet.game_phase} phase
+    side = "White" if board.turn == chess.WHITE else "Black"
+    return f"""GAME STATE: Move {board.fullmove_number}, {side} to move - {packet.game_phase} phase
 
 CURRENT POSITION:
 {piece_listing(board)}
+
+{relations.describe(board)}
 
 DEVELOPMENT:
 {development_status(board)}

@@ -220,3 +220,25 @@ class TestPromptAssembly:
         assert "What happens after Bxb5?" in prompts.chat_prompt(
             facts, "Game just started", "What happens after Bxb5?"
         )
+
+
+class TestWhoseMoveItIs:
+    def test_states_the_side_to_move_and_the_real_move_number(self):
+        """The prompt said "Move 80" in a position at move 41 (it counted
+        plies) and never said whose turn it was; answers gave White's moves
+        to Black."""
+        board = board_after("e4", "c5", "Nf3")
+        facts = prompts.position_facts(board, packet(), "")
+        assert "Move 2, Black to move" in facts
+
+
+class TestPieceRelations:
+    def test_the_facts_carry_what_each_piece_attacks_and_defends(self):
+        board = board_after("e4", "e5", "Nf3", "Nc6")
+        facts = prompts.position_facts(board, packet(), "")
+        assert "White Knight on f3: attacks Pawn on e5" in facts
+
+    def test_the_rules_point_claims_about_pieces_at_the_relations(self):
+        facts = prompts.position_facts(chess.Board(), packet(), "")
+        text = prompts.explain_prompt(facts, "Game just started")
+        assert "PIECE RELATIONS" in text.split("INSTRUCTIONS:")[1]
