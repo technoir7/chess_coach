@@ -223,6 +223,25 @@ class TestAttackClaims:
         assert verifier.find_false_attack_claims(text, D6_BOARD, D6_LINES) == []
 
 
+class TestTheGameSoFar:
+    """Found running the app: after 1. e4 e5, Claude's explanation began
+    "After 1. e4 e5" and was rejected twice as an unsearched line."""
+
+    def test_retelling_the_moves_played_is_not_an_invented_line(self):
+        board = board_after("e4", "e5", "Nf3", "Nc6")
+        result = verifier.verify("After 1. e4 e5 2. Nf3 Nc6 the centre is balanced.", board)
+        assert result.ok, result.violations
+
+    def test_naming_a_move_already_played_is_not_an_illegal_move(self):
+        board = board_after("e4", "d5", "exd5", "Qxd5", "Nc3", "Qa5")
+        assert verifier.find_illegal_moves("After exd5 the queen recaptured.", board) == []
+
+    def test_a_line_that_departs_from_the_game_is_still_rejected(self):
+        board = board_after("e4", "e5")
+        result = verifier.verify("After 1. e4 e5 2. Bc4 Bc5 3. Qh5 it is sharp.", board)
+        assert not result.ok
+
+
 class TestVerify:
     def test_clean_response_passes(self):
         result = verifier.verify("Nf3 is the engine's choice.", SICILIAN)

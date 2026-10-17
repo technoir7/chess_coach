@@ -73,6 +73,16 @@ def _claimable_san(board: chess.Board) -> set:
     return san
 
 
+def _game_so_far(board: chess.Board) -> List[str]:
+    """The moves played to reach `board`, in SAN. Retelling them is not
+    calculating: "After 1. e4 e5" was rejected as an unsearched line."""
+    replay, played = board.root(), []
+    for move in board.move_stack:
+        played.append(replay.san(move))
+        replay.push(move)
+    return played
+
+
 def find_move_runs(text: str) -> List[List[str]]:
     """Sequences of moves played one after another, as the model wrote them.
 
@@ -136,7 +146,7 @@ def find_illegal_moves(
     times is one invention, not four.
     """
     claimable = {_normalise(san) for san in _claimable_san(board)}
-    for line in sanctioned_lines or []:
+    for line in [*(sanctioned_lines or []), _game_so_far(board)]:
         claimable |= {_normalise(san) for san in line}
 
     illegal = []
@@ -335,7 +345,8 @@ def verify(
     for move in find_illegal_moves(text, board, sanctioned_lines):
         violations.append(f"named an illegal move: {move}")
 
-    for line in find_unsanctioned_lines(text, sanctioned_lines):
+    quotable = [*(sanctioned_lines or []), _game_so_far(board)]
+    for line in find_unsanctioned_lines(text, quotable):
         violations.append(f"gave a line the engine did not search: {line}")
 
     for move in find_false_check_claims(text, board, sanctioned_lines):
