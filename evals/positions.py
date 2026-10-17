@@ -1,6 +1,6 @@
 """Builds the fixed set of positions every model is measured on.
 
-    python -m evals.positions
+    python -m evals.positions --round 2
 
 Positions come from games the coach's own opponent plays against itself at club
 strength, so each has a real move history behind it, as in the app. Each
@@ -14,21 +14,25 @@ import json
 import random
 import sys
 from pathlib import Path
+from pathlib import Path
 from typing import List
 
 import chess
 
-from evals.score import DATA
+from evals.score import round_argument, round_dir
 
-POSITIONS = DATA / "positions.jsonl"
 COUNT = 100
-SEED = 2026
+FIRST_SEED = 2026  # round 1; each later round adds one
 MAX_PLIES = 120
 # The coach explains on the player's turn, and the player is always White.
 FIRST_PLY, LATE_PLY = 6, 30
 # The games only supply realistic positions; each is then analysed at the coach's
 # full depth. At the coach's depth one game took six minutes.
 PLAYER_DEPTH = 8
+
+
+def positions_path(number: int) -> Path:
+    return round_dir(number) / "positions.jsonl"
 
 
 def pick_plies(length: int, rng: random.Random) -> List[int]:
@@ -44,10 +48,12 @@ def pick_plies(length: int, rng: random.Random) -> List[int]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--force", action="store_true", help="overwrite the pinned positions")
+    round_argument(parser)
     args = parser.parse_args()
-    if POSITIONS.exists() and not args.force:
-        sys.exit(f"{POSITIONS} exists; the comparison depends on it staying fixed.")
+    positions_file = positions_path(args.round)
+    if positions_file.exists():
+        sys.exit(f"{positions_file} exists; the comparison depends on it staying fixed.")
+    seed = FIRST_SEED + args.round - 1
 
     from src.coach.coach import ChessCoach
     from src.engine.stockfish import AnalysisEngine
@@ -55,8 +61,8 @@ def main() -> None:
     from src.utils.config import load_config
     from src.utils.paths import repo_path
 
-    random.seed(SEED)  # the opponent policy samples with the module-level generator
-    rng = random.Random(SEED)
+    random.seed(seed)  # the opponent policy samples with the module-level generator
+    rng = random.Random(seed)
 
     coach = ChessCoach(load_config(repo_path("system_config.yaml")))
     coach.start()
@@ -94,7 +100,8 @@ def main() -> None:
         coach.stop()
         player_engine.stop()
 
-    POSITIONS.write_text("".join(json.dumps(p) + "\n" for p in positions[:COUNT]))
+    positions_file.parent.mkdir(exist_ok=True)
+    positions_file.write_text("".join(json.dumps(p) + "\n" for p in positions[:COUNT]))
 
 
 if __name__ == "__main__":

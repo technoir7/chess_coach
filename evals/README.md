@@ -6,26 +6,35 @@ something false about the position, before and after the checker, and what the
 checker costs.
 
 Written before any model was run on these positions. A change made because of
-what the numbers show gets measured on a fresh set of positions, not this one.
+what the numbers show gets measured on a fresh set of positions, not this one:
+each round has its own positions, answers and labels in `data/round<N>/`.
+
+| Round | Positions (seed) | Models | Checker |
+|---|---|---|---|
+| 1 | 100 (2026) | `gemma3:12b`, `claude-sonnet` | as first built |
+| 2 | 100 (2027) | `claude-sonnet` | after the fixes round 1 prompted (false alarms, line facts) |
+
+Round 2 runs Claude only: it is now the default, and the local model was
+deleted after round 1 to free the disk.
 
 ## Steps
 
-1. `python -m evals.positions` plays 50-odd games of the coach's club-strength
+1. `python -m evals.positions --round N` plays 50-odd games of the coach's club-strength
    opponent against itself (seeded, searching to depth 8 to save time), takes one position from before move 15
    and one from after in each, always with White to move, as when the player
    asks for an explanation. It stores each position with its engine analysis
    and the exact prompt, so every model explains the same facts. 100
-   positions, in `data/positions.jsonl`, generated once.
-2. `python -m evals.collect --model <name>` sends each prompt through
+   positions per round, in `data/round<N>/positions.jsonl`, generated once.
+2. `python -m evals.collect --round N --model <name>` sends each prompt through
    `verified_completion`, the app's own check-and-retry, and records every
    attempt with the checker's verdict and how long it took.
 3. Every attempt is labelled by a reviewer who sees the position, the facts the
    model was given and the answer, but not the checker's verdict and not which
    model wrote it. Answers from all models are shuffled together first.
-4. `python -m evals.score` joins labels to answers and writes `results.json`.
+4. `python -m evals.score --round N` joins labels to answers and writes the round's `results.json`.
 
-Models: `gemma3:12b` (the default, local) and `claude-sonnet` (through a Claude
-subscription). `qwen3.6:27b` was planned and dropped: it reasons before
+Round 1 models: `gemma3:12b` (then the default, local) and `claude-sonnet`
+(through a Claude subscription). `qwen3.6:27b` was planned and dropped: it reasons before
 answering, took two minutes over a one-sentence reply on an M5 with 32 GB, and
 100 explanations would have tied the machine up for about ten hours.
 

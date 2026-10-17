@@ -1,12 +1,13 @@
 """Turns labelled responses into the numbers the README reports.
 
-    python -m evals.score
+    python -m evals.score --round 1
 
 An answer is wrong if its labels list at least one false claim. Every attempt
 that was made must be labelled: an unlabelled one is an error here, never
 silently counted as correct.
 """
 
+import argparse
 import json
 import statistics
 from collections import Counter
@@ -14,6 +15,17 @@ from pathlib import Path
 from typing import Dict, Iterable, List
 
 DATA = Path(__file__).parent / "data"
+
+
+def round_dir(number: int) -> Path:
+    """Each round is a fresh set of positions with its own answers and labels:
+    a fix prompted by one round's answers is measured on the next round's."""
+    return DATA / f"round{number}"
+
+
+def round_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--round", type=int, required=True, help="which set of positions")
+
 
 # What the verifier looks for (src/coach/verifier.py) ...
 IN_SCOPE = {"illegal_move", "invented_line", "wrong_check", "wrong_capture", "wrong_attack"}
@@ -79,9 +91,13 @@ def _read(path: Path) -> List[Dict]:
 
 
 def main() -> None:
-    responses = [r for path in sorted(DATA.glob("responses-*.jsonl")) for r in _read(path)]
-    results = score(responses, _read(DATA / "labels.jsonl"))
-    (Path(__file__).parent / "results.json").write_text(json.dumps(results, indent=2) + "\n")
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    round_argument(parser)
+    folder = round_dir(parser.parse_args().round)
+
+    responses = [r for path in sorted(folder.glob("responses-*.jsonl")) for r in _read(path)]
+    results = score(responses, _read(folder / "labels.jsonl"))
+    (folder / "results.json").write_text(json.dumps(results, indent=2) + "\n")
 
     print(f"{'model':<16}{'wrong, unchecked':>18}{'wrong, shown':>14}{'fallback':>10}{'false alarms':>14}{'median s':>10}")
     for model, r in results.items():

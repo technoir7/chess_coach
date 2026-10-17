@@ -1,6 +1,6 @@
 """Asks one model to explain every pinned position, through the coach's own checker.
 
-    python -m evals.collect --model gemma3:12b
+    python -m evals.collect --round 2 --model claude-sonnet
 
 Each answer goes through `verified_completion`, the same check-and-retry the app
 runs, and every attempt is recorded with the checker's verdict. Resumable: a
@@ -15,8 +15,8 @@ from pathlib import Path
 
 import chess
 
-from evals.positions import POSITIONS
-from evals.score import DATA
+from evals.positions import positions_path
+from evals.score import round_argument, round_dir
 from src.coach import verifier
 from src.coach.coach import verified_completion
 from src.coach.llm import LLMClient
@@ -37,12 +37,13 @@ class RecordingLLM:
         return response
 
 
-def responses_path(model: str) -> Path:
-    return DATA / f"responses-{model.replace(':', '-').replace('/', '-')}.jsonl"
+def responses_path(number: int, model: str) -> Path:
+    return round_dir(number) / f"responses-{model.replace(':', '-').replace('/', '-')}.jsonl"
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    round_argument(parser)
     parser.add_argument("--model", required=True)
     args = parser.parse_args()
 
@@ -51,9 +52,9 @@ def main() -> None:
     llm.fallback_models = []
     recorder = RecordingLLM(llm)
 
-    out = responses_path(args.model)
+    out = responses_path(args.round, args.model)
     done = {json.loads(line)["id"] for line in out.read_text().splitlines()} if out.exists() else set()
-    positions = [json.loads(line) for line in POSITIONS.read_text().splitlines()]
+    positions = [json.loads(line) for line in positions_path(args.round).read_text().splitlines()]
 
     with out.open("a") as sink:
         for position in positions:
