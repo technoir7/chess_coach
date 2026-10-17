@@ -24,8 +24,10 @@ what the numbers show gets measured on a fresh set of positions, not this one.
    model wrote it. Answers from all models are shuffled together first.
 4. `python -m evals.score` joins labels to answers and writes `results.json`.
 
-Models: `gemma3:12b` (the default, local), `qwen3.6:27b` (local, reasons before
-answering) and `claude-sonnet` (through a Claude subscription).
+Models: `gemma3:12b` (the default, local) and `claude-sonnet` (through a Claude
+subscription). `qwen3.6:27b` was planned and dropped: it reasons before
+answering, took two minutes over a one-sentence reply on an M5 with 32 GB, and
+100 explanations would have tied the machine up for about ten hours.
 
 ## What counts as a false claim
 
