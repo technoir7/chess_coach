@@ -57,7 +57,7 @@ env/bin/pip install pytest
 env/bin/python -m pytest tests
 ```
 
-139 tests, mostly with stand-in engines. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
+168 tests, mostly with stand-in engines. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
 
 ## Limitations
 
