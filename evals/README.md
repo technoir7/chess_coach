@@ -61,6 +61,11 @@ Naming a piece by where it stands ("the Nf3", "supported by Bd3") says where a
 piece is, not that a move is played: it is `wrong_piece` only if no such piece
 is on that square.
 
+From round 3, each claim also records `about`: `current` if it is about the
+position on the board, `line` if it is about a position inside an engine line
+(after one or more of its moves). Round 2's prompt facts covered the current
+position far more fully than the positions inside lines.
+
 An answer is **wrong** if it contains at least one false claim. Kinds are
 recorded so the checker's blind spots show up, but the headline counts answers.
 
