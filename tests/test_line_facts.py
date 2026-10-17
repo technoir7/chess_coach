@@ -111,7 +111,7 @@ class TestLinesCutMidExchange:
 class TestSummary:
     def test_summary_names_checks_and_captures(self):
         facts = line_facts.describe(SICILIAN_D6, ["dxc5", "Nf6", "Nc3", "Qa5"])
-        assert "dxc5 takes a pawn" in facts.summary()
+        assert "dxc5 takes a Black pawn" in facts.summary()
 
     def test_summary_states_absence_plainly(self):
         facts = line_facts.describe(SICILIAN_D6, ["c3", "e6", "Bd3", "Nf6"])
@@ -124,6 +124,25 @@ class TestSummary:
             SICILIAN_D6, ["dxc5", "Nf6", "Nc3", "Qa5", "Nd2", "Qxc5"]
         )
         assert "no queens are exchanged" in facts.summary()
+
+
+class TestWhoseQueen:
+    def test_one_queen_taken_is_not_a_trade(self):
+        """From the eval: "the queens are traded" in 31. Qxa7 Qxa7, where only
+        White's queen was taken."""
+        board = chess.Board("q3k3/8/8/8/8/8/8/Q3K3 w - - 0 1")
+        summary = line_facts.describe(board, ["Qxa8+"]).summary()
+        assert "only Black's queen is captured, so the queens are not traded" in summary
+
+
+class TestRecapture:
+    def test_states_the_material_after_the_cheapest_recapture(self):
+        """From the eval: a line ending "Black is 2 pawns ahead" read as the
+        outcome, when White's recapture leaves White a pawn up."""
+        board = board_after("e4", "c6")
+        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
+        summary = line_facts.describe(board, line).summary()
+        assert "if White takes back with cxd3, material is level" in summary
 
 
 class TestRobustness:

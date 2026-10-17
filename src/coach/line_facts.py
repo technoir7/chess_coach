@@ -47,6 +47,9 @@ class LineFacts:
     material_after: int = 0
     # Set when the last move captures on a square the other side can take back.
     cut_mid_exchange: Optional[str] = None
+    # The cheapest such recapture, and the balance after it.
+    recapture_san: Optional[str] = None
+    material_after_recapture: int = 0
 
     @property
     def material_swing(self) -> int:
@@ -74,13 +77,18 @@ class LineFacts:
         if captures:
             parts.append(
                 "captures: "
-                + ", ".join(f"{m.san} takes a {m.captured}" for m in captures)
+                + ", ".join(f"{m.san} takes a {_owner(m)} {m.captured}" for m in captures)
             )
         else:
             parts.append("no captures")
 
-        if "queen" not in self.captured_types:
+        # "The queens are traded" was written of a line in which one queen was
+        # taken and the other survived, so whose queens go is spelled out.
+        queens_lost = {_owner(m) for m in captures if m.captured == "queen"}
+        if not queens_lost:
             parts.append("no queens are exchanged")
+        elif len(queens_lost) == 1:
+            parts.append(f"only {queens_lost.pop()}'s queen is captured, so the queens are not traded")
 
         # The change and the resulting balance are stated separately: "White
         # ends up 3 pawns ahead" was read as the balance when it meant the
@@ -97,13 +105,28 @@ class LineFacts:
                 "taken back, so the material count leaves out the recapture"
             )
 
-        if self.material_after == 0:
-            parts.append("afterwards material is level")
-        else:
-            side = "White" if self.material_after > 0 else "Black"
-            parts.append(f"afterwards {side} is {_pawns(abs(self.material_after))} ahead")
+        parts.append(f"afterwards {_balance(self.material_after)}")
+
+        # The count at the end of a line cut mid-exchange was repeated as the
+        # outcome: "White ends up 2 pawns behind" in a line White was winning.
+        if self.recapture_san:
+            side = "White" if self.moves[-1].by_white is False else "Black"
+            parts.append(
+                f"if {side} takes back with {self.recapture_san}, {_balance(self.material_after_recapture)}"
+            )
 
         return "; ".join(parts)
+
+
+def _owner(move: "MoveFact") -> str:
+    """Whose piece a capture took."""
+    return "Black" if move.by_white else "White"
+
+
+def _balance(balance: int) -> str:
+    if balance == 0:
+        return "material is level"
+    return f"{'White' if balance > 0 else 'Black'} is {_pawns(abs(balance))} ahead"
 
 
 def _pawns(count: int) -> str:
@@ -168,6 +191,15 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
     facts.material_after = material_balance(replay)
     if facts.moves and facts.moves[-1].captured:
         square = replay.peek().to_square
-        if any(replay.is_capture(move) for move in replay.legal_moves if move.to_square == square):
+        recaptures = [m for m in replay.legal_moves if m.to_square == square and replay.is_capture(m)]
+        if recaptures:
             facts.cut_mid_exchange = chess.square_name(square)
+            cheapest = min(recaptures, key=lambda m: _value(replay.piece_type_at(m.from_square)))
+            facts.recapture_san = replay.san(cheapest)
+            replay.push(cheapest)
+            facts.material_after_recapture = material_balance(replay)
     return facts
+
+
+def _value(piece_type: int) -> int:
+    return PIECE_VALUES.get(piece_type, 100)

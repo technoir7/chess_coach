@@ -16,8 +16,8 @@ class TestMoveByMove:
         g3" - the bishop on c7 still reached g3. Each move's piece is read off
         the board it lands on."""
         text = walkthrough.describe(board_after("e4", "e5"), ["Nf3", "Nc6"])
-        assert "2. Nf3: White Knight on f3 attacks Pawn on e5" in text
-        assert "2... Nc6: Black Knight on c6 attacks nothing; defends Pawn on e5" in text
+        assert "2. Nf3 (from g1): White Knight on f3 attacks Pawn on e5" in text
+        assert "2... Nc6 (from b8): Black Knight on c6 attacks nothing; defends Pawn on e5" in text
 
     def test_a_reply_with_other_legal_moves_is_not_forced(self):
         """From the eval: "the check forces the King to f8" when Ke7, Rd7 and
@@ -37,7 +37,15 @@ class TestMoveByMove:
         still between them."""
         board = board_after("e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5")
         text = walkthrough.describe(board, ["O-O"])
-        assert "White Rook on f1" in text.split("O-O:")[1].splitlines()[0]
+        assert "White Rook on f1" in text.split("O-O (from e1):")[1].splitlines()[0]
+
+
+class TestWhichPieceMoved:
+    def test_names_the_square_the_piece_came_from(self):
+        """From the eval: Nd2 "develops the c1 knight" when only the f3 knight
+        could play it."""
+        board = chess.Board("4k3/8/8/8/8/5N2/8/2N1K3 w - - 0 1")
+        assert "1. Nfd2 (from f3)" in walkthrough.describe(board, ["Nfd2"])
 
 
 class TestEndOfLine:

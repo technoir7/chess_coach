@@ -5,7 +5,7 @@ from src.models import SystemConfig, TruthPacket, CoachSpeechRules, CandidateLin
 from src.coach import prompts
 from src.coach.opening_db import OpeningDB
 from src.coach.threats import detect_threats
-from src.coach import verifier
+from src.coach import review, verifier
 from src.engine.stockfish import AnalysisEngine
 from src.engine.leela import IntuitionEngine
 from src.coach.gate import LogicGate
@@ -390,7 +390,8 @@ class ChessCoach:
 
 
 def verified_completion(
-    llm, prompt: str, board: chess.Board, sanctioned_lines: List[List[str]], attempts: int = 2
+    llm, prompt: str, board: chess.Board, sanctioned_lines: List[List[str]], attempts: int = 2,
+    check=review.rewrite,
 ) -> Optional[str]:
     """Generate text and only return it if it survives verification.
 
@@ -402,13 +403,17 @@ def verified_completion(
     The engine's own lines are passed through as sanctioned, so quoting the
     search is allowed while reordering or extending it is not.
 
-    Each draft is first checked by the model against the prompt's facts, which
-    doubles the time per answer; the verifier then judges the checked text,
-    since that is what the player would see.
+    Each draft is first checked by the model against the prompt's facts
+    (`review`), which takes a second call; the verifier then judges the checked
+    text, since that is what the player would see.
     """
     for attempt in range(attempts):
         draft = llm.generate_content(prompt).text
-        response = llm.generate_content(prompts.review_prompt(prompt, draft)).text
+        try:
+            response = check(llm, prompt, draft)
+        except review.ReviewError as e:
+            print(f"[Coach] Self-check failed (attempt {attempt + 1}/{attempts}): {e}")
+            continue
         result = verifier.verify(response, board, sanctioned_lines=sanctioned_lines)
         if result.ok:
             return response

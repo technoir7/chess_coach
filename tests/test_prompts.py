@@ -144,7 +144,7 @@ class TestEngineLines:
             ]),
             board,
         )
-        assert "after Nf3 (35cp)" in text
+        assert "after Nf3 (35cp, roughly equal)" in text
         assert "2. Nf3 Nc6 3. d4 cxd4" in text
 
     def test_numbers_correctly_when_black_is_to_move(self):
@@ -254,7 +254,7 @@ class TestPositionsInsideLines:
             ]),
             board_after("e4", "e5"),
         )
-        assert "2. Nf3: White Knight on f3 attacks Pawn on e5" in text
+        assert "2. Nf3 (from g1): White Knight on f3 attacks Pawn on e5" in text
         assert "POSITION AT THE END OF THIS LINE" in text
 
     def test_the_current_position_states_material_and_pawns(self):
@@ -268,12 +268,32 @@ class TestPositionsInsideLines:
         assert "MATERIAL AND PAWNS" in rules
 
 
-class TestReviewPrompt:
-    def test_carries_the_brief_and_the_draft(self):
-        text = prompts.review_prompt("BRIEF WITH FACTS", "A DRAFT ANSWER")
-        assert "BRIEF WITH FACTS" in text
-        assert "A DRAFT ANSWER" in text
+class TestEvalInWords:
+    def test_every_number_carries_its_band(self):
+        """From the eval: -670cp called "a clear edge" - the scale's word for
+        101-250 - with the scale twenty lines away."""
+        assert prompts.eval_band(-670) == "decisive advantage for Black"
+        assert prompts.eval_band(150) == "clear advantage for White"
+        assert prompts.eval_band(60) == "slight advantage for White"
+        assert prompts.eval_band(-13) == "roughly equal"
 
-    def test_asks_for_the_corrected_text_alone(self):
-        text = prompts.review_prompt("brief", "draft")
-        assert "corrected explanation only" in text
+    def test_lines_and_the_evaluation_show_the_band(self):
+        board = board_after("e4", "c5")
+        lines = [CandidateLine(move_san="Nf3", eval_cp=-670, line_san=["Nf3"])]
+        facts = prompts.position_facts(board, packet(engine_eval=150, candidate_lines=lines), "")
+        assert "after Nf3 (-670cp, decisive advantage for Black)" in facts
+        assert "150 centipawns (clear advantage for White)" in facts
+
+
+class TestUndevelopedPieces:
+    def test_names_minor_pieces_still_at_home(self):
+        """From the eval: Nbd2 "develops the last minor piece" with the f1
+        bishop still at home."""
+        status = prompts.development_status(board_after("d4", "d5", "Nf3", "Nf6", "Bf4", "e6"))
+        assert "White minor pieces still on their starting squares: Bishop on f1, Knight on b1" in status
+
+
+class TestHistoryHeader:
+    def test_a_clipped_history_is_not_called_the_complete_game(self):
+        text = prompts.explain_prompt("facts", "(earlier moves omitted)\n31. Kf1")
+        assert "complete game" not in text

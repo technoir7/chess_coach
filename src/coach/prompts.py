@@ -88,15 +88,16 @@ def development_status(board: chess.Board) -> str:
         start_squares[(piece.piece_type, piece.color)].add(square)
 
     developed = {chess.WHITE: [], chess.BLACK: []}
+    at_home = {chess.WHITE: [], chess.BLACK: []}
 
     for square, piece in board.piece_map().items():
         if piece.piece_type == chess.PAWN:
             continue
+        name = f"{chess.piece_name(piece.piece_type).capitalize()} on {chess.square_name(square)}"
         if square not in start_squares.get((piece.piece_type, piece.color), set()):
-            developed[piece.color].append(
-                f"{chess.piece_name(piece.piece_type).capitalize()} on "
-                f"{chess.square_name(square)}"
-            )
+            developed[piece.color].append(name)
+        elif piece.piece_type in (chess.KNIGHT, chess.BISHOP):
+            at_home[piece.color].append(name)
 
     lines = []
     for color, label in ((chess.WHITE, "White"), (chess.BLACK, "Black")):
@@ -107,6 +108,12 @@ def development_status(board: chess.Board) -> str:
             lines.append(
                 f"{label} has NOT developed any piece - all pieces are on their starting squares."
             )
+        # Stated as well as implied: "Nbd2 develops the last minor piece" was
+        # written with the f1 bishop still at home.
+        lines.append(
+            f"{label} minor pieces still on their starting squares: "
+            + (", ".join(sorted(at_home[color])) or "none")
+        )
     return "\n".join(lines)
 
 
@@ -160,6 +167,24 @@ def format_eval(eval_cp: Optional[float]) -> str:
     return "unknown" if eval_cp is None else str(int(eval_cp))
 
 
+def eval_band(eval_cp: float) -> str:
+    """The EVALUATION SCALE's word for a number, stated beside it.
+
+    With the scale twenty lines away, -670cp was called "a clear edge" - the
+    scale's word for 101-250.
+    """
+    size = abs(eval_cp)
+    if size <= 40:
+        return "roughly equal"
+    side = "White" if eval_cp > 0 else "Black"
+    band = "slight" if size <= 100 else "clear" if size <= 250 else "decisive"
+    return f"{band} advantage for {side}"
+
+
+def _with_band(eval_cp: Optional[float]) -> str:
+    return format_eval(eval_cp) if eval_cp is None else f"{format_eval(eval_cp)}cp, {eval_band(eval_cp)}"
+
+
 def vibe_reading(vibe_score: Optional[float]) -> str:
     """Describe the Leela reading in words rather than as a number.
 
@@ -206,7 +231,7 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
     rendered = ["ENGINE LINES (searched by the engine - the ONLY sequences you may quote):"]
     for line in packet.candidate_lines:
         rendered.append(
-            f"- after {line.move_san} ({format_eval(line.eval_cp)}cp): "
+            f"- after {line.move_san} ({_with_band(line.eval_cp)}): "
             f"{numbered_line(line.line_san, board)}"
         )
         # Stated rather than left to inference: the model has described a
@@ -241,7 +266,7 @@ DEVELOPMENT:
 LEGAL MOVES (STRICTLY ENFORCED):
 {legal_moves_list(board)}
 
-Stockfish Evaluation: {format_eval(packet.engine_eval)} centipawns
+Stockfish Evaluation: {format_eval(packet.engine_eval)} centipawns{"" if packet.engine_eval is None else f" ({eval_band(packet.engine_eval)})"}
 Human intuition (Maia-1500, a club-strength human-like net - NOT a second
 evaluation, and not on the same scale as the number above):
 {vibe_reading(packet.vibe_score)}
@@ -262,7 +287,7 @@ def explain_prompt(facts: str, history: str) -> str:
 
 {facts}
 
-MOVES PLAYED SO FAR (this is the complete game - no other move has been played):
+MOVES PLAYED SO FAR (no other move has been played, apart from any marked as omitted):
 {history}
 
 {GROUNDING_RULES}
@@ -276,7 +301,7 @@ def chat_prompt(facts: str, history: str, question: str) -> str:
 
 {facts}
 
-MOVES PLAYED SO FAR (this is the complete game - no other move has been played):
+MOVES PLAYED SO FAR (no other move has been played, apart from any marked as omitted):
 {history}
 
 User's Question: {question}
@@ -305,44 +330,6 @@ You must not: {', '.join(rules.must_not)}
 
 Give one short, punchy piece of advice for the player. Do not name a move unless
 it appears in the engine's top moves above.
-"""
-
-
-def review_prompt(brief: str, draft: str) -> str:
-    """A second pass over a draft, checking it against the facts it was written from.
-
-    Round 3 showed that adding facts to the brief had stopped helping: about a
-    quarter of answers still said something false. Checking a statement against
-    a list is an easier job than writing correctly from scratch, so the draft is
-    handed back with the facts and anything they do not support is removed.
-    """
-    return f"""You are checking a chess explanation for false statements before a student reads it.
-
-THE BRIEF the explanation was written from, with every verified fact about the position:
-<<<
-{brief}
->>>
-
-THE DRAFT:
-<<<
-{draft}
->>>
-
-Check every statement in the draft about the position, the game or the engine
-lines against the facts in the brief:
-- a piece attacking, defending, protecting, supporting or pinning something:
-  PIECE RELATIONS for the current position; MOVE BY MOVE and POSITION AT THE
-  END OF THIS LINE for positions inside an engine line
-- material, doubled, isolated or passed pawns, open files: MATERIAL AND PAWNS,
-  or a line's end-position facts
-- a move being forced, or a side having to play it: only if MOVE BY MOVE says
-  that reply is forced
-- checks and captures in a line: that line's FACTS
-- move sequences: only the ENGINE LINES, quoted exactly, or the moves played
-Delete or correct every statement the facts do not support. Keep everything
-else as it is, including opinions and plans, and keep the same tone and length.
-
-Reply with the corrected explanation only - no preamble and no list of changes.
 """
 
 

@@ -17,10 +17,12 @@ from src.coach import relations, structure
 INDENT = "      "
 
 
-def _label(board: chess.Board, san: str) -> str:
-    """The move with its number, read before it is played: "15. Nf5" or "15... Nf5"."""
+def _label(board: chess.Board, san: str, move: chess.Move) -> str:
+    """The move with its number and the square it leaves, read before it is
+    played: "15. Nf5 (from d4)". SAN leaves out where a piece came from, and
+    "Nd2 develops the c1 knight" was written when only the f3 knight could."""
     dots = "." if board.turn == chess.WHITE else "..."
-    return f"{board.fullmove_number}{dots} {san}"
+    return f"{board.fullmove_number}{dots} {san} (from {chess.square_name(move.from_square)})"
 
 
 def _replies(board: chess.Board) -> str:
@@ -54,7 +56,7 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> str:
             move = replay.parse_san(san)
         except ValueError:
             break
-        label = _label(replay, san)
+        label = _label(replay, san, move)
         squares = _moved_squares(replay, move)
         replay.push(move)
         pieces = "; ".join(relations.piece(replay, square) for square in squares)
