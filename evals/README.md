@@ -13,6 +13,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 |---|---|---|---|
 | 1 | 100 (2026) | `gemma3:12b`, `claude-sonnet` | as first built |
 | 2 | 100 (2027) | `claude-sonnet` | after the fixes round 1 prompted (false alarms, line facts) |
+| 3 | 100 (2028) | `claude-sonnet`, `claude-opus` | as round 2; the prompt adds what each piece attacks, defends and pins, whose turn it is, and the real move number |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
