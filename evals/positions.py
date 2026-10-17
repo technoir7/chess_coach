@@ -49,6 +49,7 @@ def pick_plies(length: int, rng: random.Random) -> List[int]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     round_argument(parser)
+    parser.add_argument("--count", type=int, default=COUNT)
     args = parser.parse_args()
     positions_file = positions_path(args.round)
     if positions_file.exists():
@@ -72,7 +73,7 @@ def main() -> None:
     positions = []
     try:
         game = 0
-        while len(positions) < COUNT:
+        while len(positions) < args.count:
             game += 1
             board = chess.Board()
             while not board.is_game_over() and len(board.move_stack) < MAX_PLIES:
@@ -101,7 +102,7 @@ def main() -> None:
         player_engine.stop()
 
     positions_file.parent.mkdir(exist_ok=True)
-    positions_file.write_text("".join(json.dumps(p) + "\n" for p in positions[:COUNT]))
+    positions_file.write_text("".join(json.dumps(p) + "\n" for p in positions[:args.count]))
 
 
 if __name__ == "__main__":

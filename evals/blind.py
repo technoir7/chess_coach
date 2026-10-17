@@ -13,6 +13,7 @@ import hashlib
 import json
 import random
 import sys
+from typing import Dict, List
 
 from evals.positions import positions_path
 from evals.score import round_argument, round_dir
@@ -20,8 +21,17 @@ from evals.score import round_argument, round_dir
 BATCH_SIZE = 30
 
 
-def _key(model: str, id: str, attempt: int) -> str:
-    return hashlib.sha256(f"{model}|{id}|{attempt}".encode()).hexdigest()[:10]
+def _key(id: str, text: str) -> str:
+    return hashlib.sha256(f"{id}|{text}".encode()).hexdigest()[:10]
+
+
+def group(entries) -> Dict[str, List[Dict]]:
+    """Answers keyed by position and text, so an answer two arms share word for
+    word is labelled once and the label counts for both."""
+    groups: Dict[str, List[Dict]] = {}
+    for where, text in entries:
+        groups.setdefault(_key(where["id"], text), []).append(where)
+    return groups
 
 
 def make(number: int) -> None:
@@ -29,19 +39,21 @@ def make(number: int) -> None:
     positions = {
         p["id"]: p for p in map(json.loads, positions_path(number).read_text().splitlines())
     }
-    items, keys = [], {}
+    entries, texts = [], {}
     for path in sorted(folder.glob("responses-*.jsonl")):
         for response in map(json.loads, path.read_text().splitlines()):
-            position = positions[response["id"]]
             for attempt, entry in enumerate(response["attempts"]):
                 if entry["text"] is None:
                     continue
-                key = _key(response["model"], response["id"], attempt)
-                keys[key] = {"model": response["model"], "id": response["id"], "attempt": attempt}
-                items.append({
-                    "key": key, "fen": position["fen"], "prompt": position["prompt"],
-                    "answer": entry["text"],
-                })
+                entries.append(({"model": response["model"], "id": response["id"], "attempt": attempt}, entry["text"]))
+                texts[_key(response["id"], entry["text"])] = entry["text"]
+
+    keys = group(entries)
+    items = [
+        {"key": key, "fen": positions[where[0]["id"]]["fen"], "prompt": positions[where[0]["id"]]["prompt"],
+         "answer": texts[key]}
+        for key, where in keys.items()
+    ]
 
     random.Random(2026).shuffle(items)
     blind.mkdir(exist_ok=True)
@@ -65,10 +77,15 @@ def join(number: int) -> None:
     if missing:
         sys.exit(f"{len(missing)} answers unlabelled, e.g. {sorted(missing)[:3]}")
 
+    # Rounds before 6 kept one answer per key.
+    expanded = [
+        (where, labels[key]) for key in sorted(keys)
+        for where in (keys[key] if isinstance(keys[key], list) else [keys[key]])
+    ]
     (folder / "labels.jsonl").write_text("".join(
-        json.dumps({**keys[key], "claims": labels[key]}) + "\n" for key in sorted(keys)
+        json.dumps({**where, "claims": claims}) + "\n" for where, claims in expanded
     ))
-    print(f"{len(keys)} labels joined")
+    print(f"{len(keys)} labels joined, covering {len(expanded)} answers")
 
 
 if __name__ == "__main__":

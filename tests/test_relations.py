@@ -53,7 +53,7 @@ class TestPins:
     def test_a_pin_to_the_king_is_said_to_be_absolute(self):
         board = board_after("e4", "e6", "d4", "d5", "Nc3", "Bb4")
         assert (
-            "Bishop on b4 pins White Knight on c3 to the King on e1 (it cannot legally move off that line)"
+            "Bishop on b4 pins White Knight on c3 to the King on e1 (it may only move along that line)"
             in relations.describe(board)
         )
 

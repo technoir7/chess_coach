@@ -7,7 +7,7 @@ reads the position as text and has to trace lines across it; the board settles
 each of these outright, so the prompt states them instead.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import chess
 
@@ -72,9 +72,9 @@ def _walk(board: chess.Board, square: int, step) -> List[int]:
             found.append(target)
 
 
-def _pin(board: chess.Board, square: int, piece: chess.Piece, step) -> Optional[str]:
+def _pin(board: chess.Board, square: int, piece: chess.Piece, step) -> Optional[Tuple[int, int]]:
     """A pin along one ray: an enemy piece with a more valuable enemy piece
-    straight behind it."""
+    straight behind it. Returns the pinned square and the one behind."""
     occupied = _walk(board, square, step)
     if len(occupied) < 2:
         return None
@@ -83,13 +83,38 @@ def _pin(board: chess.Board, square: int, piece: chess.Piece, step) -> Optional[
         return None
     if _value(back) <= _value(front):
         return None
+    return occupied[0], occupied[1]
 
+
+def _sorted_pieces(board: chess.Board, color: chess.Color):
+    return sorted(
+        ((sq, p) for sq, p in board.piece_map().items() if p.color == color),
+        key=lambda item: _name(item[1], item[0]),
+    )
+
+
+def pins(board: chess.Board) -> List[Tuple[int, int, int]]:
+    """Every pin on the board, as (pinning square, pinned square, square behind)."""
+    found = []
+    for color in (chess.WHITE, chess.BLACK):
+        for square, piece in _sorted_pieces(board, color):
+            for step in _DIRECTIONS.get(piece.piece_type, []):
+                pin = _pin(board, square, piece, step)
+                if pin:
+                    found.append((square, *pin))
+    return found
+
+
+def _pin_line(board: chess.Board, pinner: int, pinned: int, behind: int) -> str:
+    piece, front, back = (board.piece_at(s) for s in (pinner, pinned, behind))
     text = (
-        f"- {_side(piece.color)} {_name(piece, square)} pins "
-        f"{_side(front.color)} {_name(front, occupied[0])} to the {_name(back, occupied[1])}"
+        f"- {_side(piece.color)} {_name(piece, pinner)} pins "
+        f"{_side(front.color)} {_name(front, pinned)} to the {_name(back, behind)}"
     )
     if back.piece_type == chess.KING:
-        text += " (it cannot legally move off that line)"
+        # "Cannot legally move off that line" was read as "cannot move": a pawn
+        # pinned along its file was said to be frozen while it could still push.
+        text += " (it may only move along that line)"
     return text
 
 
@@ -99,14 +124,10 @@ def describe(board: chess.Board) -> str:
 
 def entries(board: chess.Board) -> List[str]:
     """The relations as lines, without a header, for a position inside a line."""
-    lines, pins = [], []
-    for color in (chess.WHITE, chess.BLACK):
-        for square, piece in sorted(board.piece_map().items(), key=lambda item: _name(item[1], item[0])):
-            if piece.color != color:
-                continue
-            lines.append(_piece_line(board, square, piece))
-            for step in _DIRECTIONS.get(piece.piece_type, []):
-                pin = _pin(board, square, piece, step)
-                if pin:
-                    pins.append(pin)
-    return lines + (pins or ["- Pinned pieces: none."])
+    lines = [
+        _piece_line(board, square, piece)
+        for color in (chess.WHITE, chess.BLACK)
+        for square, piece in _sorted_pieces(board, color)
+    ]
+    pin_lines = [_pin_line(board, *pin) for pin in pins(board)]
+    return lines + (pin_lines or ["- Pinned pieces: none."])

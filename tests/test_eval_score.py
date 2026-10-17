@@ -115,3 +115,15 @@ class TestFailedSelfCheck:
         assert results["false_alarms"] == 0
         assert results["wrong_unchecked"] == 1
         assert results["wrong_shown"] == 1
+
+
+class TestIdenticalAnswersAreLabelledOnce:
+    def test_one_key_per_distinct_answer_to_a_position(self):
+        from evals.blind import group
+        entries = [
+            ({"model": "a", "id": "p1", "attempt": 0}, "same text"),
+            ({"model": "b", "id": "p1", "attempt": 0}, "same text"),
+            ({"model": "b", "id": "p2", "attempt": 0}, "same text"),
+        ]
+        groups = group(entries)
+        assert sorted(len(v) for v in groups.values()) == [1, 2]

@@ -16,6 +16,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 3 | 100 (2028) | `claude-sonnet`, `claude-opus` | as round 2; the prompt adds what each piece attacks, defends and pins, whose turn it is, and the real move number |
 | 4 | 100 (2029) | `claude-sonnet` | as round 3; the prompt adds, for each engine line, what the moved piece does after every move and whether the reply is forced, the full relations of the line's final position, and material and pawn-structure counts; the model then checks its draft against the facts before the checker sees it |
 | 5 | 100 (2030) | `claude-sonnet-rewrite`, `claude-sonnet-edit` | as round 4; the prompt adds each evaluation's band in words, whose piece each capture takes, the material after a line's cheapest recapture, where each line move's piece came from, and which minor pieces are still at home |
+| 6 | 300 (2031) | `claude-sonnet-claims` | as round 5, with the pin note reworded ("it may only move along that line"); the self-check also lists the answer's claims in a fixed form, the board decides each, and a sentence the board contradicts is rewritten with the truth or deleted |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
@@ -37,6 +38,14 @@ Round 5's first run was stopped after three positions and discarded, unlabelled:
 the checker rejected answers that repeated the new recapture fact ("if White
 takes back with fxe3") because the recapture is in no engine line. The checker
 now accepts it, and the run started again from the first position.
+
+Round 6 is three times the size: at 3 to 5 false answers in 100, a round of
+100 cannot tell 4 from 2. It runs one arm, `claims`, and also records each
+first answer as the model's own check left it, before the board checked its
+claims (`claude-sonnet-claims-firstpass`). Both are labelled, shuffled
+together; an answer the board's check did not change is the same text in both
+and is labelled once. Final against first pass, same positions and reviewers,
+measures what checking claims on the board adds.
 
 ## Steps
 
