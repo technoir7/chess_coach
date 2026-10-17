@@ -1,0 +1,207 @@
+{"model": "claude-sonnet", "id": "p002", "attempt": 0, "claims": [{"kind": "wrong_check", "about": "line", "quote": "as seen in the checks Rc1 and Nd2+ in the line", "why": "28...Rc1 is not check: the White rook on d1 stands between c1 and the king on f1; the FACTS list only Bxf7+ and Nd2+ as checks."}]}
+{"model": "claude-sonnet", "id": "p026", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "so Black has no loose pieces", "why": "The rook on d8 is defended by nothing (and the a7 pawn is undefended too)."}]}
+{"model": "claude-opus", "id": "p087", "attempt": 1, "claims": []}
+{"model": "claude-opus", "id": "p074", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "The Pawn on c7 defends the bishop, so taking it would only trade pieces.", "why": "cxd6 cxd6 would give a pawn for Black's bishop, winning a piece rather than trading pieces."}]}
+{"model": "claude-sonnet", "id": "p018", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p030", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "The check forces the Black King to f8.", "why": "After 25. Qc6+ Black can also play Ke7, Rd7 or Qd7; Kf8 is not forced."}]}
+{"model": "claude-opus", "id": "p011", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p018", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p049", "attempt": 0, "claims": [{"kind": "wrong_piece", "about": "current", "quote": "opening the Bishop on f1's diagonal", "why": "There is no bishop on f1; White's bishops stand on b2 and g2."}]}
+{"model": "claude-sonnet", "id": "p031", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p015", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p040", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p080", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p084", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p072", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p020", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p091", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "Black has to recapture with 11...bxc6", "why": "After 11. Qxc6+ Black has other legal replies, including the recapture Nxc6 and blocks with Bd7, Nbd7 or Nfd7."}]}
+{"model": "claude-opus", "id": "p027", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p066", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p095", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "This opens the a-file against Black's queenside.", "why": "After 13. a4 and through the whole line the a-file still holds White's a4 pawn and Black's a6 pawn; nothing is exchanged on it."}]}
+{"model": "claude-sonnet", "id": "p043", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p094", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "White cannot deal with both problems in one move", "why": "Rf1 both moves the attacked rook to safety and covers the c1 promotion square, as the answer itself later says."}]}
+{"model": "claude-opus", "id": "p071", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "White **must** play **7. Qxa8**", "why": "Qxa8 is not forced; White has many other legal moves, including Qxf6, Nh3 and h4."}]}
+{"model": "claude-sonnet", "id": "p082", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p087", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p079", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p025", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p046", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p040", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "White has one more pawn (six against five)", "why": "White has seven pawns (a3, c2, c3, d5, g4, g6, h3) against Black's five, so two more."}, {"kind": "other", "about": "current", "quote": "White is down a piece for a pawn", "why": "White is down a knight for two pawns (seven pawns against five)."}]}
+{"model": "claude-sonnet", "id": "p028", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p006", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p076", "attempt": 0, "claims": [{"kind": "wrong_capture", "about": "line", "quote": "after **Rxb7 Rxa5** the bishops come off", "why": "Only Black's bishop is captured (Rxb7); White's bishop stays on e5 and later plays Bf6."}]}
+{"model": "claude-opus", "id": "p049", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p074", "attempt": 0, "claims": [{"kind": "wrong_capture", "about": "line", "quote": "Black's rook captures White's rook on f3 for free", "why": "In the Kd2 line White takes the bishop with 48. cxd6 in return; FACTS give Black a net gain of 3 pawns, not a whole rook."}]}
+{"model": "claude-sonnet", "id": "p092", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p094", "attempt": 0, "claims": [{"kind": "wrong_capture", "about": "line", "quote": "White loses the exchange and ends up well behind in material.", "why": "In the Rf1 line White gives a whole rook for the c-pawn (Rxc1 takes the new queen, Rxc1 takes the rook), not a rook for a minor piece."}]}
+{"model": "claude-sonnet", "id": "p055", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "Material is roughly level in terms of pieces", "why": "Black has two bishops and two knights against White's one bishop and one knight, so Black is two minor pieces up (for a pawn)."}]}
+{"model": "claude-opus", "id": "p032", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p008", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "Castles to get the king safe and connect the rooks.", "why": "After O-O the bishop on c1 still stands between the rooks on a1 and f1, so they are not connected."}]}
+{"model": "claude-sonnet", "id": "p023", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p068", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p027", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p084", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p012", "attempt": 1, "claims": [{"kind": "other", "about": "current", "quote": "White is a bishop up for a pawn or so.", "why": "White has B+N+R and six pawns against N+R and five pawns, so White is a bishop AND a pawn up (4 pawns of material), not a bishop for a pawn."}]}
+{"model": "claude-sonnet", "id": "p073", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p090", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p060", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p037", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p076", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "that rook is defended only by the a5 pawn's support from the rook's own protection", "why": "Nothing defends the rook on a6; the a5 pawn defends nothing (PIECE RELATIONS)."}]}
+{"model": "claude-opus", "id": "p056", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p090", "attempt": 1, "claims": []}
+{"model": "claude-sonnet", "id": "p080", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p033", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p050", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p044", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "This brings the king closer and keeps everything protected", "why": "After 56. Ke6 the king defends f7 and d7, but the h5 pawn is defended by nothing."}]}
+{"model": "claude-sonnet", "id": "p085", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p034", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p056", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "Black wins an exchange and more.", "why": "In the a4 line Black gives queen and bishop for two rooks, and the FACTS say White gains 2 pawns of material over it."}]}
+{"model": "claude-sonnet", "id": "p007", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p069", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p059", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p009", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "That is why castling shows up in two of the three engine lines.", "why": "All three engine lines contain O-O (15. O-O in the Rc1 line, 14. O-O, and 16. O-O in the Qe2 line)."}]}
+{"model": "claude-opus", "id": "p005", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "White's king must step to f2.", "why": "After 9. Qxd5 Qb4+ White can also answer with Ke2, Kd1, Qd2 or c3; Kf2 is only the engine's choice."}]}
+{"model": "claude-opus", "id": "p086", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p065", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p036", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p041", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p003", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p052", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p019", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p034", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p081", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p069", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p016", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p039", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "Black has to castle queenside to get out of the pin", "why": "After 11. d4 Black has many legal moves, including O-O, so castling queenside is not forced."}, {"kind": "wrong_capture", "about": "line", "quote": "The line also ends on a capture that can be answered, so the material count there is unreliable.", "why": "The Nxe5 line ends with 14...Rae8, which is not a capture, and its FACTS give the material count without any recapture caveat."}]}
+{"model": "claude-opus", "id": "p077", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p022", "attempt": 0, "claims": [{"kind": "wrong_check", "about": "line", "quote": "White gets a few checks", "why": "In the Be6 line White gives only one check (56. Rf7+); 57. Rd7 is not check."}]}
+{"model": "claude-opus", "id": "p024", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p024", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p003", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p065", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p062", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p089", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "pushes the Bishop on d6 back to c7, ending its pressure on a3 and g3", "why": "After 12. c5 Bc7 the bishop on c7 still attacks g3 along c7-d6-e5-f4-g3, which is empty."}, {"kind": "other", "about": "line", "quote": "It brings the last minor piece into play and connects the rooks.", "why": "After 12. Bb2 the queen on d1 still stands between the rooks on a1 and e1, so they are not connected."}]}
+{"model": "claude-opus", "id": "p033", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p001", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p029", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p010", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p037", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p093", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p061", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "In all three lines Black's queen retreats to d8, and White finishes development and castles", "why": "White never castles in the c5 line (7. c5 Ngf6 8. Nd2 Qd8 9. Be2 b6 10. b4 bxc5)."}]}
+{"model": "claude-opus", "id": "p039", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p014", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "Black has a rook, two bishops, a knight and six pawns", "why": "Black has five pawns (b7, c6, f7, g7, h7), not six."}]}
+{"model": "claude-sonnet", "id": "p014", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "the pawn on b7 defends it", "why": "A pawn on b7 covers a6 and c6, not c5; the knight on c5 has no defender at all."}, {"kind": "other", "about": "current", "quote": "Black has an extra bishop and several extra pawns, which accounts for most of the evaluation.", "why": "Black is up a rook, a bishop and a knight but only one pawn (5 pawns to 4)."}]}
+{"model": "claude-sonnet", "id": "p067", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p001", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p008", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p004", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p083", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p097", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "It closes the long diagonal of Black's bishop on b7, which currently attacks the pawn on e4.", "why": "Pushing e4-e5 vacates e4, so after 14. e5 the b7 bishop's diagonal opens through d5 and e4 to the knight on f3."}]}
+{"model": "claude-opus", "id": "p068", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p063", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p077", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "Black has doubled c-pawns after the exchanges on d5 and c6", "why": "Black has a single c-pawn (c6) and no b- or d-pawn; there are no doubled c-pawns."}]}
+{"model": "claude-opus", "id": "p035", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p045", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p096", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p091", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p058", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p059", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p047", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p053", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "White's king is forced to move", "why": "After 8. Bxc4 Nb4 9. Bb3 Be6 White has many legal non-king moves (e.g. Bxe6, Nf3, a3); Ke2 is not forced."}]}
+{"model": "claude-sonnet", "id": "p064", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p087", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "Black's Pawn on e4 is isolated and undefended", "why": "Black has a pawn on f7 on an adjacent file, so the e4 pawn is not isolated."}]}
+{"model": "claude-opus", "id": "p061", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p028", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "gets a powerful pawn on e5 supporting e6", "why": "After 36. dxe5 the pawn on e5 is directly behind e6 and does not defend it; nothing defends e6."}, {"kind": "other", "about": "line", "quote": "which creates a connected e5\u2013e6 pawn duo", "why": "Pawns on e5 and e6 are doubled on the same file, not connected."}]}
+{"model": "claude-sonnet", "id": "p075", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p032", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p011", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p035", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p020", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p063", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "both sides place their rooks on open files", "why": "In the O-O line White's rooks end on a1 and f1, files still holding pawns (a5/a7, f2/f7); only Black's rooks reach open files."}]}
+{"model": "claude-sonnet", "id": "p004", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p099", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p088", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "**24. Bc6+** (+2.69) forces the king to f7 first", "why": "After 24. Bc6+ Black can also block with Rd7 or Qd7, so Kf7 is not forced."}]}
+{"model": "claude-opus", "id": "p044", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p048", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "forces the Black king back to b8", "why": "After 28.Qa5+ Black also has Kc8, Kd7, Kc6 and the block ...b6, so Kb8 is not forced."}]}
+{"model": "claude-sonnet", "id": "p050", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p092", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p100", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p042", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p062", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p046", "attempt": 0, "claims": [{"kind": "wrong_history", "about": "current", "quote": "White has just won a bishop with 37. Nxd6", "why": "37. Nxd6 captured the rook that had just taken on d6 (35...Rxd6), not a bishop."}, {"kind": "wrong_attack", "about": "current", "quote": "Black's rook also attacks the pawn on a3, which nothing defends.", "why": "PIECE RELATIONS show the b2 pawn defends a3."}, {"kind": "wrong_eval", "about": "line", "quote": "**Kd2** (247cp) is a little weaker but still strongly winning.", "why": "247cp falls in the 101-250 band, a clear advantage, not a winning one (251+)."}]}
+{"model": "claude-sonnet", "id": "p016", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p012", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p012", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p047", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "The f6 pawn attacks the bishop on g5, but taking it would expose the rook.", "why": "fxg5 captures the pinning bishop itself, so nothing is left attacking the rook on d8."}]}
+{"model": "claude-opus", "id": "p099", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p057", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p073", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p005", "attempt": 1, "claims": []}
+{"model": "claude-sonnet", "id": "p005", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "so that pawn can't legally move", "why": "The pin only keeps the e4 pawn on the e-file; e5 is in the legal move list, so the pawn can legally move."}]}
+{"model": "claude-sonnet", "id": "p086", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p052", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p021", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p043", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p029", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "White wins back a pawn and forces the queens off.", "why": "After 6. Qxd5 Black is not forced to trade; the queen can move away (e.g. Qe7+, Qb6, Qc7) among many legal moves."}, {"kind": "other", "about": "line", "quote": "Qe2+ is a check that forces Black's bishop to retreat.", "why": "After 8. Qe2+ Black can also answer Kf8, Kd7, Qe7, Be6 or Ne4, so the bishop retreat is not forced."}]}
+{"model": "claude-opus", "id": "p057", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p022", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p036", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "It keeps the pawns protected", "why": "After 55. a7 nothing defends the a7 pawn (the rook on b6 and bishop on e4 do not reach a7)."}]}
+{"model": "claude-opus", "id": "p053", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p048", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "leads to the largest material edge in the engine's main line", "why": "The Qa5+ line ends with White 6 pawns ahead, while the b4 line ends with White 7 pawns ahead."}]}
+{"model": "claude-sonnet", "id": "p019", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "a solid, flexible alternative that adds support to e4", "why": "After 13. Re1 the Bishop on e2 blocks the e-file, so the rook does not defend e4 (only c2 and c3 do)."}]}
+{"model": "claude-opus", "id": "p067", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p064", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p088", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p038", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p054", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p071", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "Material is level at the moment", "why": "Black has captured a bishop and a pawn (8 pawns plus bishop pair vs White's 7 pawns and one bishop), so Black is 4 pawns ahead, as the Nh3/h4 FACTS also show."}]}
+{"model": "claude-opus", "id": "p031", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p007", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p015", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p030", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p062", "attempt": 1, "claims": [{"kind": "wrong_check", "about": "line", "quote": "Black gets a couple of checks with **Qc5+**", "why": "Black gives only one check in the line (28...Qc5+); the other check, 30. Rh8+, is White's."}]}
+{"model": "claude-opus", "id": "p006", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p025", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "line", "quote": "This pins down nothing yet", "why": "After 4. Bg5 the bishop pins the Knight on f6 to the Queen on d8 (e7 is empty)."}]}
+{"model": "claude-sonnet", "id": "p095", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p090", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p051", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p060", "attempt": 1, "claims": []}
+{"model": "claude-sonnet", "id": "p072", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p002", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "forcing the Black king to f8", "why": "After 29. Bxf7+ Black can also play Kg7 or Kh8; Kf8 is only the engine's choice."}]}
+{"model": "claude-opus", "id": "p085", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "so White must recapture.", "why": "bxc3 is one of 23 legal moves (Bh3, Ne2 and others are legal), so White is not forced to recapture."}]}
+{"model": "claude-sonnet", "id": "p009", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p082", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p042", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p013", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p078", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p054", "attempt": 0, "claims": [{"kind": "other", "about": "current", "quote": "White Must Recapture with fxe3", "why": "fxe3 is one of 32 legal moves (Rd2, Rde1 and others are legal), so it is not forced."}]}
+{"model": "claude-opus", "id": "p075", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "White then castles, getting the king off e1 and connecting the rooks.", "why": "After 17. O-O the bishop is still on c1, between the rooks on a1 and f1, so the rooks are not connected."}]}
+{"model": "claude-opus", "id": "p055", "attempt": 0, "claims": [{"kind": "other", "about": "line", "quote": "forces it to move to b5", "why": "After 15. Ne5+ Kd8 16. e4 the queen has many other squares (e.g. Qxe4, Qxd4, Qd7); Qb5 is only the engine's choice."}]}
+{"model": "claude-opus", "id": "p098", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p021", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p079", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p100", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p060", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p070", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "keep your pieces protected, as they are now", "why": "Neither the bishop on f3 nor the rook on h1 is defended by anything; only the rook on g2 is protected."}]}
+{"model": "claude-sonnet", "id": "p017", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p071", "attempt": 1, "claims": []}
+{"model": "claude-sonnet", "id": "p010", "attempt": 0, "claims": [{"kind": "wrong_capture", "about": "current", "quote": "The other two captures look attractive", "why": "Ne4 is not a capture; e4 is empty and the move takes nothing."}]}
+{"model": "claude-sonnet", "id": "p098", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p017", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p058", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p093", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p083", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p066", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p089", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p097", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "Here, Black's knight leaving d5 left the b5 pawn hanging", "why": "A knight on d5 never defended b5; before 13...N5b6 the b5 pawn was already attacked by Qb3 and defended by nothing."}]}
+{"model": "claude-opus", "id": "p026", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p038", "attempt": 0, "claims": [{"kind": "wrong_attack", "about": "current", "quote": "Black's pawn on a4 and Bishop on b6 add queenside pressure against b2 and c3.", "why": "Neither the a4 pawn nor the b6 bishop attacks b2 or c3; PIECE RELATIONS give both as attacking nothing."}]}
+{"model": "claude-opus", "id": "p023", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p013", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p051", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p041", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p096", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p045", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p081", "attempt": 0, "claims": []}
+{"model": "claude-sonnet", "id": "p070", "attempt": 0, "claims": []}
+{"model": "claude-opus", "id": "p078", "attempt": 0, "claims": [{"kind": "wrong_history", "about": "current", "quote": "Back at move 32, giving up material with **Bxb2**", "why": "32. Bxb2 captured the rook that had checked on b2 and Qxb2+ only took back the bishop, so White won the exchange rather than giving up material."}]}

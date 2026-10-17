@@ -11,6 +11,8 @@ How often an explanation says something false about the position, labelled blind
 | Round 1, `gemma3:12b` | 72 of 100 | 68 of 100 | 4 |
 | Round 1, Claude Sonnet | 33 of 100 | 32 of 100 | 7 |
 | Round 2, Claude Sonnet, fixes below, fresh positions | 21 of 100 | 20 of 100 | 1 |
+| Round 3, Claude Sonnet, + piece relations, fresh positions | 25 of 100 | 26 of 100 | 0 |
+| Round 3, Claude Opus, same prompt | 28 of 100 | 27 of 100 | 1 |
 
 What this showed:
 
@@ -19,7 +21,8 @@ What this showed:
 - **The facts the model was given misled it.** "White ends up 3 pawns ahead" meant the gain over a line, and models read it as the balance; promotions weren't counted; lines that stop before a recapture looked like won material. Each line's facts now state the gain and the balance separately, count promotions, and say when a line stops mid-exchange.
 - **The improvement is likely but not proven.** 33 to 21 wrong could arise by chance about 8% of the time. Reviewers differ in strictness, so 30 answers from each round were also labelled together by the same two reviewers: 12 wrong against 6.
 
-The commonest remaining mistake is a wrong claim about what a piece attacks, defends or pins, which the checker does not cover.
+- **Telling the model what each piece attacks, defends and pins did not measurably help.** Round 3 added that list to the prompt, plus whose turn it is; Sonnet's count stayed in the same range (25 against 21, within chance). Opus was no better than Sonnet: 12 of its 32 false claims called a move forced when other moves were legal.
+- **About half the remaining mistakes are about positions inside the engine lines**, which the prompt describes only by their checks, captures and material (15 of Sonnet's 29 false claims in round 3, 20 of Opus's 32). The rest are mostly about the current position's material and pawns: "material is level" a bishop down, "doubled c-pawns" with one c-pawn.
 
 ## The problem
 

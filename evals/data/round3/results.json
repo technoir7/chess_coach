@@ -1,0 +1,42 @@
+{
+  "claude-opus": {
+    "positions": 100,
+    "wrong_unchecked": 28,
+    "wrong_shown": 27,
+    "caught": 2,
+    "wrong_in_scope": 7,
+    "caught_in_scope": 0,
+    "fallbacks": 1,
+    "rejections": 7,
+    "false_alarms": 5,
+    "kinds_unchecked": {
+      "other": 22,
+      "wrong_check": 1,
+      "wrong_attack": 5,
+      "wrong_capture": 1,
+      "wrong_history": 1
+    },
+    "median_seconds": 15.6
+  },
+  "claude-sonnet": {
+    "positions": 100,
+    "wrong_unchecked": 25,
+    "wrong_shown": 26,
+    "caught": 0,
+    "wrong_in_scope": 13,
+    "caught_in_scope": 0,
+    "fallbacks": 0,
+    "rejections": 1,
+    "false_alarms": 1,
+    "kinds_unchecked": {
+      "wrong_check": 1,
+      "other": 13,
+      "wrong_capture": 4,
+      "wrong_attack": 8,
+      "wrong_eval": 1,
+      "wrong_history": 1,
+      "wrong_piece": 1
+    },
+    "median_seconds": 8.0
+  }
+}
