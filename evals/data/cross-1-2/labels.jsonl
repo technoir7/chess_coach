@@ -1,0 +1,60 @@
+{"round": 2, "id": "p049", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p099", "model": "claude-sonnet", "claims": [{"kind": "other", "quote": "Black ends it a pawn up", "why": "White is a pawn up now (8 pawns to 7) and Black nets one pawn in the Bd3 line, so material is level at its end."}, {"kind": "wrong_capture", "quote": "Black wins a bishop on e3 in that line", "why": "The line stops on 14...Nxe3 and White recaptures with fxe3, so it is a knight-for-bishop trade, not a bishop won."}]}
+{"round": 2, "id": "p048", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p074", "model": "claude-sonnet", "claims": [{"kind": "wrong_check", "quote": "off the d-file, which removes any rook or knight checks", "why": "After Ke2 Black still has the rook check ...Re3+, and the engine's own Ke2 line has the knight check ...Nc3+ against the king on e2."}]}
+{"round": 2, "id": "p040", "model": "claude-sonnet", "claims": [{"kind": "other", "quote": "forces the Black king to recapture", "why": "After Rxg6+ Black can also play fxg6, Kh7, Kh8 or Kf8, so the king recapture is not forced."}]}
+{"round": 2, "id": "p091", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p004", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p033", "model": "claude-sonnet", "claims": [{"kind": "other", "quote": "White ends one pawn ahead", "why": "Black is a pawn up now (8 pawns to 7), so after White nets one pawn in the line material is level, not White a pawn ahead."}]}
+{"round": 2, "id": "p060", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p010", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p096", "model": "claude-sonnet", "claims": [{"kind": "wrong_attack", "quote": "It is supported by the rook on b1", "why": "A rook on b1 does not defend c2 (c2 has no black defenders at all), which is why Rxc2 in the engine line wins it for nothing."}, {"kind": "wrong_eval", "quote": "It is only a slight edge by comparison.", "why": "Rgf1 is rated 103cp, which the scale puts in the clear/significant band (101-250), not slight."}]}
+{"round": 1, "id": "p013", "model": "claude-sonnet", "claims": [{"kind": "wrong_piece", "quote": "White is fully developed.", "why": "The bishop on c1 has not moved (the development list omits it, and the answer itself later calls Bb2 developing the last minor piece)."}, {"kind": "wrong_attack", "quote": "supporting d4", "why": "From b2 the bishop does not defend d4 because White's own knight on c3 blocks the diagonal."}]}
+{"round": 1, "id": "p087", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p038", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p051", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p074", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p029", "model": "claude-sonnet", "claims": [{"kind": "wrong_attack", "quote": "This retreats the bishop from the pin on f6", "why": "There is no pin: e7 and d8 behind the f6 knight are empty, so the bishop on g5 pins nothing."}]}
+{"round": 1, "id": "p002", "model": "claude-sonnet", "claims": [{"kind": "wrong_piece", "quote": "It brings the last undeveloped piece into the attack", "why": "The knight is already developed on f3, while the rook on h1 is still on its starting square."}]}
+{"round": 2, "id": "p077", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p031", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p072", "model": "claude-sonnet", "claims": [{"kind": "wrong_piece", "quote": "the offside knight is rerouted to b3", "why": "Nb3 in the line is played by the knight from d4; the offside knight on a2 cannot reach b3 and stays on a2."}]}
+{"round": 2, "id": "p055", "model": "claude-sonnet", "claims": [{"kind": "wrong_attack", "quote": "supports the e4 pawn first", "why": "The bishop on e3 stands between e1 and e4, so a rook on e1 does not defend the e4 pawn."}]}
+{"round": 1, "id": "p001", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p071", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p015", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p045", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p066", "model": "claude-sonnet", "claims": [{"kind": "wrong_check", "quote": "It checks the king on d8", "why": "A knight on c7 attacks a8, a6, b5, d5, e6 and e8, not d8, and the FACTS list no check for Nc7."}, {"kind": "other", "quote": "ends up 4 pawns ahead", "why": "The 4 pawns is only the material gained during the line; Black already has queen, rook, bishop and two knights against rook and knight, so Black ends up far more than 4 pawns ahead."}]}
+{"round": 1, "id": "p076", "model": "claude-sonnet", "claims": [{"kind": "other", "quote": "White ends up two pawns ahead", "why": "Black is currently up a piece and two pawns, so after White gains two pawns in the line Black is still ahead, not White."}]}
+{"round": 1, "id": "p072", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p063", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p054", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p047", "model": "claude-sonnet", "claims": [{"kind": "wrong_attack", "quote": "Black's bishop on b4 pins the knight on c3 against the pawn on e4 and the king's side of the board.", "why": "The knight on c3 is not pinned: White's pawn on d2 stands between it and the king on e1, and e4 is not on the bishop's line."}]}
+{"round": 1, "id": "p041", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p079", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p071", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p014", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p052", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p080", "model": "claude-sonnet", "claims": [{"kind": "wrong_attack", "quote": "the queen on c8 eyes the h3 pawn", "why": "The c8-h3 diagonal is blocked by Black's own pawn on e6, so the queen does not see h3."}]}
+{"round": 2, "id": "p083", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p037", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p016", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p011", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p064", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p044", "model": "claude-sonnet", "claims": [{"kind": "wrong_attack", "quote": "Bf3 adds protection to d4", "why": "A bishop on f3 does not attack or defend d4 (its diagonals run f3-e4-d5 and f3-e2-d1)."}]}
+{"round": 1, "id": "p083", "model": "claude-sonnet", "claims": [{"kind": "other", "quote": "The line ends with Black five pawns ahead", "why": "White starts 3 pawns ahead, so after Black wins a rook and knight for a bishop the board shows Black only 2 pawns ahead at the end."}]}
+{"round": 1, "id": "p077", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p019", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p069", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p093", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p057", "model": "claude-sonnet", "claims": [{"kind": "other", "quote": "White has to give up castling rights after the check", "why": "After 9. d3 Qa5+ White can block with Bd2, Nc3, Nbd2, Nfd2, Qd2 or b4 and keep castling rights; Kf1 is not forced."}]}
+{"round": 1, "id": "p058", "model": "claude-sonnet", "claims": [{"kind": "other", "quote": "White picks up a pawn on b4 and ends one pawn ahead", "why": "White is already up two knights for a pawn; at the end of the f6 line White is about 6 pawns ahead, not 1."}, {"kind": "other", "quote": "It trades queens and ends with White three pawns ahead", "why": "At the end of the Qc5 line White has two rooks and a knight against a rook (about 8 pawns ahead), not 3."}, {"kind": "other", "quote": "It also trades queens, leaving White one pawn ahead", "why": "At the end of the Qe5 line White is still up two knights (about 6 pawns ahead), not 1."}]}
+{"round": 1, "id": "p065", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p046", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p059", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p082", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p015", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p066", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p027", "model": "claude-sonnet", "claims": []}
+{"round": 2, "id": "p012", "model": "claude-sonnet", "claims": []}
+{"round": 1, "id": "p037", "model": "claude-sonnet", "claims": []}
