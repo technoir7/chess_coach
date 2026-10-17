@@ -1,0 +1,42 @@
+{
+  "claude-sonnet": {
+    "positions": 100,
+    "wrong_unchecked": 33,
+    "wrong_shown": 32,
+    "caught": 4,
+    "wrong_in_scope": 15,
+    "caught_in_scope": 2,
+    "fallbacks": 7,
+    "rejections": 30,
+    "false_alarms": 25,
+    "kinds_unchecked": {
+      "wrong_piece": 3,
+      "wrong_attack": 11,
+      "other": 14,
+      "wrong_eval": 4,
+      "wrong_check": 3,
+      "wrong_capture": 1
+    },
+    "median_seconds": 9.3
+  },
+  "gemma3:12b": {
+    "positions": 100,
+    "wrong_unchecked": 72,
+    "wrong_shown": 68,
+    "caught": 11,
+    "wrong_in_scope": 37,
+    "caught_in_scope": 8,
+    "fallbacks": 4,
+    "rejections": 16,
+    "false_alarms": 3,
+    "kinds_unchecked": {
+      "wrong_capture": 35,
+      "wrong_attack": 3,
+      "wrong_eval": 40,
+      "other": 29,
+      "wrong_check": 1,
+      "invented_line": 1
+    },
+    "median_seconds": 53.1
+  }
+}

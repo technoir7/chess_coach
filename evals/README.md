@@ -47,6 +47,10 @@ the engine output contradicts. Opinions are not claims: "a solid position" and
 | `wrong_eval` | gets the evaluation wrong: the wrong side better, or a size the scale in the prompt contradicts | no |
 | `other` | any other statement the position contradicts (a mate threat that doesn't exist, a wrong count of pawns) | no |
 
+Naming a piece by where it stands ("the Nf3", "supported by Bd3") says where a
+piece is, not that a move is played: it is `wrong_piece` only if no such piece
+is on that square.
+
 An answer is **wrong** if it contains at least one false claim. Kinds are
 recorded so the checker's blind spots show up, but the headline counts answers.
 
