@@ -401,9 +401,14 @@ def verified_completion(
 
     The engine's own lines are passed through as sanctioned, so quoting the
     search is allowed while reordering or extending it is not.
+
+    Each draft is first checked by the model against the prompt's facts, which
+    doubles the time per answer; the verifier then judges the checked text,
+    since that is what the player would see.
     """
     for attempt in range(attempts):
-        response = llm.generate_content(prompt).text
+        draft = llm.generate_content(prompt).text
+        response = llm.generate_content(prompts.review_prompt(prompt, draft)).text
         result = verifier.verify(response, board, sanctioned_lines=sanctioned_lines)
         if result.ok:
             return response
