@@ -45,6 +45,8 @@ class LineFacts:
     # Material balance in pawns, White minus Black, before and after the line.
     material_before: int = 0
     material_after: int = 0
+    # Set when the last move captures on a square the other side can take back.
+    cut_mid_exchange: Optional[str] = None
 
     @property
     def material_swing(self) -> int:
@@ -88,6 +90,12 @@ class LineFacts:
         else:
             side = "White" if self.material_swing > 0 else "Black"
             parts.append(f"{side} gains {_pawns(abs(self.material_swing))} of material")
+
+        if self.cut_mid_exchange:
+            parts.append(
+                f"the line stops right after a capture on {self.cut_mid_exchange} that can be "
+                "taken back, so the material count leaves out the recapture"
+            )
 
         if self.material_after == 0:
             parts.append("afterwards material is level")
@@ -158,4 +166,8 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
         )
 
     facts.material_after = material_balance(replay)
+    if facts.moves and facts.moves[-1].captured:
+        square = replay.peek().to_square
+        if any(replay.is_capture(move) for move in replay.legal_moves if move.to_square == square):
+            facts.cut_mid_exchange = chess.square_name(square)
     return facts

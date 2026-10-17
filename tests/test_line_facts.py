@@ -93,6 +93,21 @@ class TestMaterialBalance:
         assert "afterwards material is level" in summary
 
 
+class TestLinesCutMidExchange:
+    def test_a_line_ending_on_a_capture_says_the_recapture_is_not_shown(self):
+        """Found running the app: 2. d4 d5 3. e5 Bf5 4. h4 h5 5. Bd3 Bxd3 ends
+        before White takes back, and "Black is 3 pawns ahead" read as real."""
+        board = board_after("e4", "c6")
+        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
+        assert "the line stops right after a capture" in line_facts.describe(board, line).summary()
+
+    def test_no_note_when_nothing_can_take_back(self):
+        """Kxd8 is a capture, but no white piece can retake on d8."""
+        for line in (["dxc5", "dxc5", "Qxd8+", "Kxd8"], ["c3", "e6"]):
+            summary = line_facts.describe(SICILIAN_D6, line).summary()
+            assert "stops right after a capture" not in summary, line
+
+
 class TestSummary:
     def test_summary_names_checks_and_captures(self):
         facts = line_facts.describe(SICILIAN_D6, ["dxc5", "Nf6", "Nc3", "Qa5"])
