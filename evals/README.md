@@ -26,6 +26,13 @@ answers. Draft against round 3 measures the new facts; checked answer against
 draft, on the same positions and labelled by the same reviewers, measures the
 self-check. Only "wrong, no checker" means anything for the draft.
 
+Round 5 runs two versions of the self-check on the same positions:
+`rewrite` (round 4's: the model writes the whole answer again) and `edit` (the
+draft's sentences are numbered and the model returns only the ones it changes).
+Only the checked answers are labelled. The question for `edit` is whether it
+is as accurate as `rewrite` and faster; the comparison with round 4 is across
+different positions and reviewers, so only a large change in it means much.
+
 ## Steps
 
 1. `python -m evals.positions --round N` plays 50-odd games of the coach's club-strength
