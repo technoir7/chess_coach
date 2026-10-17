@@ -8,7 +8,9 @@ handing the draft back with the facts cut false answers from 24 in 100 to 6.
 Two ways to ask for it. `rewrite` has the model write the whole corrected
 answer, which is what round 4 measured. `edit` numbers the draft's sentences and
 asks only for the ones to change: writing out the whole answer again is most of
-the check's time.
+the check's time. In round 5, on the same positions, `edit` left 5 false answers
+in 100 against `rewrite`'s 3 - no detectable difference - and took 14 seconds
+an answer against 17, so it is the default.
 """
 
 import json

@@ -1,0 +1,34 @@
+{
+  "claude-sonnet-edit": {
+    "positions": 100,
+    "wrong_unchecked": 5,
+    "wrong_shown": 5,
+    "caught": 0,
+    "wrong_in_scope": 2,
+    "caught_in_scope": 0,
+    "fallbacks": 0,
+    "rejections": 1,
+    "false_alarms": 1,
+    "kinds_unchecked": {
+      "other": 3,
+      "wrong_attack": 1,
+      "invented_line": 1
+    },
+    "median_seconds": 13.8
+  },
+  "claude-sonnet-rewrite": {
+    "positions": 100,
+    "wrong_unchecked": 3,
+    "wrong_shown": 3,
+    "caught": 0,
+    "wrong_in_scope": 0,
+    "caught_in_scope": 0,
+    "fallbacks": 0,
+    "rejections": 2,
+    "false_alarms": 2,
+    "kinds_unchecked": {
+      "other": 3
+    },
+    "median_seconds": 16.8
+  }
+}

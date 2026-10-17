@@ -391,7 +391,7 @@ class ChessCoach:
 
 def verified_completion(
     llm, prompt: str, board: chess.Board, sanctioned_lines: List[List[str]], attempts: int = 2,
-    check=review.rewrite,
+    check=review.edit,
 ) -> Optional[str]:
     """Generate text and only return it if it survives verification.
 

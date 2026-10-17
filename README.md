@@ -15,6 +15,8 @@ How often an explanation says something false about the position, labelled blind
 | Round 3, Claude Opus, same prompt | 28 of 100 | 27 of 100 | 1 |
 | Round 4, Claude Sonnet, + facts inside lines, first draft, fresh positions | 24 of 100 | — | — |
 | Round 4, Claude Sonnet, same, after checking its own draft | 6 of 100 | 5 of 100 | 0 |
+| Round 5, Claude Sonnet, + fixes below, check rewrites the answer, fresh positions | 3 of 100 | 3 of 100 | 0 |
+| Round 5, Claude Sonnet, same, check returns only changed sentences | 5 of 100 | 5 of 100 | 0 |
 
 What this showed:
 
@@ -28,6 +30,9 @@ What this showed:
 
 - **More facts still did not help on their own.** Round 4 replays every engine line on a board and states, after each move, what the moved piece attacks and defends and whether the reply is forced, then the full relations, material and pawn structure of the line's final position; the current position gets material and pawn counts. First drafts were wrong as often as before (24 against 25). Reviewers who rechecked every stated fact with python-chess found none wrong.
 - **Having the model check its own draft against those facts cut false answers from 24 to 6.** The same reviewers labelled drafts and checked answers shuffled together, on the same positions: the check fixed 19 wrong drafts and broke 1 right one (a gap that arises by chance with odds of about 1 in 25,000). Checked answers are as long as the drafts, so it corrects rather than cuts. It doubles the time per answer, to about 17 seconds. Whether the check would work as well without the extra facts was not tested.
+- **Round 5 stated what round 4's last six mistakes got wrong**: the scale's word beside every evaluation, whose piece each capture takes, the material after a line's cheapest recapture, where each line move's piece came from, and which minor pieces are still at home. False answers were 3 and 5 in 100 under the two kinds of check (round 4: 6, on other positions, so within chance).
+- **Returning only the changed sentences is as accurate and faster.** On the same positions the two checks got different answers wrong (3 against 5, no detectable difference), and the shorter reply cut the time per answer from 17 to 14 seconds. It is the default.
+- **What is left is scattered**: "castles and connects the rooks" with a piece still between them (twice), a pawn pinned along a file said to be unable to move at all (twice), one "must", one denied pin, one undefended pawn called defended, and one recapture given as played.
 
 ## The problem
 
@@ -38,7 +43,7 @@ Asked to explain a position, an LLM will often name illegal moves, invent variat
 1. **Engines.** Stockfish searches to depth 15 and returns its top three lines. Leela (lc0, optional) runs the bundled Maia-1500 network for 100 nodes; the model gets its reading in words, as how a club player would see the position, not as a second evaluation.
 2. **Facts.** Engine output goes into a `TruthPacket` (`src/models.py`): evaluation, the top lines as 8 plies of SAN, threats read off the board (hanging pieces, pieces attacked by something cheaper, check), and game phase. `line_facts.py` replays each line and states its checks, captures and material change; `walkthrough.py` states what each move's piece attacks and defends, whether the reply is forced, and the final position's relations and pawn structure; `relations.py` and `structure.py` do the same for the current position. Packets are cached per position, so follow-up questions see the same lines.
 3. **Gate.** `gate.py` decides whether to give in-game advice: only if the player lost more than 100cp or the game phase changed, and never if the evaluation moved less than 20cp or nothing is under threat. Explanations and chat are on demand.
-4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. The model then gets its draft back with the same facts and removes anything they don't support. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines and the game so far, gives a sequence that isn't a contiguous quote of an engine line or of the game, or misstates a check, an exchange or an attack. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
+4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. The model then gets its draft back with the same facts, its sentences numbered, and returns corrections for any sentence they don't support. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines and the game so far, gives a sequence that isn't a contiguous quote of an engine line or of the game, or misstates a check, an exchange or an attack. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
 
 The model is set in `system_config.yaml` (default `claude-sonnet`, run through the `claude` command on your own Claude login, so no API key is needed). Any local Ollama model and Gemini can be picked in the UI instead. On failure `llm.py` falls back to Gemini Flash, then local Ollama models. The web UI (FastAPI) lets you play White against Stockfish at a chosen strength and style, switch models, ask questions, and export the annotated game as Markdown.
 
