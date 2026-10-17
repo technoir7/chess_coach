@@ -47,7 +47,7 @@ the engine output contradicts. Opinions are not claims: "a solid position" and
 | Kind | The answer… | Checker looks for it |
 |---|---|---|
 | `illegal_move` | names a move that is legal for neither side and is not in an engine line | yes |
-| `invented_line` | gives a sequence of moves, as what happens or should happen, that is not a contiguous quote of an engine line | yes |
+| `invented_line` | gives a sequence of moves, as what happens or should happen, that is not a contiguous quote of an engine line (from round 2, or of the game's own moves) | yes |
 | `wrong_check` | says a move gives check when it doesn't, or the reverse | yes |
 | `wrong_capture` | says a piece is captured or exchanged when it isn't, or the reverse | yes |
 | `wrong_attack` | says a move or piece attacks, threatens or defends something it doesn't | yes |

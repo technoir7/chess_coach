@@ -1,0 +1,22 @@
+{
+  "claude-sonnet": {
+    "positions": 100,
+    "wrong_unchecked": 21,
+    "wrong_shown": 20,
+    "caught": 1,
+    "wrong_in_scope": 10,
+    "caught_in_scope": 1,
+    "fallbacks": 1,
+    "rejections": 4,
+    "false_alarms": 3,
+    "kinds_unchecked": {
+      "wrong_capture": 2,
+      "other": 12,
+      "invented_line": 1,
+      "wrong_attack": 7,
+      "wrong_history": 1,
+      "wrong_eval": 1
+    },
+    "median_seconds": 9.6
+  }
+}
