@@ -5,9 +5,10 @@ about the prose wrapped around it, and that prose was wrong in ways the board
 settles outright: a check described as "attacking the Black Bishop", a line
 said to lead to "exchanges of Queens" in which no queen is ever captured.
 
-Both are decidable by replaying the moves. Deriving them here serves two
-purposes - the facts go into the prompt so the model has no need to guess, and
-into the verifier so a wrong guess does not reach the player.
+Both are decidable by replaying the moves, so the facts go into the prompt and
+the model has no need to guess. (The verifier once also read checks and trades
+out of the prose against these facts; after round 6 it only uses them to accept
+the recaptures where a line stops.)
 """
 
 from dataclasses import dataclass, field
@@ -32,10 +33,6 @@ class MoveFact:
     is_mate: bool = False
     captured: Optional[str] = None
     by_white: bool = True
-    # Enemy piece types the moved piece bears on from its destination square.
-    # A checking move attacks the king, which is what makes "Bb5+, attacking
-    # the Black Bishop" a decidable falsehood rather than loose phrasing.
-    attacks: Set[str] = field(default_factory=set)
 
 
 @dataclass
@@ -185,12 +182,6 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
         if captured_piece is not None:
             facts.captured_types.add(chess.piece_name(captured_piece))
 
-        attacked = set()
-        for square in replay.attacks(move.to_square):
-            piece = replay.piece_at(square)
-            if piece is not None and piece.color != mover_is_white:
-                attacked.add(chess.piece_name(piece.piece_type))
-
         facts.moves.append(
             MoveFact(
                 san=san,
@@ -198,7 +189,6 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
                 is_mate=replay.is_checkmate(),
                 captured=chess.piece_name(captured_piece) if captured_piece else None,
                 by_white=mover_is_white,
-                attacks=attacked,
             )
         )
 
