@@ -4,7 +4,13 @@ A chess coach in which Stockfish and Leela establish the facts about a position 
 
 ## Measured
 
-How often an explanation says something false about the position, labelled blind by reviewers who checked every claim against the board ([method and data](evals/README.md)):
+In short, over six rounds on fresh positions, labelled blind:
+
+- Explanations that say something false about the position went from 33 in 100 (Claude, as first built) to 7 in 300 (2.3%).
+- What worked was having the model check its own draft against facts read off the board: 24 false drafts in 100 became 6. Giving it more facts on their own, a larger model (Opus), having it list its claims for the board to judge, and pattern-matching its prose did not help, and the last two were removed.
+- In a pilot, letting that check look positions up on a board fixed 4 of the 7 errors left and harmed none of 43 correct answers. It is on, but not yet measured on a full round.
+
+The rounds in full: how often an explanation says something false about the position, labelled blind by reviewers who checked every claim against the board ([method and data](evals/README.md)):
 
 | | Wrong, as the model wrote it | Wrong, as the player saw it | Fell back to engine-only summary |
 |---|---:|---:|---:|
