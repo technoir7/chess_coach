@@ -200,7 +200,10 @@ def verify(
     for move in find_illegal_moves(text, board, sanctioned_lines):
         violations.append(f"named an illegal move: {move}")
 
-    quotable = [*(sanctioned_lines or []), _game_so_far(board)]
+    # Each side's own moves are quotable too: "White has played 1.e4 2.c4
+    # 3.Nc3" lists the game truthfully while skipping Black's replies.
+    game = _game_so_far(board)
+    quotable = [*(sanctioned_lines or []), game, game[0::2], game[1::2]]
     for line in find_unsanctioned_lines(text, quotable):
         violations.append(f"gave a line the engine did not search: {line}")
 

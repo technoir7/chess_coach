@@ -52,7 +52,7 @@ the board changed 3 answers, none of them among the 7. The claim check was
 removed (it is in git history at a2b1726), and so were the verifier's checks
 on prose about checks, attacks and trades, which rejected 20 correct answers
 over rounds 4 to 6 and caught no wrong one. Re-run over those rounds' 1,014
-answers, the remaining checker rejects 2, both false alarms.
+answers, the remaining checker rejected 2, both false alarms (one side's moves listed without the other's), and now accepts those.
 
 Labelling round 6 took 11 reviewers at roughly 200,000 tokens each; the
 answers themselves took about 900 Claude calls.

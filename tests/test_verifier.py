@@ -141,6 +141,15 @@ class TestTheGameSoFar:
         board = board_after("e4", "d5", "exd5", "Qxd5", "Nc3", "Qa5")
         assert verifier.find_illegal_moves("After exd5 the queen recaptured.", board) == []
 
+    def test_listing_one_sides_moves_is_not_an_invented_line(self):
+        """Round 4: "White has played 1.e4 2.c4 3.Nc3" was rejected as a line."""
+        board = board_after("e4", "e5", "c4", "Nc6", "Nc3", "Nf6")
+        assert verifier.verify("White has played 1.e4 2.c4 3.Nc3 so far.", board).ok
+
+    def test_one_sides_moves_must_still_be_the_moves_it_played(self):
+        board = board_after("e4", "e5", "c4", "Nc6")
+        assert not verifier.verify("White has played 1.e4 2.Nf3 so far.", board).ok
+
     def test_a_line_that_departs_from_the_game_is_still_rejected(self):
         board = board_after("e4", "e5")
         result = verifier.verify("After 1. e4 e5 2. Bc4 Bc5 3. Qh5 it is sharp.", board)

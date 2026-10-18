@@ -35,7 +35,7 @@ What this showed:
 - **Returning only the changed sentences is as accurate and faster.** On the same positions the two checks got different answers wrong (3 against 5, no detectable difference), and the shorter reply cut the time per answer from 17 to 14 seconds. It is the default.
 - **What is left is scattered**: "castles and connects the rooks" with a piece still between them (twice), a pawn pinned along a file said to be unable to move at all (twice), one "must", one denied pin, one undefended pawn called defended, and one recapture given as played.
 - **Having the board decide the model's own list of claims did not help.** Round 6 (300 positions, three times the size, since 3 to 5 in 100 cannot be told apart in a round of 100) had the check also list every claim of 13 checkable kinds - attacks, pins, connected rooks, legal moves, material, pawn structure - for the board to decide. The model listed 5,438 claims; the board found false ones in 3 answers, and none of those was among the 7 answers reviewers found wrong. The false claims were simply not on the list: an answer saying "the c6 pawn is passed" listed "c6 is isolated", which is true. The model lists what it believes, so the list cannot catch what it gets wrong. It was removed. 7 of 300 (2.3%) is in line with round 5.
-- **The pattern checks on prose had become pure cost.** Once the model checked its own drafts, the verifier's checks on wording about checks, attacks and trades rejected 20 correct answers over rounds 4 to 6 and caught no wrong one; each rejection meant a retry, and sometimes the engine-only summary. They were removed. Re-run over the 1,014 answers of those rounds, the checker that is left rejects 2, both false alarms of one kind (a list of one side's moves read as a line).
+- **The pattern checks on prose had become pure cost.** Once the model checked its own drafts, the verifier's checks on wording about checks, attacks and trades rejected 20 correct answers over rounds 4 to 6 and caught no wrong one; each rejection meant a retry, and sometimes the engine-only summary. They were removed. Re-run over the 1,014 answers of those rounds, the checker that is left rejected 2, both false alarms of one kind (a list of one side's moves read as a line), and now accepts those too.
 
 ## The problem
 
@@ -70,7 +70,7 @@ env/bin/pip install pytest
 env/bin/python -m pytest tests
 ```
 
-179 tests, mostly with stand-in engines. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
+181 tests, mostly with stand-in engines. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
 
 ## Limitations
 
