@@ -64,6 +64,22 @@ pinned to its king is given its remaining legal moves rather than a rule about
 them (a pinned knight "may only move along that line" when it cannot move at
 all); and a line in which both queens are taken says the queens are traded.
 
+## Board-check pilot
+
+`python -m evals.board_pilot` gives the model's check a tool that describes
+any position and runs it as a last pass over round 6's shown answers: the 7
+reviewers had found false and a seeded 43 of the correct ones. Only the
+answers it changed (14) were labelled, blind, by one reviewer; the rest keep
+their round 6 labels. It fixed 4 of the 7 and made none of the 43 worse. One
+changed answer was labelled false for a sentence it had kept unchanged from
+round 6 ("if White recaptures with Qxd4 it comes out 3 pawns ahead", where
+Bxd4 then wins the queen) - a fact the prompt itself had stated. The facts now
+play out the whole exchange where a line stops.
+
+In the first try the model called the tool in none of 6 checks, answering from
+the brief instead; those were discarded, and the prompt now says the brief's
+facts are not enough and the tool must be used.
+
 ## Steps
 
 1. `python -m evals.positions --round N` plays 50-odd games of the coach's club-strength

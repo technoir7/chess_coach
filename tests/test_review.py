@@ -60,3 +60,16 @@ class TestBoardPrompt:
     def test_asks_for_lookups_not_memory(self):
         text = review.board_prompt("BRIEF", review.sentences("One."), "fen")
         assert "you must use the board tool" in text and "without" in text
+
+
+class TestBoard:
+    def test_applies_the_corrections_the_board_check_returns(self):
+        calls = []
+
+        def generate(model, prompt):
+            calls.append((model, prompt))
+            return '{"1": "White is slightly better."}'
+
+        text = review.board("claude-sonnet", "BRIEF", "White is winning. The knight is strong.", "FEN", generate=generate)
+        assert text == "White is slightly better. The knight is strong."
+        assert calls[0][0] == "claude-sonnet" and "FEN" in calls[0][1]

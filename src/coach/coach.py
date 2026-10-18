@@ -1,11 +1,11 @@
 import chess
 import os
-from typing import Optional, Dict, List
+from typing import Callable, Optional, Dict, List
 from src.models import SystemConfig, TruthPacket, CoachSpeechRules, CandidateLine
 from src.coach import prompts
 from src.coach.opening_db import OpeningDB
 from src.coach.threats import detect_threats
-from src.coach import review, verifier
+from src.coach import claude_cli, review, verifier
 from src.engine.stockfish import AnalysisEngine
 from src.engine.leela import IntuitionEngine
 from src.coach.gate import LogicGate
@@ -289,7 +289,14 @@ class ChessCoach:
         self, prompt: str, packet: TruthPacket, attempts: int = 2
     ) -> Optional[str]:
         sanctioned = [line.line_san for line in packet.candidate_lines]
-        return verified_completion(self.llm, prompt, self.board, sanctioned, attempts)
+        return verified_completion(self.llm, prompt, self.board, sanctioned, attempts, board_check=self._board_check())
+
+    def _board_check(self) -> Optional[Callable[[str, str, str], str]]:
+        """The board-tool pass, which only the `claude` command can run."""
+        model = self.llm.model
+        if not claude_cli.is_claude_model(model):
+            return None
+        return lambda brief, text, fen: review.board(model, brief, text, fen)
 
     def _offline_summary(self, packet: TruthPacket, reason: str) -> str:
         """Engine-only fallback when the LLM is unavailable."""
@@ -391,7 +398,7 @@ class ChessCoach:
 
 def verified_completion(
     llm, prompt: str, board: chess.Board, sanctioned_lines: List[List[str]], attempts: int = 2,
-    check=review.edit,
+    check=review.edit, board_check: Optional[Callable[[str, str, str], str]] = None,
 ) -> Optional[str]:
     """Generate text and only return it if it survives verification.
 
@@ -404,13 +411,16 @@ def verified_completion(
     search is allowed while reordering or extending it is not.
 
     Each draft is first checked by the model against the prompt's facts
-    (`review`), which takes a second call; the verifier then judges the checked
-    text, since that is what the player would see.
+    (`review`), which takes a second call, and then, if `board_check` is
+    given, once more with a board to ask about each statement. The verifier
+    judges the final text, since that is what the player would see.
     """
     for attempt in range(attempts):
         draft = llm.generate_content(prompt).text
         try:
             response = check(llm, prompt, draft)
+            if board_check is not None:
+                response = board_check(prompt, response, board.fen())
         except review.ReviewError as e:
             print(f"[Coach] Self-check failed (attempt {attempt + 1}/{attempts}): {e}")
             continue

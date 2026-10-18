@@ -20,7 +20,9 @@ That check was removed; it is in git history.
 
 import json
 import re
-from typing import Dict, List
+from typing import Callable, Dict, List
+
+from src.coach import claude_cli
 
 CHECKLIST = """Check every statement in the draft about the position, the game or the engine
 lines against the facts in the brief:
@@ -186,3 +188,14 @@ def rewrite(llm, brief: str, draft: str) -> str:
 def edit(llm, brief: str, draft: str) -> str:
     pieces = sentences(draft)
     return apply(pieces, llm.generate_content(edit_prompt(brief, pieces)).text)
+
+
+def board(model: str, brief: str, draft: str, fen: str, generate: Callable = claude_cli.generate_with_board) -> str:
+    """A last pass over checked text with the board tool to hand (Claude only).
+
+    Piloted on round 6's shown answers: it fixed 4 of the 7 that reviewers had
+    found false and changed none of 43 correct ones for the worse, for about 9
+    seconds more an answer.
+    """
+    pieces = sentences(draft)
+    return apply(pieces, generate(model, board_prompt(brief, pieces, fen)))

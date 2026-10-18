@@ -48,3 +48,24 @@ class TestSelfCheck:
         llm = ScriptedLLM("Draft one.", "not json", "Draft two.", "{}")
         shown = verified_completion(llm, "BRIEF", chess.Board(), [], check=review.edit)
         assert shown == "Draft two."
+
+
+class TestBoardCheck:
+    def test_the_checked_text_gets_a_last_pass_on_the_board(self):
+        seen = {}
+
+        def board_check(brief, text, fen):
+            seen.update(brief=brief, fen=fen)
+            return text.replace("winning", "slightly better")
+
+        llm = ScriptedLLM("White is winning.", "{}")
+        shown = verified_completion(llm, "BRIEF", chess.Board(), [], check=review.edit, board_check=board_check)
+        assert shown == "White is slightly better."
+        assert seen == {"brief": "BRIEF", "fen": chess.Board().fen()}
+
+    def test_a_board_check_that_cannot_be_applied_counts_as_a_failed_attempt(self):
+        def board_check(brief, text, fen):
+            raise review.ReviewError("not json")
+
+        llm = ScriptedLLM("One.", "{}", "Two.", "{}")
+        assert verified_completion(llm, "BRIEF", chess.Board(), [], check=review.edit, board_check=board_check) is None
