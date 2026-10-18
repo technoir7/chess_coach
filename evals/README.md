@@ -64,6 +64,12 @@ pinned to its king is given its remaining legal moves rather than a rule about
 them (a pinned knight "may only move along that line" when it cannot move at
 all); and a line in which both queens are taken says the queens are traded.
 
+Also unmeasured: the prompt now carries Stockfish 16's positional factors,
+marks each line tactical or positional, and asks for the explanation in two
+parts, tactics and position. The rounds above measured false claims, mostly
+tactical ones; positional claims ("White's mobility is better") are new, and
+need labelling against the factor table as well as the board.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes
