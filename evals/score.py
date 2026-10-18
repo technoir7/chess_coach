@@ -30,7 +30,7 @@ def round_argument(parser: argparse.ArgumentParser) -> None:
 # What the verifier looks for (src/coach/verifier.py) ...
 IN_SCOPE = {"illegal_move", "invented_line", "wrong_check", "wrong_capture", "wrong_attack"}
 # ... and what it does not.
-OUT_OF_SCOPE = {"wrong_piece", "wrong_history", "wrong_eval", "other"}
+OUT_OF_SCOPE = {"wrong_piece", "wrong_history", "wrong_eval", "wrong_positional", "other"}
 KINDS = IN_SCOPE | OUT_OF_SCOPE
 
 

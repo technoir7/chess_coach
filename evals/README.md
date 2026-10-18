@@ -17,6 +17,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 4 | 100 (2029) | `claude-sonnet` | as round 3; the prompt adds, for each engine line, what the moved piece does after every move and whether the reply is forced, the full relations of the line's final position, and material and pawn-structure counts; the model then checks its draft against the facts before the checker sees it |
 | 5 | 100 (2030) | `claude-sonnet-rewrite`, `claude-sonnet-edit` | as round 4; the prompt adds each evaluation's band in words, whose piece each capture takes, the material after a line's cheapest recapture, where each line move's piece came from, and which minor pieces are still at home |
 | 6 | 300 (2031) | `claude-sonnet-claims` | as round 5, with the pin note reworded ("it may only move along that line"); the self-check also lists the answer's claims in a fixed form, the board decides each, and a sentence the board contradicts is rewritten with the truth or deleted |
+| 7 | 100 (2032) | `claude-sonnet-edit-board` | as the app after round 6: the edit self-check, then the board pass; the verifier's prose checks removed; the prompt adds Stockfish 16's positional factors, marks each line tactical or positional, and asks for tactics and position in separate parts |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
@@ -69,6 +70,12 @@ marks each line tactical or positional, and asks for the explanation in two
 parts, tactics and position. The rounds above measured false claims, mostly
 tactical ones; positional claims ("White's mobility is better") are new, and
 need labelling against the factor table as well as the board.
+
+Round 7 measures the app as it now runs, on fresh positions: the first
+round with the board pass in the app and with positional factors in the
+prompt. Its reviewers also record, for each answer, whether it keeps tactics
+and position apart as asked (`separation`); that is not a false claim and is
+reported on its own.
 
 ## Board-check pilot
 
@@ -123,6 +130,7 @@ the engine output contradicts. Opinions are not claims: "a solid position" and
 | `wrong_piece` | puts a piece on a square it isn't on, or says a piece is or isn't developed contrary to the position | no |
 | `wrong_history` | says a move was played that wasn't, or misstates the game so far | no |
 | `wrong_eval` | gets the evaluation wrong: the wrong side better, or a size the scale in the prompt contradicts | no |
+| `wrong_positional` | from round 7: says a side is better or worse in a positional factor, or that a line improves or worsens one, contrary to POSITIONAL FACTORS or a line's POSITIONAL CHANGE; or gives a concrete positional reason the board contradicts (an "outpost" an enemy pawn can attack, a "bad bishop" with no own pawns on its colour, an "open file" with pawns on it) | no |
 | `other` | any other statement the position contradicts (a mate threat that doesn't exist, a wrong count of pawns) | no |
 
 Naming a piece by where it stands ("the Nf3", "supported by Bd3") says where a

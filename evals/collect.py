@@ -10,7 +10,9 @@ can take hours over the whole set.
 From round 4 the model checks its own draft before the checker sees it
 (`src/coach/review.py`). Round 4 also wrote each first draft, as model
 `<name>-draft`, to measure the check; from round 5 `--check` picks how it is
-done and the answers are recorded as model `<name>-<check>`.
+done and the answers are recorded as model `<name>-<check>`. With `--board`
+the answer then gets the app's board pass (`review.board`), as the app gives
+Claude models, and is recorded as `<name>-<check>-board`.
 """
 
 import argparse
@@ -56,9 +58,10 @@ def main() -> None:
     round_argument(parser)
     parser.add_argument("--model", required=True)
     parser.add_argument("--check", required=True, choices=["rewrite", "edit"])
+    parser.add_argument("--board", action="store_true", help="add the board pass, as the app does for Claude")
     parser.add_argument("--part", default="1/1", help="k/n: this run takes every n-th position from the k-th")
     args = parser.parse_args()
-    name = f"{args.model}-{args.check}"
+    name = f"{args.model}-{args.check}" + ("-board" if args.board else "")
     part, parts = map(int, args.part.split("/"))
 
     llm = LLMClient(model_name=args.model)
@@ -93,6 +96,20 @@ def main() -> None:
             checked.append(record)
         return record["text"]
 
+    def recording_board(brief, text, fen):
+        """The board pass over the checked text; the attempt's text becomes
+        what it returns, and what it was given is kept as `checked`."""
+        record, started = checked[-1], time.monotonic()
+        record["checked"] = text
+        try:
+            record["text"] = review.board(args.model, brief, text, fen)
+        except review.ReviewError as e:
+            record["text"], record["error"] = None, f"board check failed: {e}"
+            raise
+        finally:
+            record["seconds"] = round(record["seconds"] + time.monotonic() - started, 1)
+        return record["text"]
+
     with out.open("a") as sink:
         for position in positions:
             if position["id"] in done:
@@ -105,10 +122,12 @@ def main() -> None:
             checked.clear()
             shown = verified_completion(
                 recorder, position["prompt"], board, position["lines"], check=recording_check,
+                board_check=recording_board if args.board else None,
             )
 
             attempts = [
-                {**judge(r["text"], board, position["lines"]), "seconds": r["seconds"], "check_replies": r["replies"]}
+                {**judge(r["text"], board, position["lines"]), "seconds": r["seconds"], "check_replies": r["replies"],
+                 **({"checked": r["checked"]} if "checked" in r else {})}
                 if r["text"] is not None else
                 {"text": None, "ok": False, "violations": [r["error"]], "seconds": r["seconds"],
                  "check_replies": r["replies"]}
