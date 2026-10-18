@@ -6,7 +6,7 @@ current position were counts: "material is level" with Black a bishop up,
 miscounts a listing of thirty pieces; the board does not.
 """
 
-from typing import Dict, List, Set
+from typing import Dict, List
 
 import chess
 
@@ -92,17 +92,3 @@ def entries(board: chess.Board) -> List[str]:
 def describe(board: chess.Board) -> str:
     return "\n".join([HEADER, *entries(board)])
 
-
-def pawn_kinds(board: chess.Board, square: int) -> Set[str]:
-    """Which of doubled, isolated and passed the pawn on `square` is."""
-    color = board.piece_at(square).color
-    by_file = _files(board, color)
-    file = chess.square_file(square)
-    kinds = set()
-    if len(by_file.get(file, [])) > 1:
-        kinds.add("doubled")
-    if not ({file - 1, file + 1} & by_file.keys()):
-        kinds.add("isolated")
-    if _is_passed(board, square, color):
-        kinds.add("passed")
-    return kinds

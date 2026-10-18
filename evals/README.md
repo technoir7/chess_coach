@@ -47,6 +47,16 @@ together; an answer the board's check did not change is the same text in both
 and is labelled once. Final against first pass, same positions and reviewers,
 measures what checking claims on the board adds.
 
+Result: 7 of 300 wrong both before and after the board checked the claims;
+the board changed 3 answers, none of them among the 7. The claim check was
+removed (it is in git history at a2b1726), and so were the verifier's checks
+on prose about checks, attacks and trades, which rejected 20 correct answers
+over rounds 4 to 6 and caught no wrong one. Re-run over those rounds' 1,014
+answers, the remaining checker rejects 2, both false alarms.
+
+Labelling round 6 took 11 reviewers at roughly 200,000 tokens each; the
+answers themselves took about 900 Claude calls.
+
 ## Steps
 
 1. `python -m evals.positions --round N` plays 50-odd games of the coach's club-strength

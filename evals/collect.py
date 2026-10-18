@@ -55,7 +55,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     round_argument(parser)
     parser.add_argument("--model", required=True)
-    parser.add_argument("--check", required=True, choices=["rewrite", "edit", "claims"])
+    parser.add_argument("--check", required=True, choices=["rewrite", "edit"])
     parser.add_argument("--part", default="1/1", help="k/n: this run takes every n-th position from the k-th")
     args = parser.parse_args()
     name = f"{args.model}-{args.check}"
@@ -70,20 +70,19 @@ def main() -> None:
     # reads every responses file and groups by the model recorded inside.
     suffix = "" if parts == 1 else f".part{part}"
     out = responses_path(args.round, name + suffix)
-    first_pass_out = responses_path(args.round, f"{name}-firstpass{suffix}")
     done = {json.loads(line)["id"] for line in out.read_text().splitlines()} if out.exists() else set()
     positions = [json.loads(line) for line in positions_path(args.round).read_text().splitlines()]
     positions = positions[part - 1::parts]
 
     check, checked = getattr(review, args.check), []
 
-    def recording_check(llm, brief, draft, board, lines):
+    def recording_check(llm, brief, draft):
         """What each attempt's check produced, how long it and its draft took,
         and the check's raw replies; text is None where it could not be applied."""
         before, started = len(recorder.calls), time.monotonic()
         record = {"draft": draft, "draft_seconds": recorder.calls[-1][1]}
         try:
-            record["text"] = check(llm, brief, draft, board, lines)
+            record["text"] = check(llm, brief, draft)
             record["error"] = None
         except review.ReviewError as e:
             record["text"], record["error"] = None, f"self-check failed: {e}"
@@ -126,21 +125,6 @@ def main() -> None:
             }) + "\n")
             sink.flush()
 
-            # For the claims check, the first answer as the model's own check left
-            # it, before the board checked its claims: labelled beside the final
-            # answer, the difference is what the board's check adds.
-            if args.check == "claims" and checked[0]["replies"]:
-                try:
-                    text = review.first_pass(checked[0]["draft"], checked[0]["replies"][0])
-                except review.ReviewError:
-                    text = None
-                if text is not None:
-                    first = {**judge(text, board, position["lines"]), "seconds": checked[0]["seconds"]}
-                    with first_pass_out.open("a") as first_pass_sink:
-                        first_pass_sink.write(json.dumps({
-                            "id": position["id"], "model": f"{name}-firstpass",
-                            "outcome": "first" if first["ok"] else "fallback", "attempts": [first],
-                        }) + "\n")
             print(f"{position['id']}  {outcome:<8} {sum(a['seconds'] for a in attempts):6.1f}s", flush=True)
 
 

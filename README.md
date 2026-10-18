@@ -17,6 +17,7 @@ How often an explanation says something false about the position, labelled blind
 | Round 4, Claude Sonnet, same, after checking its own draft | 6 of 100 | 5 of 100 | 0 |
 | Round 5, Claude Sonnet, + fixes below, check rewrites the answer, fresh positions | 3 of 100 | 3 of 100 | 0 |
 | Round 5, Claude Sonnet, same, check returns only changed sentences | 5 of 100 | 5 of 100 | 0 |
+| Round 6, Claude Sonnet, check also lists claims for the board to decide, 300 fresh positions | 7 of 300 | 7 of 300 | 1 |
 
 What this showed:
 
@@ -33,6 +34,8 @@ What this showed:
 - **Round 5 stated what round 4's last six mistakes got wrong**: the scale's word beside every evaluation, whose piece each capture takes, the material after a line's cheapest recapture, where each line move's piece came from, and which minor pieces are still at home. False answers were 3 and 5 in 100 under the two kinds of check (round 4: 6, on other positions, so within chance).
 - **Returning only the changed sentences is as accurate and faster.** On the same positions the two checks got different answers wrong (3 against 5, no detectable difference), and the shorter reply cut the time per answer from 17 to 14 seconds. It is the default.
 - **What is left is scattered**: "castles and connects the rooks" with a piece still between them (twice), a pawn pinned along a file said to be unable to move at all (twice), one "must", one denied pin, one undefended pawn called defended, and one recapture given as played.
+- **Having the board decide the model's own list of claims did not help.** Round 6 (300 positions, three times the size, since 3 to 5 in 100 cannot be told apart in a round of 100) had the check also list every claim of 13 checkable kinds - attacks, pins, connected rooks, legal moves, material, pawn structure - for the board to decide. The model listed 5,438 claims; the board found false ones in 3 answers, and none of those was among the 7 answers reviewers found wrong. The false claims were simply not on the list: an answer saying "the c6 pawn is passed" listed "c6 is isolated", which is true. The model lists what it believes, so the list cannot catch what it gets wrong. It was removed. 7 of 300 (2.3%) is in line with round 5.
+- **The pattern checks on prose had become pure cost.** Once the model checked its own drafts, the verifier's checks on wording about checks, attacks and trades rejected 20 correct answers over rounds 4 to 6 and caught no wrong one; each rejection meant a retry, and sometimes the engine-only summary. They were removed. Re-run over the 1,014 answers of those rounds, the checker that is left rejects 2, both false alarms of one kind (a list of one side's moves read as a line).
 
 ## The problem
 
@@ -43,7 +46,7 @@ Asked to explain a position, an LLM will often name illegal moves, invent variat
 1. **Engines.** Stockfish searches to depth 15 and returns its top three lines. Leela (lc0, optional) runs the bundled Maia-1500 network for 100 nodes; the model gets its reading in words, as how a club player would see the position, not as a second evaluation.
 2. **Facts.** Engine output goes into a `TruthPacket` (`src/models.py`): evaluation, the top lines as 8 plies of SAN, threats read off the board (hanging pieces, pieces attacked by something cheaper, check), and game phase. `line_facts.py` replays each line and states its checks, captures and material change; `walkthrough.py` states what each move's piece attacks and defends, whether the reply is forced, and the final position's relations and pawn structure; `relations.py` and `structure.py` do the same for the current position. Packets are cached per position, so follow-up questions see the same lines.
 3. **Gate.** `gate.py` decides whether to give in-game advice: only if the player lost more than 100cp or the game phase changed, and never if the evaluation moved less than 20cp or nothing is under threat. Explanations and chat are on demand.
-4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. The model then gets its draft back with the same facts, its sentences numbered, and returns corrections for any sentence they don't support. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines and the game so far, gives a sequence that isn't a contiguous quote of an engine line or of the game, or misstates a check, an exchange or an attack. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
+4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. The model then gets its draft back with the same facts, its sentences numbered, and returns corrections for any sentence they don't support. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines, the game so far and the recaptures where a line stops, or gives a sequence that isn't a contiguous quote of an engine line or of the game. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
 
 The model is set in `system_config.yaml` (default `claude-sonnet`, run through the `claude` command on your own Claude login, so no API key is needed). Any local Ollama model and Gemini can be picked in the UI instead. On failure `llm.py` falls back to Gemini Flash, then local Ollama models. The web UI (FastAPI) lets you play White against Stockfish at a chosen strength and style, switch models, ask questions, and export the annotated game as Markdown.
 
@@ -71,7 +74,7 @@ env/bin/python -m pytest tests
 
 ## Limitations
 
-- The verifier is pattern-based. It can't check strategic claims or what a piece attacks or defends in prose, and skips bare pawn moves ("e4") because they look like square names. Measured, it catches only a small share of wrong answers (see above).
+- The verifier only judges moves and move sequences, and skips bare pawn moves ("e4") because they look like square names. Everything else an answer says rests on the facts in the prompt and the model's check of its own draft; measured, about 2 to 5 answers in 100 still say something false (see above).
 - The gate's chaos-score and null-move triggers never fire: nothing computes those values yet.
 - Game phase is the opening by move count and the endgame by material left; threat detection looks one move deep.
 - The opening book has names and ECO codes, no game statistics.

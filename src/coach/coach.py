@@ -410,7 +410,7 @@ def verified_completion(
     for attempt in range(attempts):
         draft = llm.generate_content(prompt).text
         try:
-            response = check(llm, prompt, draft, board, sanctioned_lines)
+            response = check(llm, prompt, draft)
         except review.ReviewError as e:
             print(f"[Coach] Self-check failed (attempt {attempt + 1}/{attempts}): {e}")
             continue

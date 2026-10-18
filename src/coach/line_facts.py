@@ -47,7 +47,8 @@ class LineFacts:
     material_after: int = 0
     # Set when the last move captures on a square the other side can take back.
     cut_mid_exchange: Optional[str] = None
-    # The cheapest such recapture, and the balance after it.
+    # Every legal recapture, the cheapest of them, and the balance after it.
+    recapture_options: List[str] = field(default_factory=list)
     recapture_san: Optional[str] = None
     material_after_recapture: int = 0
 
@@ -196,6 +197,7 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
         recaptures = [m for m in replay.legal_moves if m.to_square == square and replay.is_capture(m)]
         if recaptures:
             facts.cut_mid_exchange = chess.square_name(square)
+            facts.recapture_options = [replay.san(m) for m in recaptures]
             cheapest = min(recaptures, key=lambda m: _value(replay.piece_type_at(m.from_square)))
             facts.recapture_san = replay.san(cheapest)
             replay.push(cheapest)

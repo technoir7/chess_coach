@@ -11,15 +11,16 @@ asks only for the ones to change: writing out the whole answer again is most of
 the check's time. In round 5, on the same positions, `edit` left 5 false answers
 in 100 against `rewrite`'s 3 - no detectable difference - and took 14 seconds
 an answer against 17, so it is the default.
+
+Round 6 also had the model list its claims in a fixed form for the board to
+decide. It changed nothing (7 false answers in 300 before and after): the
+model listed the claims it believed, so the false ones were never on the list.
+That check was removed; it is in git history.
 """
 
 import json
 import re
-from typing import Dict, List, Sequence
-
-import chess
-
-from src.coach import claims as board_claims
+from typing import Dict, List
 
 CHECKLIST = """Check every statement in the draft about the position, the game or the engine
 lines against the facts in the brief:
@@ -127,127 +128,10 @@ def apply(pieces: List[str], reply: str) -> str:
     return "".join(_corrected(pieces, _object(reply)))
 
 
-# The board and the engine lines are only used by `claims`; the other checks
-# take them so that every check can be called the same way.
-
-def rewrite(llm, brief: str, draft: str, board: chess.Board, lines) -> str:
+def rewrite(llm, brief: str, draft: str) -> str:
     return llm.generate_content(rewrite_prompt(brief, draft)).text
 
 
-def edit(llm, brief: str, draft: str, board: chess.Board, lines) -> str:
+def edit(llm, brief: str, draft: str) -> str:
     pieces = sentences(draft)
     return apply(pieces, llm.generate_content(edit_prompt(brief, pieces)).text)
-
-
-CLAIM_KINDS = """- attacks {"piece": "f3", "target": "e5"}: the piece on f3 attacks the enemy piece (or empty square) e5
-- defends {"piece": "d1", "target": "d4"}: the piece on d1 defends its own piece on d4
-- defended {"square": "a3"}: some piece defends the piece on a3 (record "loose",
-  "hanging", "undefended" or "unprotected" as this with "holds": false)
-- pinned {"square": "f6"}: the piece on f6 is pinned
-- can_move {"square": "e4"}: the piece on e4 has at least one legal move
-- forced {}: the side to move has only one legal move ("must", "has to", "forced")
-- check {"move": "Bb5+"}: that move, played from this position, gives check
-- connected_rooks {"side": "White"}: nothing stands between that side's two rooks
-- all_minor_pieces_developed {"side": "White"}: no knight or bishop of that side
-  is still on its starting square ("completes development", "the last minor piece")
-- piece_on {"square": "c1", "piece": "knight", "side": "White"}
-- material {"leader": "White" | "Black" | "level"}
-- pawn {"square": "c6", "kind": "doubled" | "isolated" | "passed"}
-- open_file {"file": "d"}: no pawns on that file"""
-
-CLAIM_FORMAT = """Each claim is {"sentence": <number>, "at": <position>, "kind": <kind>, "args": {...}, "holds": true or false}.
-<position> is "current" for the position on the board now, or {"line": "<the
-first move of the engine line>", "after": "<the move, as numbered in that
-line, just after which the claim is about>"}, e.g. {"line": "Nf3", "after":
-"16... Rc8"}. Squares are where the pieces stand in that position. "holds":
-false records a denial, such as "the rooks are not connected" or "the pawn
-cannot move"."""
-
-
-def claims_prompt(brief: str, pieces: List[str]) -> str:
-    numbered = "\n".join(f"[{n}] {piece.strip()}" for n, piece in enumerate(pieces, 1))
-    return f"""{_brief_and_draft(brief, numbered)}
-
-The draft's sentences are numbered. Do two things.
-
-1. Correct or delete every sentence the facts do not support; leave everything
-   else, including opinions and plans, alone.
-2. List every claim of the kinds below that the sentences make, as they read
-   after your corrections, so that a program can check each one against the
-   board. Leave out claims of any other kind.
-
-{CLAIM_KINDS}
-
-{CLAIM_FORMAT}
-
-Reply with a JSON object only: {{"corrections": {{"<number>": "<the full corrected
-sentence exactly as it should appear, keeping any list marker or bold>" or ""
-to delete it}}, "claims": [...]}}.
-"""
-
-
-def fix_prompt(brief: str, pieces: List[str], findings: List[board_claims.Finding]) -> str:
-    numbered = "\n".join(f"[{n}] {piece.strip()}" for n, piece in enumerate(pieces, 1) if piece.strip())
-    wrong = "\n".join(f"- sentence {f.sentence}: {f.truth}" for f in findings)
-    return f"""You are correcting a chess explanation before a student reads it.
-
-THE BRIEF it was written from:
-<<<
-{brief}
->>>
-
-THE EXPLANATION, sentence by sentence:
-<<<
-{numbered}
->>>
-
-A program checked the explanation's claims against the board, and these
-sentences claim something the board contradicts:
-{wrong}
-
-Rewrite each of those sentences so that everything it says is true, or delete
-it. Leave every other sentence alone. Then list the claims your rewritten
-sentences make, in the same form as before:
-
-{CLAIM_KINDS}
-
-{CLAIM_FORMAT}
-
-Reply with a JSON object only: {{"corrections": {{"<number>": "<the full
-rewritten sentence>" or ""}}, "claims": [...]}}.
-"""
-
-
-def _claims_reply(reply: str):
-    parsed = _object(reply)
-    if not isinstance(parsed.get("corrections", {}), dict) or not isinstance(parsed.get("claims"), list):
-        raise ReviewError(f"no corrections and claims in {reply[:80]!r}")
-    return parsed.get("corrections", {}), parsed["claims"]
-
-
-def first_pass(draft: str, reply: str) -> str:
-    """The draft with only the model's own corrections from a `claims` reply made."""
-    corrections, _ = _claims_reply(reply)
-    return "".join(_corrected(sentences(draft), corrections))
-
-
-def claims(llm, brief: str, draft: str, board: chess.Board, lines: Sequence[Sequence[str]]) -> str:
-    """The edit check, plus a list of claims that the board then decides.
-
-    A sentence whose claim the board contradicts goes back to the model with
-    the truth; if its rewrite is still contradicted, it is deleted.
-    """
-    pieces = sentences(draft)
-    corrections, made = _claims_reply(llm.generate_content(claims_prompt(brief, pieces)).text)
-    pieces = _corrected(pieces, corrections)
-
-    false = board_claims.check(board, lines, made).false
-    if not false:
-        return "".join(pieces)
-
-    flagged = {f.sentence for f in false}
-    corrections, made = _claims_reply(llm.generate_content(fix_prompt(brief, pieces, false)).text)
-    # Only the flagged sentences may change on the second pass.
-    pieces = _corrected(pieces, {k: v for k, v in corrections.items() if str(k).isdigit() and int(k) in flagged})
-    still = {f.sentence for f in board_claims.check(board, lines, made).false} & flagged
-    return "".join(_corrected(pieces, {str(n): "" for n in still}))

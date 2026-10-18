@@ -5,6 +5,12 @@ prompt is a request, not a guarantee - small local models comply most of the
 time and not always. This module is the guarantee: anything the model says
 about a move is checked against the legal move list before it reaches the user.
 
+Only claims made of moves are judged here: which moves are named, and which
+sequences. Patterns that read checks, attacks and trades out of prose were
+dropped after round 6 of the eval (evals/README.md): once the model checked
+its own draft against the facts, they rejected 20 correct answers in three
+rounds and caught no wrong one.
+
 Quoting the engine is not calculating. When the engine's own principal
 variations are supplied as `sanctioned_lines`, the coach may repeat them
 verbatim - but only verbatim: a sequence that reorders, extends or splices
@@ -142,16 +148,15 @@ def find_illegal_moves(
     """Distinct moves named in `text` that the position cannot justify.
 
     A move is justified if it is available now to either side, if it appears
-    in a line the engine actually searched, or if it is the recapture the
-    line's facts name for a line cut mid-exchange. Deduplicated: a move
+    in a line the engine actually searched, or if it takes back on the square
+    where a line stops mid-exchange (the line's facts invite naming it). Deduplicated: a move
     repeated four times is one invention, not four.
     """
     claimable = {_normalise(san) for san in _claimable_san(board)}
     for line in [*(sanctioned_lines or []), _game_so_far(board)]:
         claimable |= {_normalise(san) for san in line}
     for facts in _line_facts(board, sanctioned_lines or []):
-        if facts.recapture_san:
-            claimable.add(_normalise(facts.recapture_san))
+        claimable |= {_normalise(san) for san in facts.recapture_options}
 
     illegal = []
     for match in _MOVE_PATTERN.finditer(text):
@@ -180,162 +185,8 @@ def find_unsanctioned_lines(
     return unsanctioned
 
 
-# "check" attributed to a specific move, e.g. "Bb5+ gives check" or "Nf3, check".
-_CHECK_CLAIM = re.compile(
-    rf"\b({_MOVE})[+#]?([^.;\n]{{0,40}}?)\b(?:is|gives|delivers|with|,)\s*(?:a\s+)?check\b",
-    re.IGNORECASE,
-)
-
-# A claimed exchange of a named piece: "exchange of queens", "trading rooks",
-# "the rooks are exchanged", "a queen trade". The piece must be the object of
-# the trade: in "the trade on e5 leaves the d-pawn on e5" no pawn is traded.
-_TRADE = r"(?:exchange|exchanges|exchanged|exchanging|trade|trades|traded|trading|swap|swaps|swapped)"
-_EXCHANGE_CLAIM = re.compile(
-    rf"\b{_TRADE}\s+(?:of\s+)?(?:the\s+|both\s+|a\s+pair\s+of\s+|(?:light|dark)-squared\s+)?"
-    r"(queen|rook|bishop|knight|pawn)s?\b",
-    re.IGNORECASE,
-)
-_EXCHANGE_CLAIM_REVERSED = re.compile(
-    r"\b(queen|rook|bishop|knight|pawn)s?\s+"
-    rf"(?:(?:are|is|get|gets|being|were|was|been)\s+)?{_TRADE}\b",
-    re.IGNORECASE,
-)
-_PAST = re.compile(r"\b(?:were|was|been)\b", re.IGNORECASE)
-# "no queens are exchanged", "without trading rooks", "offers a rook trade":
-# the sentence mentions a trade without saying one happens.
-_NOT_A_TRADE = re.compile(
-    r"\b(?:no|not|never|without|avoid\w*|offer\w*|declin\w*|prevent\w*)\b[^.;\n]{0,12}$|n't\s*$",
-    re.IGNORECASE,
-)
-
-
 def _line_facts(board: chess.Board, sanctioned_lines: Sequence[Sequence[str]]):
     return [line_facts.describe(board, line) for line in sanctioned_lines]
-
-
-def find_false_check_claims(
-    text: str,
-    board: chess.Board,
-    sanctioned_lines: Optional[Sequence[Sequence[str]]] = None,
-) -> List[str]:
-    """Moves the text calls a check that do not give check anywhere.
-
-    Whether a move is check is settled by the board, so a wrong claim is a
-    plain falsehood rather than a matter of interpretation.
-    """
-    checking = set()
-    for facts in _line_facts(board, sanctioned_lines or []):
-        checking |= {_normalise(san) for san in facts.checking_moves()}
-
-    # A move that gives check from the current position counts too.
-    for move in board.legal_moves:
-        replay = board.copy()
-        san = replay.san(move)
-        replay.push(move)
-        if replay.is_check():
-            checking.add(_normalise(san))
-
-    false_claims = []
-    for match in _CHECK_CLAIM.finditer(text):
-        # In "Rf3 Rxe4+, ... with check" the check is Rxe4+'s, not Rf3's.
-        nearer = list(_MOVE_PATTERN.finditer(match.group(2)))
-        claimed = _normalise(nearer[-1].group(1) if nearer else match.group(1))
-        if claimed not in checking and claimed not in false_claims:
-            false_claims.append(claimed)
-    return false_claims
-
-
-def _captured_so_far(board: chess.Board) -> set:
-    """Piece types taken earlier in the game: "the bishops were traded on move
-    7" is about the game, not an engine line, and can be true."""
-    replay, captured = board.root(), set()
-    for move in board.move_stack:
-        if replay.is_en_passant(move):
-            captured.add("pawn")
-        elif replay.is_capture(move):
-            captured.add(chess.piece_name(replay.piece_at(move.to_square).piece_type))
-        replay.push(move)
-    return captured
-
-
-def find_false_exchange_claims(
-    text: str,
-    board: chess.Board,
-    sanctioned_lines: Optional[Sequence[Sequence[str]]] = None,
-) -> List[str]:
-    """Piece types the text says are traded but which nothing ever captures.
-
-    The coach said a line "leads to exchanges of Queens" in a line where the
-    black queen simply moved about and no queen was ever taken.
-    """
-    in_lines = set()
-    for facts in _line_facts(board, sanctioned_lines or []):
-        in_lines |= facts.captured_types
-    # Only a trade told in the past tense can be about the game so far.
-    in_game_or_lines = in_lines | _captured_so_far(board)
-
-    false_claims = set()
-    for pattern in (_EXCHANGE_CLAIM, _EXCHANGE_CLAIM_REVERSED):
-        for match in pattern.finditer(text):
-            if _NOT_A_TRADE.search(text[max(0, match.start() - 25):match.start()]):
-                continue
-            piece = match.group(1).lower()
-            happened = in_game_or_lines if _PAST.search(match.group(0)) else in_lines
-            if piece not in happened:
-                false_claims.add(piece)
-
-    return sorted(false_claims)
-
-
-# "Bb5+, attacking the Black Bishop" - a move said to bear on a named piece.
-_ATTACK_CLAIM = re.compile(
-    rf"\b({_MOVE})[+#]?[^.;\n]{{0,40}}?\battack(?:s|ing|ed)?\b[^.;\n]{{0,25}}?"
-    r"\b(king|queen|rook|bishop|knight|pawn)\b",
-    re.IGNORECASE,
-)
-
-
-def find_false_attack_claims(
-    text: str,
-    board: chess.Board,
-    sanctioned_lines: Optional[Sequence[Sequence[str]]] = None,
-) -> List[str]:
-    """Moves said to attack a piece type they do not bear on.
-
-    What a piece attacks from a square is fixed by the rules, so this settles
-    claims like "Bb5+, attacking the Black Bishop" - that move gives check, so
-    it attacks the king and nothing else of note.
-    """
-    attacks_by_move = {}
-    for facts in _line_facts(board, sanctioned_lines or []):
-        for fact in facts.moves:
-            attacks_by_move.setdefault(_normalise(fact.san), set()).update(fact.attacks)
-
-    # Moves available right now count too, played from the current position.
-    for move in board.legal_moves:
-        replay = board.copy()
-        san = _normalise(replay.san(move))
-        replay.push(move)
-        targets = set()
-        for square in replay.attacks(move.to_square):
-            piece = replay.piece_at(square)
-            if piece is not None and piece.color != (not replay.turn):
-                targets.add(chess.piece_name(piece.piece_type))
-        attacks_by_move.setdefault(san, set()).update(targets)
-
-    false_claims = []
-    for match in _ATTACK_CLAIM.finditer(text):
-        claimed_move = _normalise(match.group(1))
-        claimed_target = match.group(2).lower()
-
-        known = attacks_by_move.get(claimed_move)
-        if known is None:
-            continue  # not a move we can place; the move checks catch inventions
-
-        entry = f"{claimed_move} does not attack a {claimed_target}"
-        if claimed_target not in known and entry not in false_claims:
-            false_claims.append(entry)
-    return false_claims
 
 
 def verify(
@@ -352,14 +203,5 @@ def verify(
     quotable = [*(sanctioned_lines or []), _game_so_far(board)]
     for line in find_unsanctioned_lines(text, quotable):
         violations.append(f"gave a line the engine did not search: {line}")
-
-    for move in find_false_check_claims(text, board, sanctioned_lines):
-        violations.append(f"called a move a check when it is not: {move}")
-
-    for piece in find_false_exchange_claims(text, board, sanctioned_lines):
-        violations.append(f"claimed an exchange of {piece}s that never happens")
-
-    for claim in find_false_attack_claims(text, board, sanctioned_lines):
-        violations.append(claim)
 
     return VerificationResult(ok=not violations, violations=violations)

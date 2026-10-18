@@ -128,101 +128,6 @@ D6_LINES = [
 D6_BOARD = board_after("e4", "c5", "Nf3", "Nc6", "d4", "d6")
 
 
-class TestCheckClaims:
-    def test_calling_a_real_check_a_check_is_fine(self):
-        text = "Bb5+ is check, and Black blocks with Bd7."
-        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == []
-
-    def test_calling_a_quiet_move_a_check_is_caught(self):
-        text = "Then Be2 gives check and Black must respond."
-        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == ["Be2"]
-
-    def test_the_check_belongs_to_the_move_nearest_it(self):
-        """From the eval: "25. Rf3 Rxe4+, and Black ends up a pawn ahead with
-        check" was charged to Rf3, though the check is Rxe4+."""
-        text = "After Be2 and Bb5+, with check, Black must block."
-        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == []
-
-    def test_prose_about_checks_without_a_move_is_ignored(self):
-        text = "White should look for checks in this position."
-        assert verifier.find_false_check_claims(text, D6_BOARD, D6_LINES) == []
-
-
-class TestExchangeClaims:
-    def test_claiming_a_queen_trade_that_never_happens_is_caught(self):
-        """Verbatim from a real run: this line was described as leading to
-        'exchanges of Queens'. The black queen moves; none is captured."""
-        text = "This leads to exchanges of Queens and a simpler position."
-        assert verifier.find_false_exchange_claims(text, D6_BOARD, D6_LINES) == ["queen"]
-
-    def test_a_real_pawn_exchange_is_allowed(self):
-        text = "White trades pawns with dxc5."
-        assert verifier.find_false_exchange_claims(text, D6_BOARD, D6_LINES) == []
-
-    def test_phrasing_with_the_piece_first_is_caught(self):
-        text = "The rooks are exchanged shortly after."
-        assert verifier.find_false_exchange_claims(text, D6_BOARD, D6_LINES) == ["rook"]
-
-
-QUIET_LINES = [["c3", "e6", "Bd3", "Nf6"]]
-
-
-class TestExchangeClaimsInContext:
-    """Each sentence is from the eval, where the checker rejected a correct
-    answer over it."""
-
-    def test_a_denied_exchange_is_not_a_claimed_one(self):
-        for text in (
-            "Material stays level and no queens are exchanged.",
-            "There are no checks and no queen exchange.",
-            "The knight then pressures the queenside pawns, and no pieces are traded.",
-        ):
-            assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == [], text
-
-    def test_a_piece_named_later_in_the_sentence_is_not_what_was_traded(self):
-        text = "The trade on e5 leaves the d-pawn on e5."
-        assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == []
-
-    def test_an_offered_trade_is_not_a_trade(self):
-        text = "White offers a rook trade on d3 before settling the bishop."
-        assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == []
-
-    def test_a_trade_earlier_in_the_game_is_a_true_claim(self):
-        board = board_after("d4", "d5", "Bf4", "Bf5", "e3", "e6", "Bd3", "Bxd3", "Qxd3")
-        text = "The light-squared bishops were traded on move 4."
-        assert verifier.find_false_exchange_claims(text, board, QUIET_LINES) == []
-
-    def test_an_earlier_trade_does_not_excuse_a_claim_about_a_line(self):
-        """From the eval: "resulting in a Bishop exchange" described an engine
-        line with no bishop capture; that bishops were traded earlier in the
-        game makes it no truer."""
-        board = board_after("d4", "d5", "Bf4", "Bf5", "e3", "e6", "Bd3", "Bxd3", "Qxd3")
-        text = "Nf3 develops, resulting in a bishop exchange."
-        assert verifier.find_false_exchange_claims(text, board, QUIET_LINES) == ["bishop"]
-
-    def test_a_plain_claimed_trade_is_still_caught(self):
-        text = "A queen trade follows, and the endgame is equal."
-        assert verifier.find_false_exchange_claims(text, D6_BOARD, QUIET_LINES) == ["queen"]
-
-
-class TestAttackClaims:
-    def test_a_checking_move_does_not_attack_a_bishop(self):
-        """Verbatim from a real run: Bb5+ gives check, so it bears on the king.
-        The coach called it an attack on the Black Bishop."""
-        text = "White plays Bb5+, attacking the Black Bishop."
-        assert verifier.find_false_attack_claims(text, D6_BOARD, D6_LINES) == [
-            "Bb5 does not attack a bishop"
-        ]
-
-    def test_a_true_attack_claim_passes(self):
-        text = "Bb5+ is strong, attacking the king directly."
-        assert verifier.find_false_attack_claims(text, D6_BOARD, D6_LINES) == []
-
-    def test_attack_talk_without_a_move_is_ignored(self):
-        text = "White should look to attack the king side."
-        assert verifier.find_false_attack_claims(text, D6_BOARD, D6_LINES) == []
-
-
 class TestTheGameSoFar:
     """Found running the app: after 1. e4 e5, Claude's explanation began
     "After 1. e4 e5" and was rejected twice as an unsearched line."""
@@ -266,3 +171,20 @@ class TestRecaptureNamedInTheFacts:
         line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
         text = "The line stops before the recapture. If White takes back with cxd3, material is level."
         assert verifier.find_illegal_moves(text, board, [line]) == []
+
+    def test_every_legal_recapture_may_be_named(self):
+        """Round 6: "White can take it back with Nxd4 or Bxd4" was rejected
+        because only the cheapest recapture was accepted."""
+        board = board_after("e4", "c6")
+        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
+        text = "White can take back with cxd3 or Qxd3."
+        assert verifier.find_illegal_moves(text, board, [line]) == []
+
+
+class TestProseIsLeftToTheSelfCheck:
+    def test_claims_about_checks_attacks_and_trades_are_not_judged_here(self):
+        """Rounds 4-6: once the model checked its own draft, the patterns that
+        read checks, attacks and trades out of prose rejected 20 correct
+        answers and caught no wrong one, so verify() no longer runs them."""
+        text = "This leads to exchanges of Queens, and Nc3 is check."
+        assert verifier.verify(text, D6_BOARD, D6_LINES).ok

@@ -1,0 +1,38 @@
+{
+  "claude-sonnet-claims-firstpass": {
+    "positions": 300,
+    "wrong_unchecked": 7,
+    "wrong_shown": 7,
+    "caught": 0,
+    "wrong_in_scope": 2,
+    "caught_in_scope": 0,
+    "fallbacks": 9,
+    "rejections": 9,
+    "false_alarms": 9,
+    "kinds_unchecked": {
+      "wrong_attack": 1,
+      "wrong_piece": 1,
+      "other": 4,
+      "wrong_capture": 1
+    },
+    "median_seconds": 20.6
+  },
+  "claude-sonnet-claims": {
+    "positions": 300,
+    "wrong_unchecked": 7,
+    "wrong_shown": 7,
+    "caught": 0,
+    "wrong_in_scope": 2,
+    "caught_in_scope": 0,
+    "fallbacks": 1,
+    "rejections": 10,
+    "false_alarms": 10,
+    "kinds_unchecked": {
+      "wrong_attack": 1,
+      "wrong_piece": 1,
+      "other": 4,
+      "wrong_capture": 1
+    },
+    "median_seconds": 20.5
+  }
+}
