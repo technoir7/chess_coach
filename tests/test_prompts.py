@@ -133,6 +133,19 @@ class TestGamePhase:
     def test_opening(self):
         assert prompts.game_phase(board_after("e4", "c5")) == "Opening"
 
+    def test_a_full_board_is_not_an_endgame_however_long_the_game(self):
+        """Round 6: "Endgame phase" at move 22 with every piece still on."""
+        board = chess.Board("r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 22")
+        assert prompts.game_phase(board) == "Middlegame"
+
+    def test_little_material_left_is_an_endgame_however_early(self):
+        board = chess.Board("4k3/pp3ppp/8/8/8/8/PP3PPP/3RK3 w - - 0 12")
+        assert prompts.game_phase(board) == "Endgame"
+
+    def test_queens_with_a_minor_piece_each_is_an_endgame(self):
+        board = chess.Board("3qk3/pp3ppp/5n2/8/8/5N2/PP3PPP/3QK3 w - - 0 30")
+        assert prompts.game_phase(board) == "Endgame"
+
 
 class TestEngineLines:
     def test_renders_a_line_with_move_numbers(self):

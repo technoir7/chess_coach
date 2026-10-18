@@ -73,7 +73,7 @@ env/bin/python -m pytest tests
 
 - The verifier is pattern-based. It can't check strategic claims or what a piece attacks or defends in prose, and skips bare pawn moves ("e4") because they look like square names. Measured, it catches only a small share of wrong answers (see above).
 - The gate's chaos-score and null-move triggers never fire: nothing computes those values yet.
-- Game phase comes from move count alone; threat detection looks one move deep.
+- Game phase is the opening by move count and the endgame by material left; threat detection looks one move deep.
 - The opening book has names and ECO codes, no game statistics.
 - The player is always White, and games live in memory.
 - Some `system_config.yaml` sections (coaching modes, plan critique, meta-coaching) are parsed but unused.

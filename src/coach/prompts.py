@@ -121,11 +121,22 @@ def legal_moves_list(board: chess.Board) -> str:
     return ", ".join(sorted(board.san(move) for move in board.legal_moves))
 
 
+# Queen and a minor piece (12), or rook, bishop and knight (11), per side.
+ENDGAME_MATERIAL = 13
+
+
 def game_phase(board: chess.Board) -> str:
-    move_count = len(board.move_stack)
-    if move_count < 15:
-        return "Opening"
-    return "Middlegame" if move_count < 40 else "Endgame"
+    """Endgame by what is left on the board, not by how long the game has run:
+    counting moves alone called a position with every piece still on it an
+    endgame at move 22."""
+    non_pawn = [
+        sum(line_facts.PIECE_VALUES[t] * len(board.pieces(t, color))
+            for t in (chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN))
+        for color in (chess.WHITE, chess.BLACK)
+    ]
+    if max(non_pawn) <= ENDGAME_MATERIAL:
+        return "Endgame"
+    return "Opening" if board.ply() < 15 else "Middlegame"
 
 
 def recent_moves(board: chess.Board, limit: int = 30) -> str:
