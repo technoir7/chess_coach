@@ -1,6 +1,7 @@
 import uuid
 import sys
 import os
+import threading
 from typing import Dict
 import chess
 
@@ -18,6 +19,9 @@ class GameSession:
         self.events: list = [] # Store full event log (move + annotation)
         self.resigned = False
         self.draw_agreed = False
+        # One request at a time per game: the coach's board and engines are
+        # not meant to be used from two threads at once.
+        self.lock = threading.Lock()
         
     def get_state_dict(self) -> dict:
         """Convert game state to dictionary for API response"""

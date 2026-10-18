@@ -1,3 +1,5 @@
+import functools
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -35,6 +37,24 @@ if os.path.exists(web_dir):
 # Global game manager
 game_manager = GameManager()
 
+
+# The endpoints below are plain functions, not async ones, because the coach
+# blocks: engine searches, and an explanation's Claude calls take about 20
+# seconds. In an async endpoint that froze the whole server, page loads
+# included; FastAPI runs plain functions on worker threads instead.
+def one_request_per_game(endpoint):
+    """Hold the game's lock for the whole request, so requests for one game
+    still take turns as they did when the server could do only one thing."""
+    @functools.wraps(endpoint)
+    def locked(game_id: str, *args, **kwargs):
+        try:
+            session = game_manager.get_game(game_id)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        with session.lock:
+            return endpoint(game_id, *args, **kwargs)
+    return locked
+
 @app.get("/")
 async def root():
     """Serve the main web page"""
@@ -45,14 +65,14 @@ async def root():
     return {"message": "ChessCoach API", "docs": "/docs"}
 
 @app.post("/api/game/new")
-async def create_game() -> dict:
+def create_game() -> dict:
     """Create a new game session"""
     game_id = game_manager.create_game()
     session = game_manager.get_game(game_id)
     return session.get_state_dict()
 
 @app.get("/api/models")
-async def get_models() -> dict:
+def get_models() -> dict:
     """Get list of available LLM models"""
     from src.coach.llm import LLMClient
     # Instantiate client just to fetch models
@@ -60,7 +80,8 @@ async def get_models() -> dict:
     return {**client.get_available_models(), "default": game_manager.config.llm.model}
 
 @app.get("/api/game/{game_id}")
-async def get_game(game_id: str) -> dict:
+@one_request_per_game
+def get_game(game_id: str) -> dict:
     """Get current game state"""
     try:
         session = game_manager.get_game(game_id)
@@ -69,7 +90,8 @@ async def get_game(game_id: str) -> dict:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/api/game/{game_id}/move")
-async def make_move(game_id: str, move_request: MoveRequest) -> dict:
+@one_request_per_game
+def make_move(game_id: str, move_request: MoveRequest) -> dict:
     """Make a move in the game"""
     try:
         session = game_manager.get_game(game_id)
@@ -110,7 +132,8 @@ async def make_move(game_id: str, move_request: MoveRequest) -> dict:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.get("/api/game/{game_id}/explain")
-async def explain_position(game_id: str) -> ExplainResponse:
+@one_request_per_game
+def explain_position(game_id: str) -> ExplainResponse:
     """Get position explanation"""
     try:
         session = game_manager.get_game(game_id)
@@ -129,7 +152,8 @@ async def explain_position(game_id: str) -> ExplainResponse:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/api/game/{game_id}/chat")
-async def chat_with_coach(game_id: str, chat_request: ChatRequest) -> dict:
+@one_request_per_game
+def chat_with_coach(game_id: str, chat_request: ChatRequest) -> dict:
     """Interact with the coach via chat"""
     try:
         session = game_manager.get_game(game_id)
@@ -139,7 +163,8 @@ async def chat_with_coach(game_id: str, chat_request: ChatRequest) -> dict:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/api/game/{game_id}/settings")
-async def update_settings(game_id: str, settings: OpponentSettings) -> dict:
+@one_request_per_game
+def update_settings(game_id: str, settings: OpponentSettings) -> dict:
     """Update opponent settings"""
     try:
         session = game_manager.get_game(game_id)
@@ -149,7 +174,8 @@ async def update_settings(game_id: str, settings: OpponentSettings) -> dict:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/api/game/{game_id}/resign")
-async def resign_game(game_id: str) -> dict:
+@one_request_per_game
+def resign_game(game_id: str) -> dict:
     """Resign the game"""
     try:
         session = game_manager.get_game(game_id)
@@ -159,7 +185,8 @@ async def resign_game(game_id: str) -> dict:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.post("/api/game/{game_id}/draw/offer")
-async def offer_draw(game_id: str) -> dict:
+@one_request_per_game
+def offer_draw(game_id: str) -> dict:
     """Offer a draw to the opponent"""
     try:
         session = game_manager.get_game(game_id)
@@ -178,16 +205,21 @@ async def offer_draw(game_id: str) -> dict:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.delete("/api/game/{game_id}")
-async def delete_game(game_id: str):
+def delete_game(game_id: str):
     """Delete a game session"""
     try:
-        game_manager.cleanup_game(game_id)
+        session = game_manager.games.get(game_id)
+        if session is None:
+            return {"message": "Game deleted"}
+        with session.lock:
+            game_manager.cleanup_game(game_id)
         return {"message": "Game deleted"}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 @app.get("/api/game/{game_id}/export")
-async def export_game(game_id: str):
+@one_request_per_game
+def export_game(game_id: str):
     """Export game annotation as Markdown"""
     try:
         session = game_manager.get_game(game_id)
