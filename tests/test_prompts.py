@@ -323,12 +323,21 @@ def factors(**nets):
 
 
 class TestTacticalAndPositionalLines:
-    def test_a_line_that_wins_material_is_tactical(self):
+    def test_a_line_that_wins_material_is_tactical_and_says_who_wins_it(self):
         board = chess.Board("4k3/8/8/3p4/8/8/8/3QK3 w - - 0 1")
         text = prompts.engine_lines(
             packet(candidate_lines=[CandidateLine(move_san="Qxd5", line_san=["Qxd5", "Ke7"])]), board,
         )
-        assert "KIND: tactical" in text
+        assert "KIND: tactical (White wins 1 pawn of material)" in text
+
+    def test_a_line_that_loses_material_says_so(self):
+        """Round 7: "the line wins material" read as the mover gaining, in
+        lines where the mover ended a pawn down."""
+        board = chess.Board("4k3/8/8/3p4/4P3/8/8/4K3 w - - 0 1")
+        text = prompts.engine_lines(
+            packet(candidate_lines=[CandidateLine(move_san="Kd2", line_san=["Kd2", "dxe4"])]), board,
+        )
+        assert "KIND: tactical (Black wins 1 pawn of material)" in text
 
     def test_a_quiet_line_is_positional(self):
         text = prompts.engine_lines(
@@ -373,11 +382,17 @@ class TestPositionalFactors:
     def test_the_facts_carry_the_factor_table(self):
         facts = prompts.position_facts(chess.Board(), packet(factors=factors(Space=0.3)), "")
         assert "POSITIONAL FACTORS" in facts
-        assert "Space (" in facts and "White better by 0.30" in facts
+        assert "Space (" in facts and "favours White by 0.30" in facts
 
     def test_the_explanation_keeps_tactics_and_position_apart(self):
         text = prompts.explain_prompt("facts", "Game just started")
         assert "Tactics:" in text and "Position:" in text
+
+    def test_each_line_goes_in_the_part_its_kind_names(self):
+        """Round 7: 12 of 100 answers walked through a positional line under
+        Tactics."""
+        text = prompts.explain_prompt("facts", "Game just started")
+        assert "Each engine line goes in the part its KIND names" in text
 
     def test_the_rules_point_positional_claims_at_the_factors(self):
         facts = prompts.position_facts(chess.Board(), packet(), "")

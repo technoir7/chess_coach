@@ -262,8 +262,11 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
 
 
 def _kind(facts: line_facts.LineFacts) -> str:
-    if facts.is_tactical:
-        return "tactical (the line wins material or mates)"
+    if any(move.is_mate for move in facts.moves):
+        return "tactical (it ends in mate)"
+    if facts.material_won:
+        side = "White" if facts.material_won > 0 else "Black"
+        return f"tactical ({side} wins {line_facts.pawns(abs(facts.material_won))} of material)"
     return "positional (no material is won; what the line gains is in the position)"
 
 
@@ -338,8 +341,9 @@ say so in one sentence.
 Position: the long-term picture - where a side is ahead in POSITIONAL FACTORS,
 and the lines marked KIND: positional: what each changes (its POSITIONAL
 CHANGE) and why that matters. Take most care here: say why a quiet move is good.
-Keep the two apart, and mention one in the other only where they meet - a
-tactic that also changes the position, or a positional factor a tactic rests on.
+Each engine line goes in the part its KIND names. Keep the two apart, and
+mention one in the other only where they meet - a tactic that also changes the
+position, or a positional factor a tactic rests on.
 A few sentences per part. Be accurate, and talk about the current position only.
 """
 

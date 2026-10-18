@@ -59,11 +59,11 @@ class LineFacts:
         return self.material_after - self.material_before
 
     @property
-    def is_tactical(self) -> bool:
-        """Whether the line wins material, counting any exchange it stops in
-        as played out, or mates. An even trade is a positional decision."""
+    def material_won(self) -> int:
+        """Material White gains over the line (negative: Black gains), counting
+        any exchange it stops in as played out. An even trade is zero."""
         final = self.material_after_exchange if self.exchange else self.material_after
-        return final != self.material_before or any(m.is_mate for m in self.moves)
+        return final - self.material_before
 
     def checking_moves(self) -> List[str]:
         return [m.san for m in self.moves if m.is_check]
@@ -108,7 +108,7 @@ class LineFacts:
             parts.append("material is unchanged over the line")
         else:
             side = "White" if self.material_swing > 0 else "Black"
-            parts.append(f"{side} gains {_pawns(abs(self.material_swing))} of material")
+            parts.append(f"{side} gains {pawns(abs(self.material_swing))} of material")
 
         if self.cut_mid_exchange:
             parts.append(
@@ -144,10 +144,10 @@ def _owner(move: "MoveFact") -> str:
 def _balance(balance: int) -> str:
     if balance == 0:
         return "material is level"
-    return f"{'White' if balance > 0 else 'Black'} is {_pawns(abs(balance))} ahead"
+    return f"{'White' if balance > 0 else 'Black'} is {pawns(abs(balance))} ahead"
 
 
-def _pawns(count: int) -> str:
+def pawns(count: int) -> str:
     return f"{count} pawn" if count == 1 else f"{count} pawns"
 
 

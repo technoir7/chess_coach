@@ -10,6 +10,12 @@ removed it, so this needs Stockfish 16 exactly, alongside the main engine.
 
 The scores are static: they describe the position as it stands and do not
 look ahead, which is why they are used for positional facts only.
+
+Stockfish does not always score every factor, and prints 0.00 for one it
+skipped: an ending with a rule of its own (king and queen against king) gets
+none, and once one side is far enough ahead it stops after material and
+pawns, or before space. Those zeros are not readings, so a skipped factor is
+left out rather than passed on as even.
 """
 
 import re
@@ -24,6 +30,12 @@ import chess
 PHASE_MIDGAME = 128
 _MIDGAME_LIMIT, _ENDGAME_LIMIT = 15258, 3915
 _PIECE_VALUES_MG = {chess.KNIGHT: 781, chess.BISHOP: 825, chess.ROOK: 1276, chess.QUEEN: 2538}
+# The early exits in Evaluation::value() at sf_16, in its internal units; the
+# trace prints values divided by NormalizeToPawnValue.
+_LAZY_THRESHOLD_1, _LAZY_THRESHOLD_2 = 3622, 1962
+_PAWN_VALUE = 328
+_BEFORE_PIECES = ("Material", "Imbalance", "Pawns")
+_PIECES_TO_PASSED = ("Knights", "Bishops", "Rooks", "Queens", "Mobility", "King safety", "Passed")
 
 # Material is counted exactly elsewhere, threats are tactics, and Imbalance and
 # Winnable have no score per side.
@@ -34,33 +46,69 @@ _ROW = re.compile(r"^\|\s*([A-Za-z ]+?)\s*\|\s*(\S+)\s+(\S+)\s*\|\s*(\S+)\s+(\S+
 Factors = Dict[str, Tuple[float, float]]
 
 
-def phase(board: chess.Board) -> int:
-    npm = sum(
+def _non_pawn_material(board: chess.Board) -> int:
+    return sum(
         value * len(board.pieces(piece_type, color))
         for piece_type, value in _PIECE_VALUES_MG.items()
         for color in (chess.WHITE, chess.BLACK)
     )
-    npm = max(_ENDGAME_LIMIT, min(npm, _MIDGAME_LIMIT))
+
+
+def phase(board: chess.Board) -> int:
+    npm = max(_ENDGAME_LIMIT, min(_non_pawn_material(board), _MIDGAME_LIMIT))
     return (npm - _ENDGAME_LIMIT) * PHASE_MIDGAME // (_MIDGAME_LIMIT - _ENDGAME_LIMIT)
 
 
-def parse_trace(text: str, phase: int) -> Optional[Factors]:
-    """Each factor's (White, Black) score in pawns, or None when the side to
-    move is in check, which Stockfish declines to evaluate statically."""
+def parse_trace(text: str, board: chess.Board) -> Optional[Factors]:
+    """Each factor Stockfish scored, as (White, Black) in pawns, or None when
+    the side to move is in check, which it declines to evaluate statically."""
     if "none (in check)" in text:
         return None
 
-    def blend(mg: str, eg: str) -> float:
-        return (float(mg) * phase + float(eg) * (PHASE_MIDGAME - phase)) / PHASE_MIDGAME
-
-    factors = {}
+    rows = {}
     for line in text.splitlines():
         row = _ROW.match(line)
         if row and row.group(1) in FACTORS:
-            factors[row.group(1)] = (blend(*row.group(2, 3)), blend(*row.group(4, 5)))
-    if set(factors) != set(FACTORS):
+            rows[row.group(1)] = [float(cell) for cell in row.group(2, 3, 4, 5)]
+    if not set(FACTORS) <= set(rows):
         raise ValueError(f"unexpected eval output from Stockfish 16: {text[:200]!r}")
-    return factors
+    totals = _totals(text)
+
+    if not any(value for row in rows.values() for value in row) and not any(
+        any(totals[term]) for term in _BEFORE_PIECES
+    ):
+        return {}
+
+    p = phase(board)
+    margin = _non_pawn_material(board) / 32
+
+    def skipped(threshold: int, terms) -> bool:
+        return abs(sum(sum(totals[t]) for t in terms)) * _PAWN_VALUE > threshold + margin
+
+    if skipped(_LAZY_THRESHOLD_1, _BEFORE_PIECES):
+        scored = ("Pawns",)
+    elif skipped(_LAZY_THRESHOLD_2, _BEFORE_PIECES + _PIECES_TO_PASSED):
+        scored = tuple(f for f in FACTORS if f != "Space")
+    else:
+        scored = FACTORS
+
+    def blend(mg: float, eg: float) -> float:
+        return (mg * p + eg * (PHASE_MIDGAME - p)) / PHASE_MIDGAME
+
+    return {name: (blend(*rows[name][:2]), blend(*rows[name][2:])) for name in scored}
+
+
+_TOTAL = re.compile(r"^\|\s*([A-Za-z ]+?)\s*\|.*\|\s*(-?[\d.]+)\s+(-?[\d.]+)\s*\|\s*$")
+
+
+def _totals(text: str) -> Dict[str, Tuple[float, float]]:
+    """The Total column of each row, (middlegame, endgame)."""
+    totals = {}
+    for line in text.splitlines():
+        row = _TOTAL.match(line)
+        if row and row.group(1) in (*_BEFORE_PIECES, *FACTORS):
+            totals[row.group(1)] = (float(row.group(2)), float(row.group(3)))
+    return totals
 
 
 class ClassicalEngine:
@@ -90,7 +138,7 @@ class ClassicalEngine:
             raise RuntimeError("Stockfish 16 not started")
         self._send(f"position fen {board.fen()}")
         self._send("eval")
-        return parse_trace(self._read_until("Final evaluation"), phase(board))
+        return parse_trace(self._read_until("Final evaluation"), board)
 
     def _send(self, command: str) -> None:
         self._process.stdin.write(command + "\n")

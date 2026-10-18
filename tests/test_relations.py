@@ -68,3 +68,27 @@ class TestWhatAPinnedPieceCanStillDo:
         """Round 5: "pins the e4 pawn to the king, so that pawn can't move"."""
         board = chess.Board("4k3/4q3/8/8/4P3/8/4K3/8 w - - 0 1")
         assert "pins White Pawn on e4 to the King on e2 (its only legal moves: e5)" in relations.describe(board)
+
+
+class TestOnlyPinsThatCost:
+    """Round 7: "Qd8 pins the d4 pawn to the Knight on d2" with d2 defended -
+    the pawn could move, since Qxd2 would only lose the queen."""
+
+    def test_no_pin_onto_a_defended_piece_worth_less_than_the_attacker(self):
+        board = chess.Board("3qk3/8/8/8/3P4/8/3N4/3QK3 w - - 0 1")
+        assert "pins" not in relations.describe(board)
+
+    def test_no_pin_onto_a_defended_piece_worth_the_same(self):
+        board = chess.Board("4k3/4r3/8/8/4P3/8/4R3/5K2 w - - 0 1")
+        assert "pins" not in relations.describe(board)
+
+    def test_a_pin_onto_an_undefended_piece_stands(self):
+        board = chess.Board("3qk3/8/8/8/3P4/8/3N4/4K3 w - - 0 1")
+        board.remove_piece_at(chess.E1)
+        board.set_piece_at(chess.H1, chess.Piece(chess.KING, chess.WHITE))
+        assert "Queen on d8 pins White Pawn on d4 to the Knight on d2" in relations.describe(board)
+
+    def test_a_pin_onto_a_piece_worth_more_than_the_attacker_stands(self):
+        board = chess.Board("4k3/8/8/1b6/8/3N4/8/5QK1 w - - 0 1")
+        assert board.is_attacked_by(chess.WHITE, chess.F1)
+        assert "Bishop on b5 pins White Knight on d3 to the Queen on f1" in relations.describe(board)

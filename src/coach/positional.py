@@ -19,8 +19,11 @@ from src.engine.classical import Factors
 HEADER = (
     "POSITIONAL FACTORS (Stockfish 16's hand-written evaluation, in pawns. It is "
     "static: it scores the position as it stands and does not look ahead, so it "
-    "says nothing about tactics):"
+    "says nothing about tactics. A factor can favour a side through the other "
+    "side's penalty - a badly placed enemy knight favours you under Knights "
+    "even if you have none - so each side's own score is given in brackets):"
 )
+NOT_SCORED = "not scored (Stockfish 16 leaves it out when one side is far ahead in material, and in some endings)"
 
 # Stockfish's term -> (short name, what it scores).
 FACTOR_WORDS = {
@@ -59,10 +62,17 @@ def describe(board: chess.Board, factors: Optional[Factors]) -> str:
         return f"{HEADER}\n{_missing(board)}"
     lines = [HEADER]
     for name, (short, scores) in FACTOR_WORDS.items():
-        net = _net(factors, name)
-        verdict = "about even" if abs(net) < SHOWN else f"{'White' if net > 0 else 'Black'} better by {abs(net):.2f}"
-        lines.append(f"- {short.capitalize()} ({scores}): {verdict}")
+        lines.append(f"- {short.capitalize()} ({scores}): {_verdict(factors, name)}")
     return "\n".join(lines)
+
+
+def _verdict(factors: Factors, name: str) -> str:
+    if name not in factors:
+        return NOT_SCORED
+    white, black = factors[name]
+    net = white - black
+    side = "about even" if abs(net) < SHOWN else f"favours {'White' if net > 0 else 'Black'} by {abs(net):.2f}"
+    return f"{side} (White {white:+.2f}, Black {black:+.2f})"
 
 
 def change(end: chess.Board, before: Optional[Factors], after: Optional[Factors]) -> str:
@@ -74,12 +84,17 @@ def change(end: chess.Board, before: Optional[Factors], after: Optional[Factors]
     if before is None:
         return "no comparison: the current position has no factor scores"
 
+    compared = [name for name in FACTOR_WORDS if name in before and name in after]
     moves = sorted(
-        ((_net(after, name) - _net(before, name), short) for name, (short, _) in FACTOR_WORDS.items()),
+        ((_net(after, name) - _net(before, name), FACTOR_WORDS[name][0]) for name in compared),
         key=lambda item: -abs(item[0]),
     )
     shown = [
         f"{short} moves {abs(delta):.2f} towards {'White' if delta > 0 else 'Black'}"
         for delta, short in moves if abs(delta) >= SHOWN
     ]
-    return "; ".join(shown) if shown else f"no factor moves by {SHOWN} or more"
+    text = "; ".join(shown) if shown else f"no factor moves by {SHOWN} or more"
+    left_out = [FACTOR_WORDS[name][0] for name in FACTOR_WORDS if name not in compared]
+    if left_out:
+        text += f"; not compared, as Stockfish 16 did not score them at both ends: {', '.join(left_out)}"
+    return text

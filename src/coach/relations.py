@@ -74,7 +74,8 @@ def _walk(board: chess.Board, square: int, step) -> List[int]:
 
 def _pin(board: chess.Board, square: int, piece: chess.Piece, step) -> Optional[Tuple[int, int]]:
     """A pin along one ray: an enemy piece with a more valuable enemy piece
-    straight behind it. Returns the pinned square and the one behind."""
+    straight behind it, which taking would win once the front piece moves.
+    Returns the pinned square and the one behind."""
     occupied = _walk(board, square, step)
     if len(occupied) < 2:
         return None
@@ -83,6 +84,14 @@ def _pin(board: chess.Board, square: int, piece: chess.Piece, step) -> Optional[
         return None
     if _value(back) <= _value(front):
         return None
+    # Moving the front piece must cost something: round 7's prompts called a
+    # pawn "pinned" to a defended knight by a queen, which would only lose
+    # the queen by taking.
+    if back.piece_type != chess.KING and _value(back) <= _value(piece):
+        uncovered = board.copy(stack=False)
+        uncovered.remove_piece_at(occupied[0])
+        if uncovered.is_attacked_by(back.color, occupied[1]):
+            return None
     return occupied[0], occupied[1]
 
 

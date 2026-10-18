@@ -15,9 +15,11 @@ def with_scores(**scores):
 
 
 class TestTheCurrentPosition:
-    def test_names_the_side_ahead_in_a_factor(self):
+    def test_names_the_side_a_factor_favours_and_each_side_s_score(self):
+        """Round 7: "Knights: White better by 0.19" with no White knight - the
+        score was Black's knight's penalty, which nothing showed."""
         text = positional.describe(chess.Board(), with_scores(Mobility=(0.5, 0.1)))
-        assert "- Mobility (safe squares the pieces can move to): White better by 0.40" in text
+        assert "- Mobility (safe squares the pieces can move to): favours White by 0.40 (White +0.50, Black +0.10)" in text
 
     def test_a_small_difference_is_called_even(self):
         text = positional.describe(chess.Board(), with_scores(Space=(0.30, 0.25)))
@@ -34,6 +36,11 @@ class TestTheCurrentPosition:
 
     def test_says_when_the_engine_is_not_running(self):
         assert "unavailable" in positional.describe(chess.Board(), None)
+
+    def test_a_factor_stockfish_skipped_is_not_called_even(self):
+        text = positional.describe(chess.Board(), {"Pawns": (0.1, 0.0)})
+        line = text.split("- Mobility (")[1].splitlines()[0]
+        assert "not scored" in line and "even" not in line
 
 
 class TestWhatALineChanges:
@@ -53,6 +60,15 @@ class TestWhatALineChanges:
     def test_says_so_when_nothing_moves(self):
         text = positional.change(chess.Board(), EVEN, with_scores(Space=(0.05, 0.0)))
         assert "no factor moves by 0.15 or more" in text
+
+    def test_only_factors_scored_at_both_ends_are_compared(self):
+        """Round 7: a line that left Black with king and pawns "moved" mobility
+        0.55 towards Black - Stockfish had stopped scoring it."""
+        after = {"Pawns": (0.0, 0.4)}
+        text = positional.change(chess.Board(), EVEN, after)
+        assert "pawn structure moves 0.40 towards Black" in text
+        assert "mobility" not in text.split("not compared")[0]
+        assert "not compared, as Stockfish 16 did not score them at both ends: knights" in text
 
     def test_a_line_ending_in_check_has_no_comparison(self):
         end = chess.Board("4k3/8/8/8/8/8/4q3/4K3 w - - 0 1")

@@ -95,6 +95,8 @@ favour a side with no piece of that kind, through the other side's penalty,
 with no sign of it; "tactical (the line wins material)" did not say who
 wins it; and a piece shielding a defended piece worth no more than its
 attacker was called pinned.
+The prompt also now says each engine line goes in the part its KIND names,
+for the 12 answers that mixed them.
 
 ## Board-check pilot
 
