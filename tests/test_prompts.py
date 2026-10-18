@@ -310,3 +310,76 @@ class TestHistoryHeader:
     def test_a_clipped_history_is_not_called_the_complete_game(self):
         text = prompts.explain_prompt("facts", "(earlier moves omitted)\n31. Kf1")
         assert "complete game" not in text
+
+
+def factors(**nets):
+    """Even factors, except White ahead by the given amounts (King safety as
+    King_safety)."""
+    scores = {name: (0.0, 0.0) for name in ("Pawns", "Knights", "Bishops", "Rooks", "Queens",
+                                            "Mobility", "King safety", "Passed", "Space")}
+    for key, net in nets.items():
+        scores[key.replace("_", " ")] = (net, 0.0)
+    return scores
+
+
+class TestTacticalAndPositionalLines:
+    def test_a_line_that_wins_material_is_tactical(self):
+        board = chess.Board("4k3/8/8/3p4/8/8/8/3QK3 w - - 0 1")
+        text = prompts.engine_lines(
+            packet(candidate_lines=[CandidateLine(move_san="Qxd5", line_san=["Qxd5", "Ke7"])]), board,
+        )
+        assert "KIND: tactical" in text
+
+    def test_a_quiet_line_is_positional(self):
+        text = prompts.engine_lines(
+            packet(candidate_lines=[CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"])]),
+            board_after("e4", "e5"),
+        )
+        assert "KIND: positional" in text
+
+    def test_an_even_trade_is_positional(self):
+        board = board_after("e4", "d5")
+        text = prompts.engine_lines(
+            packet(candidate_lines=[CandidateLine(move_san="exd5", line_san=["exd5", "Qxd5"])]), board,
+        )
+        assert "KIND: positional" in text
+
+    def test_a_line_states_what_it_changes_positionally(self):
+        text = prompts.engine_lines(
+            packet(factors=factors(), candidate_lines=[
+                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors(Mobility=0.4)),
+            ]),
+            board_after("e4", "e5"),
+        )
+        assert "POSITIONAL CHANGE BY THE END OF THIS LINE: mobility moves 0.40 towards White" in text
+
+    def test_a_line_stopping_mid_exchange_is_compared_once_it_is_played_out(self):
+        """A static score with a piece still to be taken back describes a
+        position nobody would leave on the board."""
+        board = board_after("e4", "d5")
+        text = prompts.engine_lines(
+            packet(factors=factors(), candidate_lines=[
+                CandidateLine(move_san="exd5", line_san=["exd5"], factors_after=factors(Space=0.5)),
+            ]),
+            board,
+        )
+        assert (
+            "POSITIONAL CHANGE BY THE END OF THIS LINE (with the exchange on d5 played out: Qxd5): "
+            "space moves 0.50 towards White"
+        ) in text
+
+
+class TestPositionalFactors:
+    def test_the_facts_carry_the_factor_table(self):
+        facts = prompts.position_facts(chess.Board(), packet(factors=factors(Space=0.3)), "")
+        assert "POSITIONAL FACTORS" in facts
+        assert "Space (" in facts and "White better by 0.30" in facts
+
+    def test_the_explanation_keeps_tactics_and_position_apart(self):
+        text = prompts.explain_prompt("facts", "Game just started")
+        assert "Tactics:" in text and "Position:" in text
+
+    def test_the_rules_point_positional_claims_at_the_factors(self):
+        facts = prompts.position_facts(chess.Board(), packet(), "")
+        rules = prompts.explain_prompt(facts, "Game just started").split("INSTRUCTIONS:")[1]
+        assert "POSITIONAL FACTORS" in rules

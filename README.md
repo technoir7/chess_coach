@@ -50,16 +50,16 @@ Asked to explain a position, an LLM will often name illegal moves, invent variat
 
 ## How it works
 
-1. **Engines.** Stockfish searches to depth 15 and returns its top three lines. Leela (lc0, optional) runs the bundled Maia-1500 network for 100 nodes; the model gets its reading in words, as how a club player would see the position, not as a second evaluation.
-2. **Facts.** Engine output goes into a `TruthPacket` (`src/models.py`): evaluation, the top lines as 8 plies of SAN, threats read off the board (hanging pieces, pieces attacked by something cheaper, check), and game phase. `line_facts.py` replays each line and states its checks, captures and material change; `walkthrough.py` states what each move's piece attacks and defends, whether the reply is forced, and the final position's relations and pawn structure; `relations.py` and `structure.py` do the same for the current position. Packets are cached per position, so follow-up questions see the same lines.
+1. **Engines.** Stockfish searches to depth 15 and returns its top three lines. Leela (lc0, optional) runs the bundled Maia-1500 network for 100 nodes; the model gets its reading in words, as how a club player would see the position, not as a second evaluation. Stockfish 16 (optional) supplies positional factors: before version 16.1, Stockfish kept a hand-written evaluation that scores pawn structure, piece placement, mobility, king safety, space and passed pawns for each side, and its `eval` command prints them (`src/engine/classical.py`). The prompt gives who is ahead in each, and what each engine line changes once any exchange it stops in is played out.
+2. **Facts.** Engine output goes into a `TruthPacket` (`src/models.py`): evaluation, the top lines as 8 plies of SAN, threats read off the board (hanging pieces, pieces attacked by something cheaper, check), and game phase. `line_facts.py` replays each line and states its checks, captures and material change; `walkthrough.py` states what each move's piece attacks and defends, whether the reply is forced, and the final position's relations and pawn structure; `relations.py` and `structure.py` do the same for the current position. Each line is marked tactical if it wins material or mates, positional otherwise (an even trade is positional). Packets are cached per position, so follow-up questions see the same lines.
 3. **Gate.** `gate.py` decides whether to give in-game advice: only if the player lost more than 100cp or the game phase changed, and never if the evaluation moved less than 20cp or nothing is under threat. Explanations and chat are on demand.
-4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. The model then gets its draft back with the same facts, its sentences numbered, and returns corrections for any sentence they don't support; with Claude it then checks each statement once more against a board it can query (`board_tool.py`). An explanation takes about 20 seconds. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines, the game so far and the recaptures where a line stops, or gives a sequence that isn't a contiguous quote of an engine line or of the game. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
+4. **Narration.** The prompt (`prompts.py`) holds the packet, legal moves, move history and opening name, and tells the model to quote engine lines rather than calculate. Explanations come in two parts, tactics and position, which mention each other only where they meet. The model then gets its draft back with the same facts, its sentences numbered, and returns corrections for any sentence they don't support; with Claude it then checks each statement once more against a board it can query (`board_tool.py`). An explanation takes about 20 seconds. `verifier.py` rejects a response that names a move legal for neither side and absent from the engine lines, the game so far and the recaptures where a line stops, or gives a sequence that isn't a contiguous quote of an engine line or of the game. A rejected response is retried once; after that, advice is dropped and explanations fall back to an engine-only summary.
 
 The model is set in `system_config.yaml` (default `claude-sonnet`, run through the `claude` command on your own Claude login, so no API key is needed). Any local Ollama model and Gemini can be picked in the UI instead. On failure `llm.py` falls back to Gemini Flash, then local Ollama models. The web UI (FastAPI) lets you play White against Stockfish at a chosen strength and style, switch models, ask questions, and export the annotated game as Markdown.
 
 ## Setup
 
-Requires Python 3.10+ (tested on 3.13), Stockfish on `PATH`, optionally lc0, and one of: the `claude` command logged in to a Claude subscription, Ollama with a local model, or a Google API key.
+Requires Python 3.10+ (tested on 3.13), Stockfish on `PATH`, optionally lc0 and Stockfish 16 (below), and one of: the `claude` command logged in to a Claude subscription, Ollama with a local model, or a Google API key.
 
 ```bash
 python -m venv env
@@ -67,6 +67,17 @@ env/bin/pip install -r requirements_backup.txt
 cp .env.template .env   # set GOOGLE_API_KEY; LEELA_ENGINE_PATH defaults to /opt/homebrew/bin/lc0
 ./start_server.sh       # http://localhost:8000
 ```
+
+Stockfish 16 is found as `stockfish16` on `PATH`, or at `CLASSICAL_ENGINE_PATH`. It has no Apple Silicon download, so build it from the official source:
+
+```bash
+curl -LO https://github.com/official-stockfish/Stockfish/archive/refs/tags/sf_16.tar.gz
+tar xzf sf_16.tar.gz && cd Stockfish-sf_16/src
+make -j build ARCH=apple-silicon   # fetches its network from tests.stockfishchess.org
+cp stockfish ~/.local/bin/stockfish16
+```
+
+On macOS 27 the link step fails with "tapi error: malformed file"; pointing it at an older SDK (`SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk`) works.
 
 `start_server.sh` expects the virtualenv at `./env` and kills whatever is on port 8000. A terminal version runs with `env/bin/python main.py` and reads the Stockfish path from `CHESS_ENGINE_PATH`.
 
@@ -77,7 +88,7 @@ env/bin/pip install pytest
 env/bin/python -m pytest tests
 ```
 
-202 tests, mostly with stand-in engines. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
+232 tests, mostly with stand-in engines; those that need Stockfish 16 are skipped without it. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
 
 ## Limitations
 

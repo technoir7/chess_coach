@@ -9,8 +9,8 @@ from typing import List, Optional
 
 import chess
 
-from src.models import CoachSpeechRules, TruthPacket
-from src.coach import line_facts, relations, structure, walkthrough
+from src.models import CandidateLine, CoachSpeechRules, TruthPacket
+from src.coach import line_facts, positional, relations, structure, walkthrough
 
 # Small local models infer development from coordinates badly - they claimed
 # developed bishops on move 1 - so the facts below are stated rather than implied.
@@ -50,7 +50,12 @@ GROUNDING_RULES = """INSTRUCTIONS:
    BY MOVE says that reply is forced.
 7. COUNTING: take material, doubled, isolated and passed pawns and open files
    from MATERIAL AND PAWNS (or a line's end-position facts). Do not count them
-   yourself."""
+   yourself.
+8. POSITIONAL CLAIMS: say a side is better in pawn structure, piece placement,
+   mobility, king safety, space or passed pawns only as POSITIONAL FACTORS
+   says, and that a line improves or worsens one only as its POSITIONAL CHANGE
+   says. Explain a factor by what it scores (given in brackets beside it),
+   with pieces and squares taken from the facts above."""
 
 PIECE_NAMES = {
     "P": "Pawn", "N": "Knight", "B": "Bishop",
@@ -248,9 +253,29 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
         # Stated rather than left to inference: the model has described a
         # checking move as an attack on a piece, and claimed queens were
         # exchanged in a line where nothing was captured.
-        rendered.append(f"    FACTS: {line_facts.describe(board, line.line_san).summary()}")
+        facts = line_facts.describe(board, line.line_san)
+        rendered.append(f"    FACTS: {facts.summary()}")
+        rendered.append(f"    KIND: {_kind(facts)}")
+        rendered.append(f"    POSITIONAL CHANGE BY THE END OF THIS LINE{_positional_change(board, line, facts, packet)}")
         rendered.append(walkthrough.describe(board, line.line_san))
     return "\n".join(rendered)
+
+
+def _kind(facts: line_facts.LineFacts) -> str:
+    if facts.is_tactical:
+        return "tactical (the line wins material or mates)"
+    return "positional (no material is won; what the line gains is in the position)"
+
+
+def _positional_change(
+    board: chess.Board, line: CandidateLine, facts: line_facts.LineFacts, packet: TruthPacket,
+) -> str:
+    change = positional.change(
+        line_facts.settled(board, line.line_san), packet.factors, line.factors_after
+    )
+    if facts.exchange:
+        return f" (with the exchange on {facts.cut_mid_exchange} played out: {' '.join(facts.exchange)}): {change}"
+    return f": {change}"
 
 
 def position_facts(board: chess.Board, packet: TruthPacket, opening_info: str) -> str:
@@ -268,6 +293,8 @@ CURRENT POSITION:
 {relations.describe(board)}
 
 {structure.describe(board)}
+
+{positional.describe(board, packet.factors)}
 
 DEVELOPMENT:
 {development_status(board)}
@@ -303,7 +330,17 @@ MOVES PLAYED SO FAR (no other move has been played, apart from any marked as omi
 
 {GROUNDING_RULES}
 
-Provide a concise, accurate explanation of the current position only.
+Explain the current position in two short parts, each starting on its own line:
+Tactics: what is forcing right now - threats, pins, and the lines marked
+KIND: tactical (what they win and how). A line marked KIND: positional does not
+belong here, even if it has captures or checks in it. If nothing is forcing,
+say so in one sentence.
+Position: the long-term picture - where a side is ahead in POSITIONAL FACTORS,
+and the lines marked KIND: positional: what each changes (its POSITIONAL
+CHANGE) and why that matters. Take most care here: say why a quiet move is good.
+Keep the two apart, and mention one in the other only where they meet - a
+tactic that also changes the position, or a positional factor a tactic rests on.
+A few sentences per part. Be accurate, and talk about the current position only.
 """
 
 

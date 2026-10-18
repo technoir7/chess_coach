@@ -163,3 +163,16 @@ class TestRobustness:
         """Never raises on bad input - the caller may pass a model's text."""
         facts = line_facts.describe(SICILIAN_D6, ["d5", "Qxh8"])
         assert [m.san for m in facts.moves] == ["d5"]
+
+
+class TestSettledPosition:
+    def test_plays_out_the_exchange_a_line_stops_in(self):
+        board = chess.Board()
+        for san in ("e4", "d5"):
+            board.push_san(san)
+        end = line_facts.settled(board, ["exd5"])
+        assert end.fen().split()[0] == "rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR"
+
+    def test_a_quiet_line_ends_where_it_ends(self):
+        end = line_facts.settled(chess.Board(), ["e4", "e5"])
+        assert end.fen().split()[0] == "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR"

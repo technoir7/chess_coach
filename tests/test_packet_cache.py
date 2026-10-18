@@ -55,3 +55,33 @@ def test_a_new_position_is_searched_again(coach):
 def test_cached_packet_describes_the_position_it_was_built_for(coach):
     packet = coach.build_truth_packet()
     assert packet.fen == chess.Board().fen()
+
+
+class RecordingClassical:
+    """Stands in for Stockfish 16, scoring each position by its FEN."""
+
+    def __init__(self):
+        self.seen = []
+
+    def factors(self, board):
+        self.seen.append(board.fen())
+        return {"Space": (len(self.seen), 0.0)}
+
+
+def test_the_packet_carries_positional_factors_now_and_at_each_line_end(coach):
+    coach.classical_engine = RecordingClassical()
+    packet = coach.build_truth_packet()
+
+    line = packet.candidate_lines[0]
+    end = chess.Board()
+    for san in line.line_san:
+        end.push_san(san)
+    assert coach.classical_engine.seen == [chess.Board().fen(), end.fen()]
+    assert packet.factors == {"Space": (1, 0.0)}
+    assert line.factors_after == {"Space": (2, 0.0)}
+
+
+def test_without_stockfish_16_there_are_no_factors(coach):
+    packet = coach.build_truth_packet()
+    assert packet.factors is None
+    assert packet.candidate_lines[0].factors_after is None

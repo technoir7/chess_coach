@@ -58,6 +58,13 @@ class LineFacts:
         """Net material change over the line, from White's point of view."""
         return self.material_after - self.material_before
 
+    @property
+    def is_tactical(self) -> bool:
+        """Whether the line wins material, counting any exchange it stops in
+        as played out, or mates. An even trade is a positional decision."""
+        final = self.material_after_exchange if self.exchange else self.material_after
+        return final != self.material_before or any(m.is_mate for m in self.moves)
+
     def checking_moves(self) -> List[str]:
         return [m.san for m in self.moves if m.is_check]
 
@@ -204,6 +211,19 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
             if not played:
                 facts.refused = sequence[:2]
     return facts
+
+
+def settled(board: chess.Board, line_san: Sequence[str]) -> chess.Board:
+    """The position after the line, with any exchange it stops in played out.
+
+    Engine lines often end on a capture. A static score taken there, with a
+    piece still to be taken back, describes a position nobody would leave on
+    the board.
+    """
+    end = board.copy()
+    for san in [*line_san, *describe(board, line_san).exchange]:
+        end.push_san(san)
+    return end
 
 
 def _exchange(board: chess.Board, square: int):

@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Literal, Union
+from typing import List, Optional, Dict, Literal, Tuple, Union
 from pydantic import BaseModel, Field
 
 # --- Philosophy & Axes ---
@@ -65,6 +65,9 @@ class CandidateLine(BaseModel):
     move_san: str
     eval_cp: Optional[float] = None
     line_san: List[str] = []
+    # Stockfish 16's positional factors, (White, Black) in pawns, at the end
+    # of the line; None when it is not running or the line ends in check.
+    factors_after: Optional[Dict[str, Tuple[float, float]]] = None
 
 
 class TruthPacket(BaseModel):
@@ -85,6 +88,7 @@ class TruthPacket(BaseModel):
     vibe_score: Optional[float] = None
     top_moves_san: List[str] = []
     candidate_lines: List[CandidateLine] = []
+    factors: Optional[Dict[str, Tuple[float, float]]] = None
 
 class TruthPacketConfig(BaseModel):
     required_fields: List[str]

@@ -5,9 +5,10 @@ from src.models import SystemConfig, TruthPacket, CoachSpeechRules, CandidateLin
 from src.coach import prompts
 from src.coach.opening_db import OpeningDB
 from src.coach.threats import detect_threats
-from src.coach import claude_cli, review, verifier
+from src.coach import claude_cli, line_facts, review, verifier
 from src.engine.stockfish import AnalysisEngine
 from src.engine.leela import IntuitionEngine
+from src.engine.classical import ClassicalEngine, Factors
 from src.coach.gate import LogicGate
 from src.coach.llm import LLMClient
 from src.opponent.policy import OpponentPolicy
@@ -41,6 +42,9 @@ class ChessCoach:
             engine_path=os.getenv("LEELA_ENGINE_PATH", "lc0"),
             weights_path=os.getenv("LEELA_WEIGHTS_PATH", DEFAULT_LEELA_WEIGHTS)
         )
+        # Started in start(); stays None if Stockfish 16 is not installed, and
+        # the prompt then says the positional factors are unavailable.
+        self.classical_engine: Optional[ClassicalEngine] = None
         self.opening_db = OpeningDB() # Initialize opening database
         self.gate = LogicGate(config.logic_gate)
         self.llm = LLMClient(model_name=config.llm.model)
@@ -61,10 +65,18 @@ class ChessCoach:
         except Exception as e:
             # Don't crash if Leela fails, it's 'intuition only' for now
             print(f"Warning: Could not start Leela engine: {e}")
+        classical = ClassicalEngine(os.getenv("CLASSICAL_ENGINE_PATH", "stockfish16"))
+        try:
+            classical.start()
+            self.classical_engine = classical
+        except FileNotFoundError as e:
+            print(f"Warning: Could not start Stockfish 16, so no positional factors: {e}")
 
     def stop(self):
         self.engine.stop()
         self.intuition_engine.stop()
+        if self.classical_engine:
+            self.classical_engine.stop()
 
     def process_move(self, move_uci: str) -> Dict[str, str]:
         """
@@ -177,6 +189,7 @@ class ChessCoach:
 
         analysis = self.engine.analyze(self.board)
         vibe = self.intuition_engine.get_vibe(self.board)
+        factors = self._factors(self.board)
         candidate_lines = self._candidate_lines(analysis)
 
         self._packet_cache = TruthPacket(
@@ -187,6 +200,7 @@ class ChessCoach:
             chaos_score=0.0,  # TODO: Implement Chaos metric
             game_phase=prompts.game_phase(self.board),
             vibe_score=vibe.get("vibe_score"),
+            factors=factors,
             top_moves_san=[line.move_san for line in candidate_lines],
             candidate_lines=candidate_lines,
         )
@@ -225,9 +239,13 @@ class ChessCoach:
                     move_san=san[0],
                     eval_cp=score.white().score(mate_score=10000) if score else None,
                     line_san=san,
+                    factors_after=self._factors(line_facts.settled(self.board, san)),
                 )
             )
         return lines
+
+    def _factors(self, board: chess.Board) -> Optional[Factors]:
+        return self.classical_engine.factors(board) if self.classical_engine else None
 
     def _facts_block(self, packet: TruthPacket) -> str:
         """Render a packet into the prompt's verified-facts section."""
