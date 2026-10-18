@@ -53,7 +53,7 @@ class TestPins:
     def test_a_pin_to_the_king_is_said_to_be_absolute(self):
         board = board_after("e4", "e6", "d4", "d5", "Nc3", "Bb4")
         assert (
-            "Bishop on b4 pins White Knight on c3 to the King on e1 (it may only move along that line)"
+            "Bishop on b4 pins White Knight on c3 to the King on e1 (it has no legal move)"
             in relations.describe(board)
         )
 
@@ -61,3 +61,10 @@ class TestPins:
         """From the eval: "Bb4 pins the knight on c3" with the d2 pawn behind it."""
         board = board_after("e4", "e6", "Nc3", "Bb4")
         assert "pins" not in relations.describe(board)
+
+
+class TestWhatAPinnedPieceCanStillDo:
+    def test_a_pawn_pinned_along_its_file_can_still_push(self):
+        """Round 5: "pins the e4 pawn to the king, so that pawn can't move"."""
+        board = chess.Board("4k3/4q3/8/8/4P3/8/4K3/8 w - - 0 1")
+        assert "pins White Pawn on e4 to the King on e2 (its only legal moves: e5)" in relations.describe(board)

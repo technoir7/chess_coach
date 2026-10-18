@@ -112,9 +112,14 @@ def _pin_line(board: chess.Board, pinner: int, pinned: int, behind: int) -> str:
         f"{_side(front.color)} {_name(front, pinned)} to the {_name(back, behind)}"
     )
     if back.piece_type == chess.KING:
-        # "Cannot legally move off that line" was read as "cannot move": a pawn
-        # pinned along its file was said to be frozen while it could still push.
-        text += " (it may only move along that line)"
+        # Stated as the moves left rather than as a rule: "cannot legally move
+        # off that line" was read as "cannot move" for a pawn that could still
+        # push, and "may only move along that line" was true but misleading
+        # for a knight, which then cannot move at all.
+        turn = board.copy(stack=False)
+        turn.turn = front.color
+        moves = [turn.san(m) for m in turn.legal_moves if m.from_square == pinned]
+        text += f" (its only legal moves: {', '.join(moves)})" if moves else " (it has no legal move)"
     return text
 
 
