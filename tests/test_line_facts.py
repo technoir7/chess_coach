@@ -135,6 +135,11 @@ class TestWhoseQueen:
         assert "only Black's queen is captured, so the queens are not traded" in summary
 
 
+    def test_both_queens_taken_is_a_trade(self):
+        summary = line_facts.describe(SICILIAN_D6, ["dxc5", "dxc5", "Qxd8+", "Kxd8"]).summary()
+        assert "both queens are captured, so the queens are traded" in summary
+
+
 class TestRecapture:
     def test_states_the_material_after_the_cheapest_recapture(self):
         """From the eval: a line ending "Black is 2 pawns ahead" read as the

@@ -89,6 +89,8 @@ class LineFacts:
             parts.append("no queens are exchanged")
         elif len(queens_lost) == 1:
             parts.append(f"only {queens_lost.pop()}'s queen is captured, so the queens are not traded")
+        else:
+            parts.append("both queens are captured, so the queens are traded")
 
         # The change and the resulting balance are stated separately: "White
         # ends up 3 pawns ahead" was read as the balance when it meant the
