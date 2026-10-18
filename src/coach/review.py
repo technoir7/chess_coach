@@ -123,6 +123,57 @@ def _corrected(pieces: List[str], corrections: Dict) -> List[str]:
     return pieces
 
 
+def board_prompt(brief: str, pieces: List[str], fen: str) -> str:
+    """The edit check, done with the board tool to hand instead of from the brief.
+
+    The reviewers who caught round 6's last errors did not read the brief more
+    carefully: they asked a board about each statement. This asks the model to
+    do the same.
+    """
+    numbered = "\n".join(f"[{n}] {piece.strip()}" for n, piece in enumerate(pieces, 1))
+    return f"""You are checking a chess explanation for false statements before a student reads it.
+
+THE BRIEF the explanation was written from (the engine's evaluation and lines,
+and facts about the position):
+<<<
+{brief}
+>>>
+
+THE EXPLANATION, sentence by sentence:
+<<<
+{numbered}
+>>>
+
+You have a board tool. The position on the board now is:
+FEN: {fen}
+A position inside an engine line is that FEN with the line's moves, in SAN and
+without move numbers, played up to the point the sentence is about. To ask
+whether something depends on a piece, call the tool with that square in
+"without".
+
+The brief's facts are not enough on their own: earlier checks that read only
+the brief let through a king put on the wrong square, a pawn called passed
+with an enemy pawn in front of it, and a pin said to be broken that still held.
+So you must use the board tool. First call it on the current position. Then go
+through the explanation one sentence at a time, and for every sentence that
+says something about a position - where a piece stands, what a piece or a move
+attacks, defends, pins or unpins, whether a pawn is passed, doubled or
+isolated, material, development, which moves are legal, whether a reply is
+forced, check, mate, what is captured or traded in a line - call the tool on
+the position that sentence is about (for a line, with its moves played up to
+that point) and check the sentence against what the tool returns. Evaluations,
+engine lines and opinions are judged against the brief.
+
+Correct or delete every sentence the board or the brief contradicts; leave
+everything else alone.
+
+Your final reply must be a JSON object only, mapping the number of each
+sentence to change to its full corrected text exactly as it should appear
+(keep any list marker or bold), or to "" to delete it. Reply {{}} if nothing
+needs changing.
+"""
+
+
 def apply(pieces: List[str], reply: str) -> str:
     """The draft with the numbered corrections in `reply` made."""
     return "".join(_corrected(pieces, _object(reply)))

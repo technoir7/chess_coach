@@ -73,3 +73,30 @@ def test_an_error_reply_raises_rather_than_being_shown_as_advice():
 def test_lists_models_only_when_the_command_is_installed():
     assert claude_cli.available_models(which=lambda name: None) == []
     assert "claude-sonnet" in claude_cli.available_models(which=lambda name: "/bin/claude")
+
+
+class TestWithTheBoard:
+    def test_the_only_tool_is_the_board(self):
+        """No shell, no files: the check may describe positions and nothing else."""
+        run = FakeRun(stdout=reply("ok"))
+        claude_cli.generate_with_board("claude-sonnet", "p", run=run)
+        args, kwargs = run.calls[0]
+        assert args[args.index("--tools") + 1] == ""
+        assert "--strict-mcp-config" in args
+        assert args[args.index("--allowedTools") + 1] == "mcp__board__board"
+        config = json.loads(args[args.index("--mcp-config") + 1])
+        assert config["mcpServers"]["board"]["args"] == ["-m", "src.coach.board_tool"]
+        assert kwargs["input"] == "p"
+
+    def test_personal_settings_stay_out(self):
+        """--safe-mode would also turn off the board server, so the CLAUDE.md
+        and hooks of the user's own settings are kept out another way."""
+        run = FakeRun(stdout=reply("ok"))
+        claude_cli.generate_with_board("claude-sonnet", "p", run=run)
+        args, kwargs = run.calls[0]
+        assert args[args.index("--setting-sources") + 1] == "project"
+        assert kwargs["cwd"] != claude_cli.REPO
+
+    def test_an_error_reply_raises(self):
+        with pytest.raises(claude_cli.ClaudeCLIError):
+            claude_cli.generate_with_board("claude-sonnet", "p", run=FakeRun(stdout=reply("boom", is_error=True)))

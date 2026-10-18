@@ -49,3 +49,14 @@ class TestPrompts:
         text = review.edit_prompt("BRIEF", review.sentences("One. Two."))
         assert "[1] One." in text and "[2] Two." in text
 
+
+
+class TestBoardPrompt:
+    def test_gives_the_position_and_the_numbered_answer(self):
+        text = review.board_prompt("BRIEF", review.sentences("One. Two."), "8/8/8/8/8/8/8/K6k w - - 0 1")
+        assert "8/8/8/8/8/8/8/K6k w - - 0 1" in text
+        assert "[1] One." in text and "[2] Two." in text and "BRIEF" in text
+
+    def test_asks_for_lookups_not_memory(self):
+        text = review.board_prompt("BRIEF", review.sentences("One."), "fen")
+        assert "you must use the board tool" in text and "without" in text
