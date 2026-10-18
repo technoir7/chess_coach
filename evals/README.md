@@ -77,6 +77,25 @@ prompt. Its reviewers also record, for each answer, whether it keeps tactics
 and position apart as asked (`separation`); that is not a false claim and is
 reported on its own.
 
+Result: 6 of 100 answers wrong, none caught or rejected by the verifier, at a
+median of 22 seconds. One of the 6 is positional: "Bxf6 wrecks Black's
+structure", where the line's positional change shows none. The rest are
+slips about the position (a side's options credited to the other, the king's
+legal moves counted with a block among them, "material level" where the line
+leaves it 5 pawns apart, a defended pawn called loose). Round 6's 7 of 300
+had different reviewers; 6 in 100 is in line with rounds 4 and 5, so the
+change cannot be told from noise. 88 answers kept tactics and position apart;
+the 12 that did not walked through a positional line in the Tactics part
+(`separation.json`).
+
+The reviewers found these in the prompts, fixed after round 7 and not yet
+measured: Stockfish 16 skips most factors when one side is far ahead in
+material, and the prompt showed the zeros as "about even"; a factor could
+favour a side with no piece of that kind, through the other side's penalty,
+with no sign of it; "tactical (the line wins material)" did not say who
+wins it; and a piece shielding a defended piece worth no more than its
+attacker was called pinned.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes

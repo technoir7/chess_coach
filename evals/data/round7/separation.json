@@ -1,0 +1,314 @@
+{
+ "p001": {
+  "separation": "ok"
+ },
+ "p002": {
+  "separation": "mixed",
+  "quote": "Kg1 is worse at -846. The line is 53. Kg1 d3 54. Qh2 d2 55. Qxf4 Re1+ 56. Kh2 Rxf4. The queens are traded and Black's pawn on d2 is far advanced, with Black five pawns ahead."
+ },
+ "p003": {
+  "separation": "ok"
+ },
+ "p004": {
+  "separation": "ok"
+ },
+ "p005": {
+  "separation": "ok"
+ },
+ "p006": {
+  "separation": "mixed",
+  "quote": "In that line, 45. Rc7+ Kf6 46. Bh3 Rf7 47. Rxf7+ Kg6 48. Rd6+ Kxf7, the check comes first and the bishop then steps to h3 out of the king's attack."
+ },
+ "p007": {
+  "separation": "ok"
+ },
+ "p008": {
+  "separation": "ok"
+ },
+ "p009": {
+  "separation": "ok"
+ },
+ "p010": {
+  "separation": "ok"
+ },
+ "p011": {
+  "separation": "ok"
+ },
+ "p012": {
+  "separation": "ok"
+ },
+ "p013": {
+  "separation": "ok"
+ },
+ "p014": {
+  "separation": "ok"
+ },
+ "p015": {
+  "separation": "ok"
+ },
+ "p016": {
+  "separation": "ok"
+ },
+ "p017": {
+  "separation": "ok"
+ },
+ "p018": {
+  "separation": "ok"
+ },
+ "p019": {
+  "separation": "ok"
+ },
+ "p020": {
+  "separation": "ok"
+ },
+ "p021": {
+  "separation": "ok"
+ },
+ "p022": {
+  "separation": "ok"
+ },
+ "p023": {
+  "separation": "ok"
+ },
+ "p024": {
+  "separation": "ok"
+ },
+ "p025": {
+  "separation": "ok"
+ },
+ "p026": {
+  "separation": "ok"
+ },
+ "p027": {
+  "separation": "ok"
+ },
+ "p028": {
+  "separation": "ok"
+ },
+ "p029": {
+  "separation": "ok"
+ },
+ "p030": {
+  "separation": "ok"
+ },
+ "p031": {
+  "separation": "ok"
+ },
+ "p032": {
+  "separation": "ok"
+ },
+ "p033": {
+  "separation": "ok"
+ },
+ "p034": {
+  "separation": "ok"
+ },
+ "p035": {
+  "separation": "ok"
+ },
+ "p036": {
+  "separation": "ok"
+ },
+ "p037": {
+  "separation": "ok"
+ },
+ "p038": {
+  "separation": "ok"
+ },
+ "p039": {
+  "separation": "mixed",
+  "quote": "The engine's top move is dxc5, which takes the pawn on c5. Black answers 7... Bxc5, and the quoted line goes 8. Ngf3 Nc6 9. O-O Qc7 10. Nc4 Nd5."
+ },
+ "p040": {
+  "separation": "ok"
+ },
+ "p041": {
+  "separation": "ok"
+ },
+ "p042": {
+  "separation": "ok"
+ },
+ "p043": {
+  "separation": "ok"
+ },
+ "p044": {
+  "separation": "ok"
+ },
+ "p045": {
+  "separation": "ok"
+ },
+ "p046": {
+  "separation": "mixed",
+  "quote": "e5 allows Rxa5 and is decisive for Black (-402cp)."
+ },
+ "p047": {
+  "separation": "ok"
+ },
+ "p048": {
+  "separation": "ok"
+ },
+ "p049": {
+  "separation": "ok"
+ },
+ "p050": {
+  "separation": "ok"
+ },
+ "p051": {
+  "separation": "ok"
+ },
+ "p052": {
+  "separation": "ok"
+ },
+ "p053": {
+  "separation": "ok"
+ },
+ "p054": {
+  "separation": "ok"
+ },
+ "p055": {
+  "separation": "ok"
+ },
+ "p056": {
+  "separation": "ok"
+ },
+ "p057": {
+  "separation": "ok"
+ },
+ "p058": {
+  "separation": "ok"
+ },
+ "p059": {
+  "separation": "ok"
+ },
+ "p060": {
+  "separation": "ok"
+ },
+ "p061": {
+  "separation": "mixed",
+  "quote": "The line 10. Qe2 exf2+ 11. Qxf2 Bg7 12. Qh4 h5 13. Bf4 Qb6+ is the engine's second choice. It is rated -314cp and leaves White in check at the end, so I wouldn't recommend it."
+ },
+ "p062": {
+  "separation": "ok"
+ },
+ "p063": {
+  "separation": "ok"
+ },
+ "p064": {
+  "separation": "ok"
+ },
+ "p065": {
+  "separation": "ok"
+ },
+ "p066": {
+  "separation": "ok"
+ },
+ "p067": {
+  "separation": "ok"
+ },
+ "p068": {
+  "separation": "ok"
+ },
+ "p069": {
+  "separation": "ok"
+ },
+ "p070": {
+  "separation": "ok"
+ },
+ "p071": {
+  "separation": "ok"
+ },
+ "p072": {
+  "separation": "mixed",
+  "quote": "After Rxc8 Rbxc8 Bxd7 Rc2 a4 Bxf2+ Kh2 Bb6, material stays unchanged and Black is still 2 pawns ahead. Rc2 and Rc1 both leave Black 2 or 3 pawns ahead, depending on how the h5 exchange plays out."
+ },
+ "p073": {
+  "separation": "ok"
+ },
+ "p074": {
+  "separation": "ok"
+ },
+ "p075": {
+  "separation": "ok"
+ },
+ "p076": {
+  "separation": "ok"
+ },
+ "p077": {
+  "separation": "ok"
+ },
+ "p078": {
+  "separation": "ok"
+ },
+ "p079": {
+  "separation": "ok"
+ },
+ "p080": {
+  "separation": "ok"
+ },
+ "p081": {
+  "separation": "mixed",
+  "quote": "Qd3 is the weakest option. The engine's line 6. Qd3 Be4 puts Black decisively ahead, at -470cp, so White shouldn't ignore the bishop."
+ },
+ "p082": {
+  "separation": "mixed",
+  "quote": "White wins a pawn and the Bishop on g5, but loses the bishop on h7 and the h3 pawn, and then faces checks from Black's Queen and Rook. The engine marks this line as positional, since no material is won overall."
+ },
+ "p083": {
+  "separation": "ok"
+ },
+ "p084": {
+  "separation": "ok"
+ },
+ "p085": {
+  "separation": "ok"
+ },
+ "p086": {
+  "separation": "ok"
+ },
+ "p087": {
+  "separation": "ok"
+ },
+ "p088": {
+  "separation": "ok"
+ },
+ "p089": {
+  "separation": "mixed",
+  "quote": "After h6 (-28cp) the engine finds roughly equal play, and after Bc4 (-60cp) it finds a slight edge for Black, since 12... g4 drives the knight away."
+ },
+ "p090": {
+  "separation": "mixed",
+  "quote": "One line to quote is the engine's top choice, 32. Qf5 Qxf5+ 33. Kxf5 Bxe5 34. Kxe5 Rg8 35. Ne4 Bxe4. The queens come off, and White ends up with Bishop and four pawns against Rook, Bishop and five pawns."
+ },
+ "p091": {
+  "separation": "ok"
+ },
+ "p092": {
+  "separation": "ok"
+ },
+ "p093": {
+  "separation": "ok"
+ },
+ "p094": {
+  "separation": "mixed",
+  "quote": "The engine line goes 47. Rh3+ Kg6 48. Rg3+ Kh5 49. Bc5, so the checks drive the black king to h5 and White then plays Bc5."
+ },
+ "p095": {
+  "separation": "ok"
+ },
+ "p096": {
+  "separation": "ok"
+ },
+ "p097": {
+  "separation": "ok"
+ },
+ "p098": {
+  "separation": "ok"
+ },
+ "p099": {
+  "separation": "ok"
+ },
+ "p100": {
+  "separation": "mixed",
+  "quote": "In the Rb2+ line, White gives check, Black plays Nd2, and the rook on b2 ends up pinning that knight to the king on e2, but the line ends with material unchanged."
+ }
+}

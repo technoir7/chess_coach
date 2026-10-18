@@ -1,0 +1,19 @@
+{
+  "claude-sonnet-edit-board": {
+    "positions": 100,
+    "wrong_unchecked": 6,
+    "wrong_shown": 6,
+    "caught": 0,
+    "wrong_in_scope": 1,
+    "caught_in_scope": 0,
+    "fallbacks": 0,
+    "rejections": 0,
+    "false_alarms": 0,
+    "kinds_unchecked": {
+      "other": 4,
+      "wrong_attack": 1,
+      "wrong_positional": 1
+    },
+    "median_seconds": 22.4
+  }
+}
