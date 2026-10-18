@@ -197,3 +197,8 @@ class TestProseIsLeftToTheSelfCheck:
         answers and caught no wrong one, so verify() no longer runs them."""
         text = "This leads to exchanges of Queens, and Nc3 is check."
         assert verifier.verify(text, D6_BOARD, D6_LINES).ok
+
+    def test_the_line_with_its_exchange_played_out_may_be_quoted(self):
+        board = board_after("e4", "c6")
+        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
+        assert verifier.verify("The line ends 5. Bd3 Bxd3 6. cxd3 with material level.", board, [line]).ok

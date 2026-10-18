@@ -147,7 +147,15 @@ class TestRecapture:
         board = board_after("e4", "c6")
         line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
         summary = line_facts.describe(board, line).summary()
-        assert "if White takes back with cxd3, material is level" in summary
+        assert "if the exchange on d3 is played out (cxd3), material is level" in summary
+
+    def test_a_recapture_that_loses_more_is_not_offered_as_the_outcome(self):
+        """Pilot on round 6: "if White takes back with Qxd4, White is 3 pawns
+        ahead" when Bxd4 then wins the queen."""
+        board = chess.Board("6k1/6b1/8/1n6/3N4/8/8/3QK3 b - - 0 1")
+        summary = line_facts.describe(board, ["Nxd4"]).summary()
+        assert "taking back on d4 does not pay (Qxd4 is answered by Bxd4)" in summary
+        assert "Qxd4, White" not in summary
 
 
 class TestRobustness:

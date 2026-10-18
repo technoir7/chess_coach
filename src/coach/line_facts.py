@@ -47,10 +47,14 @@ class LineFacts:
     material_after: int = 0
     # Set when the last move captures on a square the other side can take back.
     cut_mid_exchange: Optional[str] = None
-    # Every legal recapture, the cheapest of them, and the balance after it.
+    # Every legal recapture, and every capture of the exchange played out.
     recapture_options: List[str] = field(default_factory=list)
-    recapture_san: Optional[str] = None
-    material_after_recapture: int = 0
+    # The captures on that square, cheapest piece first, up to where a side
+    # does better to stop; the balance then; and the refused first two
+    # captures when taking back does not pay at all.
+    exchange: List[str] = field(default_factory=list)
+    material_after_exchange: int = 0
+    refused: List[str] = field(default_factory=list)
 
     @property
     def material_swing(self) -> int:
@@ -112,10 +116,17 @@ class LineFacts:
 
         # The count at the end of a line cut mid-exchange was repeated as the
         # outcome: "White ends up 2 pawns behind" in a line White was winning.
-        if self.recapture_san:
-            side = "White" if self.moves[-1].by_white is False else "Black"
+        # One recapture is not enough either: "if White takes back with Qxd4,
+        # White is 3 pawns ahead" was stated where Bxd4 then won the queen.
+        if self.exchange:
             parts.append(
-                f"if {side} takes back with {self.recapture_san}, {_balance(self.material_after_recapture)}"
+                f"if the exchange on {self.cut_mid_exchange} is played out "
+                f"({' '.join(self.exchange)}), {_balance(self.material_after_exchange)}"
+            )
+        elif self.refused:
+            parts.append(
+                f"taking back on {self.cut_mid_exchange} does not pay "
+                f"({self.refused[0]} is answered by {self.refused[1]})"
             )
 
         return "; ".join(parts)
@@ -197,13 +208,38 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
         recaptures = [m for m in replay.legal_moves if m.to_square == square and replay.is_capture(m)]
         if recaptures:
             facts.cut_mid_exchange = chess.square_name(square)
-            facts.recapture_options = [replay.san(m) for m in recaptures]
-            cheapest = min(recaptures, key=lambda m: _value(replay.piece_type_at(m.from_square)))
-            facts.recapture_san = replay.san(cheapest)
-            replay.push(cheapest)
-            facts.material_after_recapture = material_balance(replay)
+            sequence, played, balance = _exchange(replay, square)
+            facts.recapture_options = sorted({replay.san(m) for m in recaptures} | set(sequence))
+            facts.exchange, facts.material_after_exchange = sequence[:played], balance
+            if not played:
+                facts.refused = sequence[:2]
     return facts
 
+
+def _exchange(board: chess.Board, square: int):
+    """Captures on `square`, each side taking with its cheapest piece, and how
+    many of them are played when each side stops as soon as going on would
+    leave it worse off. Returns (captures, how many are played, balance then).
+    """
+    replay, sequence, balances = board.copy(), [], [material_balance(board)]
+    while len(sequence) < 32:
+        captures = [m for m in replay.legal_moves if m.to_square == square and replay.is_capture(m)]
+        if not captures:
+            break
+        move = min(captures, key=lambda m: _value(replay.piece_type_at(m.from_square)))
+        sequence.append(replay.san(move))
+        replay.push(move)
+        balances.append(material_balance(replay))
+
+    # Backwards: whoever makes capture i compares stopping before it with
+    # what the rest of the exchange is worth, White maximising the balance.
+    value, goes_on = balances[-1], [False] * len(sequence)
+    for i in range(len(sequence) - 1, -1, -1):
+        white = (board.turn == chess.WHITE) == (i % 2 == 0)
+        goes_on[i] = value > balances[i] if white else value < balances[i]
+        value = value if goes_on[i] else balances[i]
+    played = next((i for i, go in enumerate(goes_on) if not go), len(sequence))
+    return sequence, played, balances[played]
 
 def _value(piece_type: int) -> int:
     return PIECE_VALUES.get(piece_type, 100)

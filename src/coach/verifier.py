@@ -203,7 +203,13 @@ def verify(
     # Each side's own moves are quotable too: "White has played 1.e4 2.c4
     # 3.Nc3" lists the game truthfully while skipping Black's replies.
     game = _game_so_far(board)
-    quotable = [*(sanctioned_lines or []), game, game[0::2], game[1::2]]
+    # A line cut mid-exchange may be quoted with the exchange its facts play out.
+    played_out = [
+        [*line, *facts.exchange]
+        for line, facts in zip(sanctioned_lines or [], _line_facts(board, sanctioned_lines or []))
+        if facts.exchange
+    ]
+    quotable = [*(sanctioned_lines or []), *played_out, game, game[0::2], game[1::2]]
     for line in find_unsanctioned_lines(text, quotable):
         violations.append(f"gave a line the engine did not search: {line}")
 
