@@ -57,6 +57,13 @@ answers, the remaining checker rejected 2, both false alarms (one side's moves l
 Labelling round 6 took 11 reviewers at roughly 200,000 tokens each; the
 answers themselves took about 900 Claude calls.
 
+Changed after round 6 and not yet measured, all from what its reviewers
+found in the prompts: the endgame is decided by the material left rather than
+the move count (a full board had been called an endgame at move 22); a piece
+pinned to its king is given its remaining legal moves rather than a rule about
+them (a pinned knight "may only move along that line" when it cannot move at
+all); and a line in which both queens are taken says the queens are traded.
+
 ## Steps
 
 1. `python -m evals.positions --round N` plays 50-odd games of the coach's club-strength
