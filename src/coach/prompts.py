@@ -262,10 +262,32 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
         rendered.append(f"    FACTS: {facts.summary()}")
         rendered.append(f"    KIND: {_kind(facts, line)}")
         rendered.append(f"    POSITIONAL CHANGE BY THE END OF THIS LINE: {_positional_change(board, line, packet)}")
+        note = _material_the_evaluation_does_not_bear(facts, line)
+        if note:
+            rendered.append(f"    MATERIAL AND EVALUATION: {note}")
         if line is packet.candidate_lines[0] and len(packet.candidate_lines) > 1 and _is_quiet(facts, line):
             rendered.append(f"    WHY THE ENGINE RANKS IT FIRST: {_why_first(board, packet)}")
         rendered.append(walkthrough.describe(board, line.line_san))
     return "\n".join(rendered)
+
+
+def _material_the_evaluation_does_not_bear(facts: line_facts.LineFacts, line: CandidateLine) -> str:
+    """A warning when the side ahead where a line stops is not the side the
+    engine favours. Round 9 had "White wins 3 points" in a line whose next
+    move forks queen and rook, the engine at -262. Where a line stops is
+    where the engine's line goes quiet, which is not where its sight ends;
+    a quiet search for where the material settles fared worse than the
+    engine's own verdict, so the verdict is stated beside the count."""
+    ahead = facts.material_after
+    if not ahead or line.eval_cp is None or _is_mate_score(line.eval_cp) or ahead * line.eval_cp > 0:
+        return ""
+    side = "White" if ahead > 0 else "Black"
+    return (
+        f"{side} is {line_facts.points(abs(ahead))} ahead where the line stops, but the engine's "
+        f"evaluation of the line ({format_eval(line.eval_cp)}cp) does not favour {side}: beyond these moves "
+        f"it sees the material won back, or enough in return for it; do not say {side} keeps "
+        "the material or comes out ahead"
+    )
 
 
 # Below this, two moves are as good as each other: a depth-15 evaluation

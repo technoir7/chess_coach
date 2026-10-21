@@ -79,3 +79,7 @@ class TestChecklist:
     def test_a_reason_the_factors_do_not_give_counts_as_false(self):
         from src.coach import review
         assert "WHY THE ENGINE RANKS IT FIRST" in review.CHECKLIST
+
+    def test_material_the_evaluation_does_not_bear_is_checked(self):
+        from src.coach import review
+        assert "MATERIAL AND EVALUATION" in review.CHECKLIST

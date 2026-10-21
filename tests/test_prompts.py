@@ -370,6 +370,36 @@ class TestTacticalAndPositionalLines:
         assert "POSITIONAL CHANGE BY THE END OF THIS LINE: mobility moves 0.40 towards White" in text
 
 
+def material_note(eval_cp, line=("exd5",)):
+    text = prompts.engine_lines(
+        packet(factors=None, candidate_lines=[CandidateLine(move_san=line[0], line_san=list(line), eval_cp=eval_cp)]),
+        board_after("e4", "d5"),
+    )
+    return [l.strip() for l in text.splitlines() if "MATERIAL AND EVALUATION" in l]
+
+
+class TestMaterialTheEvaluationDoesNotBear:
+    """Round 9: "White wins 3 points" in a line whose next move forks queen
+    and rook, the engine at -262; a pawn "won" that Black takes back, the
+    engine at -33. The count where a line stops is true, but the side ahead
+    in it is not always the side the engine favours."""
+
+    def test_says_so_when_the_engine_does_not_favour_the_side_ahead(self):
+        [note] = material_note(-50)
+        assert "White is 1 point ahead where the line stops" in note
+        assert "the engine's evaluation of the line (-50cp) does not favour White" in note
+        assert "do not say White keeps the material or comes out ahead" in note
+
+    def test_no_note_when_the_evaluation_agrees(self):
+        assert material_note(80) == []
+
+    def test_no_note_when_material_is_level(self):
+        assert material_note(-50, line=("Nf3",)) == []
+
+    def test_no_note_for_a_forced_mate(self):
+        assert material_note(-9990) == []
+
+
 def quiet(move, eval_cp, after=None, line=None):
     return CandidateLine(move_san=move, line_san=line or [move, "Nc6"], eval_cp=eval_cp,
                          factors_after=factors(**(after or {})))

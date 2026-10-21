@@ -35,7 +35,9 @@ lines against the facts in the brief:
   or a line's end-position facts
 - a move being forced, or a side having to play it: only if MOVE BY MOVE says
   that reply is forced
-- checks, captures, trades and material over a line: that line's FACTS
+- checks, captures, trades and material over a line: that line's FACTS, and its
+  MATERIAL AND EVALUATION where it has one (the side ahead where the line stops
+  is then not said to keep the material or come out ahead)
 - a side being better in a positional factor, or a line improving one:
   POSITIONAL FACTORS and the line's POSITIONAL CHANGE
 - why the engine ranks a quiet move first, or calling one move better than

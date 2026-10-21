@@ -1,0 +1,153 @@
+{
+ "p002": {
+  "why_first": "follows"
+ },
+ "p003": {
+  "why_first": "follows"
+ },
+ "p005": {
+  "why_first": "follows"
+ },
+ "p007": {
+  "why_first": "follows"
+ },
+ "p008": {
+  "why_first": "follows"
+ },
+ "p009": {
+  "why_first": "follows"
+ },
+ "p011": {
+  "why_first": "follows"
+ },
+ "p013": {
+  "why_first": "follows"
+ },
+ "p016": {
+  "why_first": "follows"
+ },
+ "p017": {
+  "why_first": "follows"
+ },
+ "p018": {
+  "why_first": "follows"
+ },
+ "p019": {
+  "why_first": "follows"
+ },
+ "p025": {
+  "why_first": "follows"
+ },
+ "p027": {
+  "why_first": "follows"
+ },
+ "p030": {
+  "why_first": "follows"
+ },
+ "p031": {
+  "why_first": "follows"
+ },
+ "p033": {
+  "why_first": "follows"
+ },
+ "p034": {
+  "why_first": "follows"
+ },
+ "p035": {
+  "why_first": "follows"
+ },
+ "p039": {
+  "why_first": "follows"
+ },
+ "p041": {
+  "why_first": "follows"
+ },
+ "p045": {
+  "why_first": "follows"
+ },
+ "p047": {
+  "why_first": "follows"
+ },
+ "p048": {
+  "why_first": "follows"
+ },
+ "p050": {
+  "why_first": "follows"
+ },
+ "p051": {
+  "why_first": "follows"
+ },
+ "p057": {
+  "why_first": "follows"
+ },
+ "p059": {
+  "why_first": "invents",
+  "quote": "So all three moves are about as good, and none is clearly better.",
+  "why": "The prompt calls Bxf6 and Bf4 slightly worse (20cp and 21cp, a small difference), not about as good; only moves it labels about as good may be called so."
+ },
+ "p060": {
+  "why_first": "follows"
+ },
+ "p061": {
+  "why_first": "follows"
+ },
+ "p064": {
+  "why_first": "follows"
+ },
+ "p065": {
+  "why_first": "follows"
+ },
+ "p067": {
+  "why_first": "follows"
+ },
+ "p069": {
+  "why_first": "follows"
+ },
+ "p070": {
+  "why_first": "follows"
+ },
+ "p071": {
+  "why_first": "follows"
+ },
+ "p072": {
+  "why_first": "follows"
+ },
+ "p073": {
+  "why_first": "follows"
+ },
+ "p075": {
+  "why_first": "follows"
+ },
+ "p079": {
+  "why_first": "follows"
+ },
+ "p082": {
+  "why_first": "follows"
+ },
+ "p086": {
+  "why_first": "follows"
+ },
+ "p089": {
+  "why_first": "follows"
+ },
+ "p090": {
+  "why_first": "follows"
+ },
+ "p091": {
+  "why_first": "invents",
+  "quote": "That is a reason to be careful with that sacrificial idea, not a path to follow.",
+  "why": "The prompt says Nec4 is about as good as a4 (5cp behind, too little to matter) and that neither should be called better."
+ },
+ "p093": {
+  "why_first": "follows"
+ },
+ "p097": {
+  "why_first": "follows"
+ },
+ "p098": {
+  "why_first": "follows"
+ },
+ "p099": {
+  "why_first": "follows"
+ }
+}

@@ -173,6 +173,31 @@ Round 9 measures those fixes on fresh positions, run and labelled as round
 recapture that no line plays, it also reports how many answers the checker
 rejected and whether those rejections were false alarms.
 
+Result: 2 of 100 answers wrong, at a median of 28 seconds (round 8: 3, round
+7: 6; at this size not a clear change). One is positional: p096 puts a pawn
+structure gap down to White's isolated f- and h-pawns, where Black's are
+isolated the same way. One repeats a line's material count where the
+engine's next move takes a piece back (p014). The checker rejected one
+answer, a false alarm: "the Rf8" named a rook that reaches f8 by castling in
+the line, where only the current board was checked; it now checks the
+positions inside each line too. 98 answers kept tactics and position apart.
+Of 49 answers given WHY THE ENGINE RANKS IT FIRST, 47 follow it and 2 invent:
+one warns off a line called about as good (p091, like round 8's p046), one
+calls all three moves about as good where two were slightly worse (p059).
+
+The reviewers found three lines whose material count the engine does not
+bear out: a line ends on a quiet move after which the engine takes a piece
+(p014), forks queen and rook (p095, "White wins 3 points" at -262), or wins
+a pawn back (p081). A line stops at the engine's first quiet move, which is
+not where its sight ends. Running each line on until four moves pass with no
+capture or check, with a fresh search from move 8, did worse: where it
+changed the count, the engine's evaluation sided with it 26 times and with
+the lines as they are 45 times, and 47 of 289 lines ran to the 20-move cap.
+Instead, a line whose count leaves one side ahead, where the engine's
+evaluation of the line does not favour that side, now says so, and that the
+side ahead is not to be called the one who keeps it (26 of round 9's 298
+lines). Not yet measured.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes
