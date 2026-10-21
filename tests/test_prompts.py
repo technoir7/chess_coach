@@ -538,3 +538,53 @@ class TestWhatTheExplanationAsksFor:
         facts = prompts.position_facts(chess.Board(), packet(), "")
         rules = prompts.explain_prompt(facts, "Game just started").split("INSTRUCTIONS:")[1]
         assert "POSITIONAL FACTORS" in rules
+
+
+class TestCastling:
+    def test_names_the_pieces_in_the_way(self):
+        status = prompts.development_status(chess.Board())
+        assert "White castling: kingside - Bishop on f1, Knight on g1 in the way; " \
+               "queenside - Knight on b1, Bishop on c1, Queen on d1 in the way" in status
+
+    def test_says_when_castling_is_legal_now(self):
+        """Round 11: Nf3 "prepares to castle queenside" when O-O-O was already legal."""
+        board = chess.Board("r4k1r/pp2bppp/1n3q2/1Q6/1P6/P1p1B3/2P2PPP/R3K1NR w KQ - 5 14")
+        assert "White castling: kingside - Knight on g1 in the way; queenside - legal now" \
+            in prompts.development_status(board)
+
+    def test_a_side_without_rights(self):
+        board = chess.Board("r1bq1rk1/pp2bppp/3p1n2/2p5/P1BpP3/2NP3P/1PP1QPP1/R1B1K2R w KQ - 0 10")
+        assert "Black castling: no castling rights left" in prompts.development_status(board)
+
+    def test_a_clear_path_that_is_attacked(self):
+        board = chess.Board("4kr2/8/8/8/8/8/8/4K2R w K - 0 1")
+        assert "White castling: kingside - not legal now: the king is in check or " \
+               "would cross or land on an attacked square" in prompts.development_status(board)
+
+    def test_the_side_not_to_move_is_judged_as_if_it_were_its_turn(self):
+        board = chess.Board("r3k3/8/8/8/8/8/8/4K3 w q - 0 1")
+        assert "Black castling: queenside - legal now" in prompts.development_status(board)
+
+
+class TestKnightsOnTheEdge:
+    def test_names_a_knight_on_the_rim(self):
+        board = chess.Board("rn1q1rk1/pppb1pbp/4pnp1/3p4/3P3N/P3P3/1PPNBPPP/R1BQ1RK1 w - - 2 9")
+        assert "White knights on the edge of the board (the a- or h-file, or the 1st or 8th rank), apart from any on their starting squares: Knight on h4" \
+            in prompts.development_status(board)
+
+    def test_g4_is_not_the_edge(self):
+        """Round 11: "Black's knight on g4 has strayed to the edge"."""
+        board = chess.Board("rnbqk2r/1pp1bppp/p3p3/3p4/3PP1nP/2P2N2/PP1N1PP1/R1BQKB1R w KQkq - 1 7")
+        assert "Black knights on the edge of the board (the a- or h-file, or the 1st or 8th rank), apart from any on their starting squares: none" \
+            in prompts.development_status(board)
+
+
+class TestThreatsReachThePrompt:
+    def test_the_facts_carry_the_threats(self):
+        board = chess.Board("r1bq1rk1/pp2bppp/3p1n2/2p5/P1BpP3/2NP3P/1PP1QPP1/R1B1K2R w KQ - 0 10")
+        assert "Knight on c3, attacked by Pawn on d4" in prompts.position_facts(board, packet(), "")
+
+    def test_the_rules_bind_threats_outposts_castling_and_the_edge(self):
+        rules = prompts.GROUNDING_RULES
+        for word in ("THREATS", "outpost", "CASTLING", "edge"):
+            assert word in rules

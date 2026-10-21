@@ -45,6 +45,11 @@ lines against the facts in the brief:
   better or worse than each other; where it says reasons these factors do not
   show, any reason the draft gives is unsupported - replace it with the plain
   statement that the engine sees something the factors do not
+- a piece being under threat, or a side facing no threat: THREATS
+- a square called an outpost: the outposts in MATERIAL AND PAWNS
+- a move preparing or allowing castling: the CASTLING facts in DEVELOPMENT
+- a piece on the edge of the board: only on the a- or h-file or the 1st or
+  8th rank
 - how big an advantage is: the words given beside each evaluation
 - move sequences: only the ENGINE LINES, quoted exactly, or the moves played"""
 

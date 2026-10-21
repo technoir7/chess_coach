@@ -80,3 +80,31 @@ class TestCandidatePassedPawns:
     def test_a_blocked_pawn_not_yet_on_the_fifth_rank_is_not_a_candidate(self):
         text = structure.describe(chess.Board("4k3/8/8/4p3/4P3/3P4/8/4K3 w - - 0 1"))
         assert candidates(text, "White") == "none"
+
+
+class TestOutposts:
+    def test_a_square_a_pawn_defends_and_no_enemy_pawn_can_attack(self):
+        board = chess.Board("4k3/8/8/8/4P3/8/8/4K3 w - - 0 1")
+        line = next(l for l in structure.describe(board).splitlines() if "White outposts" in l)
+        assert line.endswith(": d5, f5")
+
+    def test_not_an_outpost_while_an_enemy_pawn_can_still_advance_to_attack_it(self):
+        """Round 11: "the e5 outpost" with Black's f7 pawn able to come to f6."""
+        board = chess.Board("rn1q1rk1/pppb1pbp/4pnp1/3p4/3P3N/P3P3/1PPNBPPP/R1BQ1RK1 w - - 2 9")
+        line = next(l for l in structure.describe(board).splitlines() if "White outposts" in l)
+        assert line.endswith(": none")
+
+    def test_a_pawn_that_has_gone_past_cannot_come_back(self):
+        board = chess.Board("4k3/8/8/8/4P3/5p2/8/4K3 w - - 0 1")
+        line = next(l for l in structure.describe(board).splitlines() if "White outposts" in l)
+        assert line.endswith(": d5, f5")
+
+    def test_names_a_piece_standing_on_an_outpost(self):
+        board = chess.Board("4k3/8/8/3N4/4P3/8/8/4K3 w - - 0 1")
+        line = next(l for l in structure.describe(board).splitlines() if "White outposts" in l)
+        assert line.endswith(": d5 (Knight on it), f5")
+
+    def test_black_outposts_are_on_its_own_fourth_to_sixth_ranks(self):
+        board = chess.Board("4k3/8/8/4p3/8/8/8/4K3 w - - 0 1")
+        line = next(l for l in structure.describe(board).splitlines() if "Black outposts" in l)
+        assert line.endswith(": d4, f4")

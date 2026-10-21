@@ -22,6 +22,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 9 | 100 (2034) | `claude-sonnet-edit-board` | as round 8, with the fixes its reviewers prompted; each line runs on while the engine keeps capturing or checking, and the played-out exchange and the checker's allowance for recaptures are gone |
 | 10 | 100 (2035) | `claude-sonnet-edit-board`, `claude-sonnet-edit-board-round9-instructions` | as round 9, with the fixes its reviewers prompted; the new arm is asked to open with the verdict, explain in chess terms rather than factor scores, join tactics and position where they are one idea, and end with what to aim for; the other arm answers the same prompts with round 9's instructions |
 | 11 | 100 (2036) | `claude-sonnet-edit-board` | as round 10's new arm, with the fixes its reviewers prompted: a worse move's own line not offered as why it is worse, no warning against a move about as good, the material note when the evaluation barely favours the side ahead |
+| 12 | 100 (2037) | `claude-sonnet-edit-board` | as round 11, with facts for the general chess remarks its answers got wrong: threats to each side, outposts, what stands in the way of castling, knights on the edge |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
@@ -247,12 +248,28 @@ Result: `invents` fell to 2 of 56 (round 10: 10 of 66), both a worse move's
 own line changes read as the reason (`why_first.json`). 4 of 100 answers were
 wrong, at a median of 24 seconds and 242 words, none rejected: a knight on g4
 said to be on the edge (p037), an "outpost" on e5 that f7-f6 attacks (p095),
-"no immediate threat" where a pawn attacks a knight (p015), and a move said to
-develop the last minor piece at home when another is (p085). All four are the
+"no immediate threat" where a pawn attacks a knight (p015), and Nf3 said to
+prepare queenside castling, already legal (p085). All four are the
 general chess remarks the new instructions ask for, not the engine facts
 earlier rounds got wrong; at 1 in round 10's arm and 4 here, 100 answers
 cannot say whether the style costs accuracy. The human-intuition reading
 closed 18 answers, against most of round 10's.
+
+Fixed after round 11, not yet measured: the brief now states what those four
+remarks needed. THREATS lists, for each side, every piece attacked and
+undefended or attacked by something cheaper, with its attacker (the board
+already worked these out for the in-game advice, but never showed them to the
+explanation). MATERIAL AND PAWNS lists outposts: squares on a side's fourth to
+sixth ranks that its pawn defends and no enemy pawn can ever attack.
+DEVELOPMENT says, for each castling, whether it is legal now, what stands in
+the way, or that the right is gone, and names any knight on the edge of the
+board. A grounding rule and the check's checklist bind those remarks to them.
+Threats are listed in 44 of round 11's 100 positions.
+
+Round 12 measures this on fresh positions, one arm, labelled as round 11 was.
+The question is whether false claims fall back from round 11's 4 towards
+round 10's 1, with no new kind of mistake about threats, outposts or castling,
+and `invents` stays near round 11's 2 in 56.
 
 ## Board-check pilot
 

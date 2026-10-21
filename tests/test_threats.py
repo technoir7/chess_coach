@@ -1,5 +1,6 @@
 import chess
 
+from src.coach import threats
 from src.coach.threats import detect_threats
 
 
@@ -51,3 +52,25 @@ class TestCheck:
     def test_king_is_never_reported_as_hanging(self):
         board = chess.Board("7k/8/8/8/8/8/8/6KR b - - 0 1")
         assert not any("King on h8" in t for t in detect_threats(board, chess.BLACK))
+
+
+class TestThreatsForThePrompt:
+    def test_names_the_threatened_piece_and_its_attacker(self):
+        """Round 11: "no immediate threat to either side" with Black's d4 pawn
+        attacking White's c3 knight - stated only in a list of thirty pieces."""
+        board = chess.Board("r1bq1rk1/pp2bppp/3p1n2/2p5/P1BpP3/2NP3P/1PP1QPP1/R1B1K2R w KQ - 0 10")
+        text = threats.describe(board)
+        assert "- Against White (to move): Knight on c3, attacked by Pawn on d4, which is worth less" in text
+
+    def test_an_undefended_piece_says_so(self):
+        board = chess.Board("7k/8/8/4r3/8/8/1B6/7K b - - 0 1")
+        assert "- Against Black (to move): Rook on e5, attacked by Bishop on b2, and undefended" in threats.describe(board)
+
+    def test_says_none_for_a_side_with_nothing_under_threat(self):
+        text = threats.describe(chess.Board())
+        assert "- Against White (to move): none" in text
+        assert "- Against Black: none" in text
+
+    def test_a_check_is_a_threat(self):
+        board = chess.Board("4k3/8/8/8/8/8/4r3/4K3 w - - 0 1")
+        assert "White is in check" in threats.describe(board)

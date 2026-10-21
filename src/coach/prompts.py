@@ -10,7 +10,7 @@ from typing import List, Optional
 import chess
 
 from src.models import CandidateLine, CoachSpeechRules, TruthPacket
-from src.coach import line_facts, positional, relations, structure, walkthrough
+from src.coach import line_facts, positional, relations, structure, threats, walkthrough
 
 # Small local models infer development from coordinates badly - they claimed
 # developed bishops on move 1 - so the facts below are stated rather than implied.
@@ -61,7 +61,13 @@ GROUNDING_RULES = """INSTRUCTIONS:
    it calls about as good is about as good, so do not call either better; and
    where it says reasons these factors do not show, say plainly that the
    engine sees something they do not, and give no reason of your own - a
-   made-up reason teaches the wrong lesson."""
+   made-up reason teaches the wrong lesson.
+9. THREATS, OUTPOSTS, CASTLING, THE EDGE: say a piece is under threat, or that
+   a side faces no threat, only as THREATS says; call a square an outpost only
+   if MATERIAL AND PAWNS lists it as one; say a move prepares or allows
+   castling only as the CASTLING facts in DEVELOPMENT show (what is in the way,
+   or that it is legal already); and put a piece on the edge of the board only
+   if it stands on the a- or h-file or the 1st or 8th rank."""
 
 PIECE_NAMES = {
     "P": "Pawn", "N": "Knight", "B": "Bishop",
@@ -125,7 +131,48 @@ def development_status(board: chess.Board) -> str:
             f"{label} minor pieces still on their starting squares: "
             + (", ".join(sorted(at_home[color])) or "none")
         )
+        # Round 11: a knight on g4 "has strayed to the edge".
+        on_edge = [name for name in developed[color] if name.startswith("Knight")
+                   and _on_edge(chess.parse_square(name[-2:]))]
+        lines.append(
+            f"{label} knights on the edge of the board (the a- or h-file, or the 1st or 8th rank), "
+            f"apart from any on their starting squares: {', '.join(on_edge) or 'none'}"
+        )
+        lines.append(f"{label} castling: {_castling(board, color)}")
     return "\n".join(lines)
+
+
+def _on_edge(square: int) -> bool:
+    return chess.square_file(square) in (0, 7) or chess.square_rank(square) in (0, 7)
+
+
+def _castling(board: chess.Board, color: chess.Color) -> str:
+    """Whether each castling is legal now, or what stops it. Round 11 said Nf3
+    "prepares to castle queenside" when O-O-O was already legal. The side not
+    to move is judged as if it were its turn."""
+    turn = board.copy(stack=False)
+    turn.turn = color
+    king = turn.king(color)
+    sides = []
+    for name, rook_file, has_rights in (
+        ("kingside", 7, turn.has_kingside_castling_rights(color)),
+        ("queenside", 0, turn.has_queenside_castling_rights(color)),
+    ):
+        if not has_rights:
+            continue
+        rook = chess.square(rook_file, chess.square_rank(king))
+        between = sorted(chess.SquareSet(chess.between(king, rook)))
+        in_the_way = [f"{chess.piece_name(turn.piece_type_at(sq)).capitalize()} on {chess.square_name(sq)}"
+                      for sq in between if turn.piece_at(sq)]
+        if in_the_way:
+            state = f"{', '.join(in_the_way)} in the way"
+        elif any(turn.is_castling(move) and (move.to_square > king) == (rook > king)
+                 for move in turn.legal_moves):
+            state = "legal now"
+        else:
+            state = "not legal now: the king is in check or would cross or land on an attacked square"
+        sides.append(f"{name} - {state}")
+    return "; ".join(sides) or "no castling rights left"
 
 
 def legal_moves_list(board: chess.Board) -> str:
@@ -401,6 +448,8 @@ CURRENT POSITION:
 {piece_listing(board)}
 
 {relations.describe(board)}
+
+{threats.describe(board)}
 
 {structure.describe(board)}
 

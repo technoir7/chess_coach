@@ -83,3 +83,9 @@ class TestChecklist:
     def test_material_the_evaluation_does_not_bear_is_checked(self):
         from src.coach import review
         assert "MATERIAL AND EVALUATION" in review.CHECKLIST
+
+
+def test_threats_outposts_castling_and_the_edge_are_checked():
+    from src.coach import review
+    for word in ("THREATS", "outpost", "CASTLING", "edge"):
+        assert word in review.CHECKLIST

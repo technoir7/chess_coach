@@ -107,6 +107,29 @@ def _is_candidate(board: chess.Board, square: int, color: chess.Color) -> bool:
     return False
 
 
+def _outposts(board: chess.Board, color: chess.Color) -> List[str]:
+    """Squares on the side's fourth to sixth ranks that one of its pawns
+    defends and that no enemy pawn can ever attack: none stands on a
+    neighbouring file still short of the square's rank, from where it could
+    advance to hit it. Squares holding a pawn are left out. This is the
+    textbook definition; Stockfish 16's is looser (it ignores enemy pawns that
+    are blocked or backward), so it can score an outpost this does not list."""
+    found = []
+    for square in chess.SQUARES:
+        relative_rank = chess.square_rank(square) if color == chess.WHITE else 7 - chess.square_rank(square)
+        if not 3 <= relative_rank <= 5 or board.piece_type_at(square) == chess.PAWN:
+            continue
+        if not board.attackers(color, square) & board.pieces(chess.PAWN, color):
+            continue
+        file = chess.square_file(square)
+        if _ahead(square, color, [file - 1, file + 1]) & board.pieces(chess.PAWN, not color):
+            continue
+        piece = board.piece_at(square)
+        found.append(chess.square_name(square) + (
+            f" ({chess.piece_name(piece.piece_type).capitalize()} on it)" if piece and piece.color == color else ""))
+    return found
+
+
 def _names(squares) -> str:
     return ", ".join(chess.square_name(s) for s in squares) or "none"
 
@@ -126,6 +149,9 @@ def _pawn_lines(board: chess.Board, color: chess.Color) -> List[str]:
         f"{side} doubled pawns: {', '.join(doubled) or 'none'}",
         f"{side} isolated pawns: {_names(isolated)}",
         f"{side} passed pawns: {_names(passed)}",
+        # Round 11 called e5 an outpost with Black's f7 pawn able to hit it from f6.
+        f"{side} outposts (squares a {side} pawn defends that no enemy pawn can ever attack): "
+        f"{', '.join(_outposts(board, color)) or 'none'}",
         # Stated because Stockfish 16's passed-pawn score counts these too.
         f"{side} candidate passed pawns (not passed yet, but the pawns in the way can be "
         f"taken or outnumbered; Stockfish 16 scores them as passed pawns): {_names(candidates)}",
