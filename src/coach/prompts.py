@@ -273,6 +273,10 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
 # difference stays inside the scale's "equal" band.
 ABOUT_AS_GOOD = 20
 SMALL_GAP = 50
+# A point of material is worth about 100cp. A line a point down but less than
+# half that worse leaves compensation the engine sees, so the lost point is
+# not why it is worse (round 8, p092: a point down and 24cp worse).
+COMPENSATED = 50
 
 
 def _why_first(board: chess.Board, packet: TruthPacket) -> str:
@@ -295,7 +299,7 @@ def _why_first(board: chess.Board, packet: TruthPacket) -> str:
             parts.append(f"{other.move_san} is about as good ({gap}cp behind, too little to matter); do not call either better")
             continue
         lost = -sign * line_facts.describe(board, other.line_san).material_won
-        if lost > 0:
+        if lost > 0 and gap >= COMPENSATED * lost:
             parts.append(f"{other.move_san} is {gap}cp worse: its line loses {line_facts.points(lost)} of material for {side}")
             continue
         compared = positional.contrast(mover, first.factors_after, other.factors_after)
@@ -303,7 +307,10 @@ def _why_first(board: chess.Board, packet: TruthPacket) -> str:
             detail = compared[1] or (
                 f"small differences in several factors that add up to {compared[0]:.2f} for {side}"
             )
-            parts.append(f"{other.move_san} is {gap}cp worse; where the lines end, {first.move_san}'s has {detail}")
+            parts.append(
+                f"{other.move_san} is {gap}cp worse; compared with {other.move_san}'s line, "
+                f"{first.move_san}'s ends with {detail}"
+            )
             continue
         worse = f"is slightly worse ({gap}cp, a small difference)" if gap < SMALL_GAP else f"is {gap}cp worse"
         parts.append(

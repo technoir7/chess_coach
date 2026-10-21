@@ -410,13 +410,20 @@ class TestWhyTheEngineRanksAQuietMoveFirst:
         [line] = why_first(quiet("Nf3", 30), quiet("Ba6", -250, line=["Ba6", "bxa6"]))
         assert "Ba6 is 280cp worse: its line loses 3 points of material for White" in line
 
+    def test_material_lost_is_no_reason_when_the_gap_is_far_smaller(self):
+        # Round 8, p092: a line a point down but only 24cp worse; the engine
+        # sees compensation, so the lost point is not why it is worse.
+        [line] = why_first(quiet("Nf3", 30), quiet("Ba6", 0, line=["Ba6", "bxa6"]))
+        assert "loses" not in line
+        assert "Ba6 is slightly worse (30cp, a small difference), for reasons these factors do not show" in line
+
     def test_a_worse_move_is_explained_by_the_factors_where_the_lines_end(self):
         [line] = why_first(quiet("Nf3", 30, after={"Mobility": 0.4}), quiet("Nc3", -20))
-        assert "Nc3 is 50cp worse; where the lines end, Nf3's has mobility 0.40 better for White" in line
+        assert "Nc3 is 50cp worse; compared with Nc3's line, Nf3's ends with mobility 0.40 better for White" in line
 
     def test_small_differences_that_add_up_are_stated_as_such(self):
         [line] = why_first(quiet("Nf3", 30, after={"Mobility": 0.1, "Space": 0.1}), quiet("Nc3", -20))
-        assert "where the lines end, Nf3's has small differences in several factors that add up to 0.20 for White" in line
+        assert "compared with Nc3's line, Nf3's ends with small differences in several factors that add up to 0.20 for White" in line
 
     def test_otherwise_it_says_the_factors_do_not_show_why(self):
         [line] = why_first(quiet("Nf3", 30), quiet("Nc3", -20))
