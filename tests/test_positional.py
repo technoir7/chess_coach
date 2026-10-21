@@ -1,3 +1,4 @@
+import pytest
 import chess
 
 from src.coach import positional
@@ -73,3 +74,23 @@ class TestWhatALineChanges:
     def test_a_line_ending_in_check_has_no_comparison(self):
         end = chess.Board("4k3/8/8/8/8/8/4q3/4K3 w - - 0 1")
         assert "the line ends with White in check" in positional.change(end, EVEN, None)
+
+
+class TestWhatALineGainsForTheMover:
+    def test_adds_up_every_factor_towards_the_side_moving(self):
+        before = dict(EVEN)
+        after = with_scores(Mobility=(0.4, 0.0), Space=(0.0, 0.1))
+        assert positional.gain(chess.WHITE, before, after) == pytest.approx(0.3)
+        assert positional.gain(chess.BLACK, before, after) == pytest.approx(-0.3)
+
+    def test_only_factors_scored_at_both_ends_count(self):
+        assert positional.gain(chess.WHITE, EVEN, {"Pawns": (0.2, 0.0)}) == pytest.approx(0.2)
+
+    def test_there_is_none_without_scores_at_both_ends(self):
+        assert positional.gain(chess.WHITE, None, EVEN) is None
+        assert positional.gain(chess.WHITE, EVEN, None) is None
+
+
+class TestPassedPawnsWording:
+    def test_says_candidates_count_too(self):
+        assert "candidate" in positional.FACTOR_WORDS["Passed"][1]

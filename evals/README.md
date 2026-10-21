@@ -98,6 +98,21 @@ attacker was called pinned.
 The prompt also now says each engine line goes in the part its KIND names,
 for the 12 answers that mixed them.
 
+Also changed after round 7, and not yet measured. Each positional line now
+says whether Stockfish 16's factors account for it. Over round 7's
+positions, the engine's first choice was a quiet line in 51, and the factors
+moved towards the side to move, and more than for its lower-rated quiet
+lines, in only 17. For the rest, the answer is told to say the engine's
+reason is not shown rather than invent one. p001 had done exactly that:
+White gets "a centralised knight on d4" for a line whose factors moved
+towards Black. Pawn structure now lists candidate passed pawns by Stockfish
+16's rule. Over every round's positions and line ends (3,572 boards), a side
+has a passed or candidate passed pawn in the list exactly when Stockfish 16
+scores one; 80 of the 1,800 sides had a candidate and no passed pawn, which
+is where "passed pawns favour White" sat beside "White passed pawns: none".
+Material is counted in points rather than "pawns": "6 pawns ahead" was
+repeated for a side a bishop and a knight up.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes

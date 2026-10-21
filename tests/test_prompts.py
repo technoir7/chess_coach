@@ -272,7 +272,7 @@ class TestPositionsInsideLines:
 
     def test_the_current_position_states_material_and_pawns(self):
         facts = prompts.position_facts(board_after("e4", "d5", "exd5"), packet(), "")
-        assert "White is 1 pawn ahead" in facts
+        assert "White is 1 point ahead" in facts
 
     def test_the_rules_cover_forced_moves_and_counting(self):
         facts = prompts.position_facts(chess.Board(), packet(), "")
@@ -328,7 +328,7 @@ class TestTacticalAndPositionalLines:
         text = prompts.engine_lines(
             packet(candidate_lines=[CandidateLine(move_san="Qxd5", line_san=["Qxd5", "Ke7"])]), board,
         )
-        assert "KIND: tactical (White wins 1 pawn of material)" in text
+        assert "KIND: tactical (White wins 1 point of material)" in text
 
     def test_a_line_that_loses_material_says_so(self):
         """Round 7: "the line wins material" read as the mover gaining, in
@@ -337,7 +337,7 @@ class TestTacticalAndPositionalLines:
         text = prompts.engine_lines(
             packet(candidate_lines=[CandidateLine(move_san="Kd2", line_san=["Kd2", "dxe4"])]), board,
         )
-        assert "KIND: tactical (Black wins 1 pawn of material)" in text
+        assert "KIND: tactical (Black wins 1 point of material)" in text
 
     def test_a_quiet_line_is_positional(self):
         text = prompts.engine_lines(
@@ -378,6 +378,78 @@ class TestTacticalAndPositionalLines:
         ) in text
 
 
+class TestOwningUpWhenTheFactorsDoNotExplainALine:
+    """Stockfish 16's static factors cannot always say why the engine prefers
+    a quiet move. The answer should say so rather than make a reason up."""
+
+    def test_a_positional_line_the_factors_explain_says_what_they_show(self):
+        text = prompts.engine_lines(
+            packet(factors=factors(), candidate_lines=[
+                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors(Mobility=0.4)),
+            ]),
+            board_after("e4", "e5"),
+        )
+        assert "WHAT THE FACTORS SHOW: they move 0.40 towards White in all" in text
+
+    def test_a_positional_line_that_gains_nothing_by_them_says_they_do_not_explain_it(self):
+        text = prompts.engine_lines(
+            packet(factors=factors(Mobility=0.3), candidate_lines=[
+                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors()),
+            ]),
+            board_after("e4", "e5"),
+        )
+        assert (
+            "WHAT THE FACTORS SHOW: they do not show what this line gains for White "
+            "(they move 0.30 towards Black in all)"
+        ) in text
+        assert "do not give a reason of your own" in text
+
+    def test_factors_that_do_not_move_are_called_still(self):
+        text = prompts.engine_lines(
+            packet(factors=factors(), candidate_lines=[
+                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors()),
+            ]),
+            board_after("e4", "e5"),
+        )
+        assert "(in all they do not move at all)" not in text
+        assert "they do not show what this line gains for White (they do not move at all)" in text
+
+    def test_says_so_when_a_lower_rated_line_gains_more_by_them(self):
+        lines = [
+            CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors(Space=0.2)),
+            CandidateLine(move_san="Nc3", line_san=["Nc3", "Nc6"], factors_after=factors(Space=0.5)),
+        ]
+        text = prompts.engine_lines(packet(factors=factors(), candidate_lines=lines), board_after("e4", "e5"))
+        first = text.split("- after Nc3")[0]
+        assert (
+            "they do not explain why the engine prefers Nf3 to Nc3, which moves them 0.50 towards White"
+        ) in first
+
+    def test_a_line_with_no_factors_to_compare_says_they_cannot_explain_it(self):
+        text = prompts.engine_lines(
+            packet(factors=None, candidate_lines=[
+                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors()),
+            ]),
+            board_after("e4", "e5"),
+        )
+        assert "WHAT THE FACTORS SHOW: nothing they can be compared on" in text
+
+    def test_a_tactical_line_gets_no_such_statement(self):
+        board = chess.Board("4k3/8/8/3p4/8/8/8/3QK3 w - - 0 1")
+        text = prompts.engine_lines(
+            packet(factors=factors(), candidate_lines=[
+                CandidateLine(move_san="Qxd5", line_san=["Qxd5", "Ke7"], factors_after=factors()),
+            ]),
+            board,
+        )
+        assert "WHAT THE FACTORS SHOW" not in text
+
+    def test_the_rules_say_to_own_up(self):
+        rules = prompts.explain_prompt("facts", "Game just started").split("INSTRUCTIONS:")[1]
+        assert "WHAT THE FACTORS SHOW" in rules
+        assert "reasons these factors do not show" in rules
+
+
 class TestPositionalFactors:
     def test_the_facts_carry_the_factor_table(self):
         facts = prompts.position_facts(chess.Board(), packet(factors=factors(Space=0.3)), "")
@@ -398,3 +470,10 @@ class TestPositionalFactors:
         facts = prompts.position_facts(chess.Board(), packet(), "")
         rules = prompts.explain_prompt(facts, "Game just started").split("INSTRUCTIONS:")[1]
         assert "POSITIONAL FACTORS" in rules
+
+
+class TestThePositionPartAllowsNoReason:
+    def test_asks_for_the_plain_statement_where_the_factors_do_not_explain_a_move(self):
+        text = prompts.explain_prompt("facts", "Game just started")
+        position = text.split("Position:")[1]
+        assert "WHAT THE FACTORS SHOW says they do not explain it, say that plainly" in position

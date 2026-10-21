@@ -36,6 +36,11 @@ lines against the facts in the brief:
 - a move being forced, or a side having to play it: only if MOVE BY MOVE says
   that reply is forced
 - checks, captures, trades and material over a line: that line's FACTS
+- a side being better in a positional factor, or a line improving one:
+  POSITIONAL FACTORS and the line's POSITIONAL CHANGE; where its
+  WHAT THE FACTORS SHOW says they do not explain the line, any reason the
+  draft gives for it is unsupported - replace it with the plain statement that the engine
+  prefers the line for reasons these factors do not show
 - how big an advantage is: the words given beside each evaluation
 - move sequences: only the ENGINE LINES, quoted exactly, or the moves played"""
 

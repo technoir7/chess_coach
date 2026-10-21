@@ -84,8 +84,8 @@ class TestMaterialBalance:
         meant the gain over the line; here Black stays far ahead throughout."""
         board = chess.Board("4k3/8/8/3q4/8/8/4p3/4K3 w - - 0 1")
         summary = line_facts.describe(board, ["Kxe2"]).summary()
-        assert "White gains 1 pawn of material" in summary
-        assert "afterwards Black is 9 pawns ahead" in summary
+        assert "White gains 1 point of material" in summary
+        assert "afterwards Black is 9 points ahead" in summary
 
     def test_level_material_is_said_plainly(self):
         summary = line_facts.describe(SICILIAN_D6, ["dxc5", "dxc5"]).summary()

@@ -54,5 +54,5 @@ class TestEndOfLine:
         text = walkthrough.describe(board, ["dxe5", "Qxd1+", "Kxd1"])
         end = text.split("POSITION AT THE END OF THIS LINE")[1]
         assert "White King on d1" in end
-        assert "White is 1 pawn ahead" in end
+        assert "White is 1 point ahead" in end
         assert "Open files (no pawns): d" in end

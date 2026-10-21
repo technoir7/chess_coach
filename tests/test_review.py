@@ -73,3 +73,9 @@ class TestBoard:
         text = review.board("claude-sonnet", "BRIEF", "White is winning. The knight is strong.", "FEN", generate=generate)
         assert text == "White is slightly better. The knight is strong."
         assert calls[0][0] == "claude-sonnet" and "FEN" in calls[0][1]
+
+
+class TestChecklist:
+    def test_a_reason_the_factors_do_not_give_counts_as_false(self):
+        from src.coach import review
+        assert "WHAT THE FACTORS SHOW" in review.CHECKLIST

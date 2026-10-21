@@ -34,7 +34,7 @@ FACTOR_WORDS = {
     "Queens": ("queen", "exposure to pins and discovered attacks"),
     "Mobility": ("mobility", "safe squares the pieces can move to"),
     "King safety": ("king safety", "pawn cover, enemy pawns advancing on the king, enemy pieces attacking near it"),
-    "Passed": ("passed pawns", "how far they have advanced and how free they are to go on"),
+    "Passed": ("passed pawns", "passed and candidate passed pawns: how far they have advanced and how free they are to go on"),
     "Space": ("space", "safe squares behind a side's own pawns on the c- to f-files; middlegame only"),
 }
 
@@ -73,6 +73,16 @@ def _verdict(factors: Factors, name: str) -> str:
     net = white - black
     side = "about even" if abs(net) < SHOWN else f"favours {'White' if net > 0 else 'Black'} by {abs(net):.2f}"
     return f"{side} (White {white:+.2f}, Black {black:+.2f})"
+
+
+def gain(mover: chess.Color, before: Optional[Factors], after: Optional[Factors]) -> Optional[float]:
+    """How far a line moves the factors towards `mover`, in pawns, added up
+    over those scored at both ends; None when there is nothing to compare.
+    Stockfish adds its terms together, so their sum is meaningful."""
+    if before is None or after is None:
+        return None
+    total = sum(_net(after, name) - _net(before, name) for name in FACTOR_WORDS if name in before and name in after)
+    return total if mover == chess.WHITE else -total
 
 
 def change(end: chess.Board, before: Optional[Factors], after: Optional[Factors]) -> str:

@@ -19,7 +19,7 @@ class TestMaterial:
     def test_says_who_is_ahead_and_by_how_much(self):
         """From the eval: "material is level" with Black a bishop up."""
         board = chess.Board("4k3/8/8/3b4/8/8/8/4K3 w - - 0 1")
-        assert "Black is 3 pawns ahead" in structure.describe(board)
+        assert "Black is 3 points ahead" in structure.describe(board)
 
 
 class TestPawns:
@@ -46,3 +46,37 @@ class TestPawns:
         board = board_after("e4", "d5", "exd5", "Qxd5", "d4", "e5", "dxe5", "Qxd1+", "Kxd1")
         assert "Open files (no pawns): d\n" in structure.describe(board) + "\n"
         assert "Open files (no pawns): none" in structure.describe(board_after("e4", "d5", "exd5", "Qxd5"))
+
+
+def candidates(text, side):
+    line = next(l for l in text.splitlines() if l.startswith(f"- {side} candidate passed pawns"))
+    return line.rsplit(": ", 1)[1]
+
+
+class TestCandidatePassedPawns:
+    """Stockfish 16's passed-pawn score also counts pawns that are not passed
+    yet but whose way can be cleared. Round 7's prompts showed that score
+    favouring a side whose passed pawns were listed as none."""
+
+    def test_a_pawn_whose_only_stopper_it_can_take_now(self):
+        text = structure.describe(chess.Board("4k3/8/3p4/4P3/8/8/8/4K3 w - - 0 1"))
+        assert candidates(text, "White") == "e5"
+        assert "White passed pawns: none" in text
+
+    def test_a_pawn_whose_stoppers_its_neighbours_outnumber(self):
+        text = structure.describe(chess.Board("4k3/8/5p2/8/3PP3/8/8/4K3 w - - 0 1"))
+        assert "White passed pawns: d4" in text
+        assert candidates(text, "White") == "e4"
+        assert candidates(text, "Black") == "none"
+
+    def test_without_the_neighbour_it_is_not_a_candidate(self):
+        text = structure.describe(chess.Board("4k3/8/5p2/8/4P3/8/8/4K3 w - - 0 1"))
+        assert candidates(text, "White") == "none"
+
+    def test_an_advanced_blocked_pawn_a_neighbour_can_help_through(self):
+        text = structure.describe(chess.Board("4k3/8/4p3/4P3/3P4/8/8/4K3 w - - 0 1"))
+        assert candidates(text, "White") == "e5"
+
+    def test_a_blocked_pawn_not_yet_on_the_fifth_rank_is_not_a_candidate(self):
+        text = structure.describe(chess.Board("4k3/8/8/4p3/4P3/3P4/8/4K3 w - - 0 1"))
+        assert candidates(text, "White") == "none"

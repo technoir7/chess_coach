@@ -108,7 +108,7 @@ class LineFacts:
             parts.append("material is unchanged over the line")
         else:
             side = "White" if self.material_swing > 0 else "Black"
-            parts.append(f"{side} gains {pawns(abs(self.material_swing))} of material")
+            parts.append(f"{side} gains {points(abs(self.material_swing))} of material")
 
         if self.cut_mid_exchange:
             parts.append(
@@ -144,11 +144,14 @@ def _owner(move: "MoveFact") -> str:
 def _balance(balance: int) -> str:
     if balance == 0:
         return "material is level"
-    return f"{'White' if balance > 0 else 'Black'} is {pawns(abs(balance))} ahead"
+    return f"{'White' if balance > 0 else 'Black'} is {points(abs(balance))} ahead"
 
 
-def pawns(count: int) -> str:
-    return f"{count} pawn" if count == 1 else f"{count} pawns"
+def points(count: int) -> str:
+    """Material counted in points (pawn 1, knight and bishop 3, rook 5, queen 9).
+    Called "pawns" before, it was repeated as "White is 6 pawns up" for a
+    side with a bishop and a knight more."""
+    return f"{count} point" if count == 1 else f"{count} points"
 
 
 def material_balance(board: chess.Board) -> int:

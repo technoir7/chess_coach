@@ -10,7 +10,7 @@ from typing import Dict, List
 
 import chess
 
-from src.coach.line_facts import PIECE_VALUES, material_balance
+from src.coach.line_facts import PIECE_VALUES, material_balance, points
 
 HEADER = "MATERIAL AND PAWNS (counted from the board - do not count these yourself):"
 
@@ -36,8 +36,7 @@ def _balance(board: chess.Board) -> str:
     balance = material_balance(board)
     if balance == 0:
         return "material is level"
-    count = abs(balance)
-    return f"{'White' if balance > 0 else 'Black'} is {count} pawn{'s' if count != 1 else ''} ahead"
+    return f"{'White' if balance > 0 else 'Black'} is {points(abs(balance))} ahead"
 
 
 def _files(board: chess.Board, color: chess.Color) -> Dict[int, List[int]]:
@@ -57,6 +56,57 @@ def _is_passed(board: chess.Board, square: int, color: chess.Color) -> bool:
     return True
 
 
+def _ahead(square: int, color: chess.Color, files) -> chess.SquareSet:
+    """Squares in front of `square`, from its side's point of view, on the given files."""
+    rank = chess.square_rank(square)
+    ranks = range(rank + 1, 8) if color == chess.WHITE else range(rank - 1, -1, -1)
+    return chess.SquareSet(chess.square(f, r) for f in files if 0 <= f < 8 for r in ranks)
+
+
+def _is_candidate(board: chess.Board, square: int, color: chess.Color) -> bool:
+    """Stockfish 16's own test for a pawn it scores as passed (pawns.cpp and
+    Evaluation::passed at sf_16): its only stoppers are pawns it can take now,
+    or pawns its neighbours outnumber, or - from the fifth rank on - a single
+    blocker that a neighbour can help it past. Its last check reads attacks
+    off the board as python-chess sees them, without Stockfish's x-rays, so a
+    blocked pawn can very rarely come out differently."""
+    us, them = color, not color
+    up = 8 if us == chess.WHITE else -8
+    file = chess.square_file(square)
+    ours, theirs = board.pieces(chess.PAWN, us), board.pieces(chess.PAWN, them)
+    if _ahead(square, us, [file]) & ours:
+        return False
+
+    stoppers = theirs & _ahead(square, us, [file - 1, file, file + 1])
+    lever = theirs & chess.SquareSet(chess.BB_PAWN_ATTACKS[us][square])
+    push = square + up
+    lever_push = theirs & chess.SquareSet(chess.BB_PAWN_ATTACKS[us][push]) if 0 <= push < 64 else chess.SquareSet()
+    neighbours = ours & chess.SquareSet(
+        chess.square(f, r) for f in (file - 1, file + 1) if 0 <= f < 8 for r in range(8)
+    )
+    rank = chess.square_rank(square)
+    phalanx = [s for s in neighbours if chess.square_rank(s) == rank]
+    blocked = theirs & chess.SquareSet([push]) if 0 <= push < 64 else chess.SquareSet()
+
+    if stoppers == lever or (stoppers == lever_push and len(phalanx) >= len(lever_push)):
+        return True
+    relative_rank = rank if us == chess.WHITE else 7 - rank
+    if not blocked or stoppers != blocked or relative_rank < 4:
+        return False
+    # A neighbour behind it must be able to step up beside it onto a square
+    # the enemy pawns do not both hit, and that square must be safe enough
+    # for Stockfish's later check.
+    for support in (s for s in neighbours if chess.square_rank(s) == rank - (1 if us == chess.WHITE else -1)):
+        step = support + up
+        hit_by_two_pawns = len(theirs & board.attackers(them, step)) >= 2
+        attackers = len(board.attackers(them, step))
+        if step not in theirs and not hit_by_two_pawns and not board.piece_at(step) and (
+            attackers < 2 or board.is_attacked_by(us, step)
+        ):
+            return True
+    return False
+
+
 def _names(squares) -> str:
     return ", ".join(chess.square_name(s) for s in squares) or "none"
 
@@ -70,11 +120,15 @@ def _pawn_lines(board: chess.Board, color: chess.Color) -> List[str]:
     pawns = [s for f in sorted(by_file) for s in by_file[f]]
     isolated = [s for s in pawns if not ({chess.square_file(s) - 1, chess.square_file(s) + 1} & by_file.keys())]
     passed = [s for s in pawns if _is_passed(board, s, color)]
+    candidates = [s for s in pawns if s not in passed and _is_candidate(board, s, color)]
     side = _side(color)
     return [
         f"{side} doubled pawns: {', '.join(doubled) or 'none'}",
         f"{side} isolated pawns: {_names(isolated)}",
         f"{side} passed pawns: {_names(passed)}",
+        # Stated because Stockfish 16's passed-pawn score counts these too.
+        f"{side} candidate passed pawns (not passed yet, but the pawns in the way can be "
+        f"taken or outnumbered; Stockfish 16 scores them as passed pawns): {_names(candidates)}",
     ]
 
 
