@@ -387,11 +387,25 @@ class TestMaterialTheEvaluationDoesNotBear:
     def test_says_so_when_the_engine_does_not_favour_the_side_ahead(self):
         [note] = material_note(-50)
         assert "White is 1 point ahead where the line stops" in note
-        assert "the engine's evaluation of the line (-50cp) does not favour White" in note
+        assert "the engine's evaluation of the line (-50cp, slight advantage for Black) does not bear that out" in note
         assert "do not say White keeps the material or comes out ahead" in note
+
+    def test_says_so_when_the_evaluation_barely_favours_the_side_ahead(self):
+        """Round 10, p051: Black 3 points ahead in a line the engine scores
+        -10cp; the pinned bishop is won back on the next move."""
+        assert material_note(30) != []
 
     def test_no_note_when_the_evaluation_agrees(self):
         assert material_note(80) == []
+
+    def test_no_note_when_a_big_lead_is_scored_as_winning(self):
+        """Evaluations do not grow with material: 9 points ahead scores far
+        below 900cp and still says the same thing."""
+        text = prompts.engine_lines(
+            packet(factors=None, candidate_lines=[CandidateLine(move_san="Qd2", line_san=["Qd2"], eval_cp=700)]),
+            chess.Board("4k3/8/8/8/8/8/8/3QK3 w - - 0 1"),
+        )
+        assert "MATERIAL AND EVALUATION" not in text
 
     def test_no_note_when_material_is_level(self):
         assert material_note(-50, line=("Nf3",)) == []
@@ -504,6 +518,15 @@ class TestWhatTheExplanationAsksFor:
 
     def test_other_moves_only_where_they_teach_something(self):
         assert "only where it teaches something" in self.task()
+
+    def test_a_worse_moves_line_is_not_offered_as_why_it_is_worse(self):
+        """Round 10: 10 of 66 new-style answers gave a reason for the ranking
+        the brief does not, mostly a true feature of the other move's line
+        ("Why not exd5? White ends up with an isolated pawn")."""
+        assert "do not offer what its line does as why it is worse" in self.task()
+
+    def test_a_move_about_as_good_is_not_warned_against(self):
+        assert "do not warn against it or steer away from it" in self.task()
 
     def test_it_finishes_with_what_to_aim_for(self):
         assert "what to aim for" in self.task()

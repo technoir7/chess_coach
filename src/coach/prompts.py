@@ -25,8 +25,9 @@ GROUNDING_RULES = """INSTRUCTIONS:
 1. Use the scale above to describe the evaluation. Do NOT call +36cp "significant".
 2. Before mentioning a piece on a square, verify it exists in the position listing above.
 2b. The Stockfish evaluation is the ONLY evaluation. The human-intuition reading
-   is a separate signal on a different scale - describe it as how a club player
-   would feel, and do NOT say the two "agree", compare them, or quote a number for it.
+   is a separate signal on a different scale - if you mention it, describe it as
+   how a club player would feel, and do NOT say the two "agree", compare them, or
+   quote a number for it.
 3. LEGAL MOVES CHECK: You MUST NOT suggest any move for the current player that is NOT in the "LEGAL MOVES" list above.
    - If a move you want to suggest is not in that list, IT IS ILLEGAL (e.g. piece is pinned).
    - Do NOT say "Black can capture..." if the capture is not in the legal moves list.
@@ -271,20 +272,31 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
     return "\n".join(rendered)
 
 
+# A side ahead in material whose evaluation is below half a pawn a point,
+# and short of a clear advantage, is not keeping what the count says: round
+# 10's p051 had Black 3 points up at -10cp, the pinned bishop won back next
+# move. The cap is there because evaluations do not grow with material: 9
+# points ahead may score 700cp and still be winning.
+BEARS_OUT = 100
+
+
 def _material_the_evaluation_does_not_bear(facts: line_facts.LineFacts, line: CandidateLine) -> str:
-    """A warning when the side ahead where a line stops is not the side the
-    engine favours. Round 9 had "White wins 3 points" in a line whose next
+    """A warning when the engine's evaluation does not bear out the side ahead
+    where a line stops. Round 9 had "White wins 3 points" in a line whose next
     move forks queen and rook, the engine at -262. Where a line stops is
     where the engine's line goes quiet, which is not where its sight ends;
     a quiet search for where the material settles fared worse than the
     engine's own verdict, so the verdict is stated beside the count."""
     ahead = facts.material_after
-    if not ahead or line.eval_cp is None or _is_mate_score(line.eval_cp) or ahead * line.eval_cp > 0:
+    if not ahead or line.eval_cp is None or _is_mate_score(line.eval_cp):
+        return ""
+    favoured = line.eval_cp if ahead > 0 else -line.eval_cp
+    if favoured >= min(COMPENSATED * abs(ahead), BEARS_OUT):
         return ""
     side = "White" if ahead > 0 else "Black"
     return (
         f"{side} is {line_facts.points(abs(ahead))} ahead where the line stops, but the engine's "
-        f"evaluation of the line ({format_eval(line.eval_cp)}cp) does not favour {side}: beyond these moves "
+        f"evaluation of the line ({_with_band(line.eval_cp)}) does not bear that out: beyond these moves "
         f"it sees the material won back, or enough in return for it; do not say {side} keeps "
         "the material or comes out ahead"
     )
@@ -441,8 +453,11 @@ Explain the current position to a player who wants to understand it and play it 
   WHY THE ENGINE RANKS IT FIRST gives it: that other moves are about as good,
   where it says so; and plainly that the engine sees something the factors do
   not, where it says that.
-- Mention another engine move only where it teaches something: that it is
-  about as good, or what goes wrong with it.
+- Mention another engine move only where it teaches something. A move called
+  about as good is about as good: do not warn against it or steer away from it,
+  here or in what to aim for. A worse move is worse for the reason
+  WHY THE ENGINE RANKS IT FIRST gives; you may describe what its line does, but
+  do not offer what its line does as why it is worse.
 - Put the factors in chess terms - the pieces, pawns, squares and files behind
   them, taken only from the facts above. Give the evaluation once;
   leave out factor scores and other numbers unless the point needs one.

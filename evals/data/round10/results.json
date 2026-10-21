@@ -1,0 +1,33 @@
+{
+  "claude-sonnet-edit-board-round9-instructions": {
+    "positions": 100,
+    "wrong_unchecked": 3,
+    "wrong_shown": 3,
+    "caught": 0,
+    "wrong_in_scope": 0,
+    "caught_in_scope": 0,
+    "fallbacks": 0,
+    "rejections": 0,
+    "false_alarms": 0,
+    "kinds_unchecked": {
+      "wrong_positional": 2,
+      "other": 1
+    },
+    "median_seconds": 27.0
+  },
+  "claude-sonnet-edit-board": {
+    "positions": 100,
+    "wrong_unchecked": 1,
+    "wrong_shown": 1,
+    "caught": 0,
+    "wrong_in_scope": 1,
+    "caught_in_scope": 0,
+    "fallbacks": 0,
+    "rejections": 0,
+    "false_alarms": 0,
+    "kinds_unchecked": {
+      "invented_line": 1
+    },
+    "median_seconds": 26.9
+  }
+}

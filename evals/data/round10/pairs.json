@@ -1,0 +1,602 @@
+{
+ "p001": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 frames the position around the tension on d5 and how White resolves it, explains each candidate in chess terms (exd5 leaves an isolated d4 pawn) and gives an aim; answer 1 has the same accurate content but leans on factor numbers and has no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p002": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate on the Qxf7+ sequence; answer 1 is more focused, names the loose a5 rook as why the tactics matter, explains briefly why Ra4 and Qa4 fail, and gives a plan around the c6 and d4 passed pawns, while answer 2 is longer, number-heavy and has no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p003": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both identify Bf4 as developing with tempo on the c7 queen while guarding g3; answer 1 builds the explanation around that idea, says briefly what d4 and Bg2 aim for and gives a plan, while answer 2 spends its second half on factor deltas for the alternatives.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p004": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains Na3 as developing the lagging knight to defend b5 and head for c4, explains each side's long-term pluses in chess terms (isolated d4 vs Black's activity on the c-file) and gives a plan; answer 1 opens with the inferior lines and leans on factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p005": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate on the Bd2 line and Ke2 mistake; answer 2 is tighter, flags the messy finish (pin on e2) as a practical warning and ends with an aim, while answer 1 narrates the line move by move and has no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p006": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both correctly find Qg8#; answer 1 says it crisply, explains why the open g-file makes it work and draws a usable lesson (look for checks and mate first), while answer 2 pads with factor numbers and a note about non-forced replies that adds nothing.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p007": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 1 explains the moves in plain terms (Nc5 hits e6 and b7, structure vs king safety, develop the home bishops) and gives an aim, while answer 2 lists factor deltas line by line and has no plan, though it adds a few accurate end-of-line details.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p008": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Close: both explain that Black's queen keeps checking and the engine sees a balanced position; answer 1 is tighter and gives a practical aim (keep the rooks guarding each other, watch checks that also hit a rook), while answer 2 repeats material and scale facts at length, though it usefully notes the Kh1 line repeats.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p009": {
+  "better": "claude-sonnet-edit-board-round9-instructions",
+  "why": "Answer 2 reads better but presents g3 as simply losing a bishop to dxe3, though the engine rates g3 about as well (+0.51, compensation); answer 1 is number-heavy but correctly says both material-losing lines carry compensation.",
+  "false_in_1": "",
+  "false_in_2": "Implies g3 is a mistake because 'Black wins a bishop' after dxe3, while the engine rates g3 at +51cp with compensation for White; also tells White to 'bring the king to safety' when it is already castled on c1."
+ },
+ "p010": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 gives the idea (rook to the f-file to hold f7, f-pawn gets traded, d4 becomes the better passer) in plain terms with a clear aim; answer 1 dumps factor scores and centipawn figures and walks through all three lines.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p011": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains White's compensation in plain terms (active pieces vs Black's undeveloped c8 bishop and g8 knight, pressure on d4, Bc4 eyeing f7) and gives a plan; answer 2 mostly recites factor scores and line deltas.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p012": {
+  "better": "claude-sonnet-edit-board-round9-instructions",
+  "why": "Close: both give the forced Bg5+ Qe7 Bxe7# correctly; answer 2 also explains why the Ba5+ mate works (Qc7 is pinned), while answer 1's 'why it works' section is generic. Answer 2's factor paragraph is padding.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p013": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains c4's idea (challenge d5, then Ne5 backed by d4 hitting d7 and f7), says what the alternatives aim at and gives a development plan; answer 1 lists every factor score and walks all three lines without a plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p014": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both correctly show Qxg2# after either king move; answer 2 is cleaner and draws the useful lesson about the a8-h1 diagonal, while answer 1 pads with legal-move counts and factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p015": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains why Nxd4 is natural (it regains the pawn and removes both attacked knights from danger at once), why Nb5 fails, and gives a plan; answer 2 is accurate but more of a line-and-score listing with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p016": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains the concrete problem (the d4-backed knight on c3 hitting a4 and e2) and the shared pattern of all three lines, and gives defensive guidance, despite one overstatement; answer 1 is accurate but dry and number-heavy with no guidance.",
+  "false_in_1": "",
+  "false_in_2": "In the Ke1 line, Black's passed pawns on b5 and h6 gain a lot of ground (the h6 pawn never moves and the b-pawn moves one square)."
+ },
+ "p017": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 1 is short, says the position is quiet, and gives a concrete plan (h4, Qd2, O-O-O), while answer 2 lists every defender and factor score and walks through all three lines without a plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p018": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains f6 (get the f5 pawn out of attack, kick the g7 bishop), names the a6 pawn as counterplay and gives a plan; answer 1 leads with the side lines and factor numbers. Answer 2's warning against d5 slightly overstates a move the engine rates about equal.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p019": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 gives the verdict and the purpose of Nf3 first (develop, guard d4, prepare c4 to hit the queen), explains the d5 passed pawn result and gives a plan (develop with tempo, avoid Qe2); answer 2 opens with the inferior lines and leans on factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p020": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains Qe5's multiple targets, why the extra pawn in the rook ending is not a sure win, what Rd6 and Re2 lead to (Re2 a repetition), and gives an aim (win c5, target isolated b5/e6); answer 2 is accurate but mostly factor scores and a full quote of the Re2 check sequence.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p021": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains d4's idea (hit c5 and open the centre while Black is undeveloped), the resulting isolated d5 pawn, and gives a plan; answer 2 reaches the same point only in its last line after listing factor deltas for all three moves.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p022": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 1 explains the a4 idea (drive the king to the c-file, then Rc1+ and Rxc8 for the queen), calls it damage control, briefly covers the others and gives an aim, while answer 2 quotes all three lines in full and adds a factor paragraph.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p023": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains d4's purpose (hits c5, supports e5), the trade of White activity for Black's passed d4 pawn, and gives a plan; answer 2 is accurate but leads with the inferior d3 line and reads as a list of factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p024": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate, but answer 1 frames it as a recovery job (a piece down, pinned rook, Nd3+ coming), shows briefly why exf6 and Nc3 do worse, and gives a plan; answer 2 covers the same facts with more numbers and no guidance on what to aim for.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p025": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains what Qe2 does (guards e4, d2 and f1, clears the way for queenside castling), compares development, and gives a plan; answer 1 is accurate but mostly lists factor scores and the lines.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p026": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both cover the same facts accurately; answer 1 explains why the extra pawn is worth little (doubled isolated f-pawns), what each rook move leads to in plain terms (Rf6 drops f2, Rg6 trades into a knight ending with healthy pawns) and gives a plan, while answer 2 is number-heavy with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p027": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 gives verdict and idea first, explains why Black's queen hits nothing loose, describes the d5 line's result (Qc4 pinning f7, eyeing c5 and a6) and gives a plan; answer 2 opens with the second-choice O-O line and lists factor scores without a plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p028": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains the real point (the king hits d7 and e7, so the rook must move along the 7th and keep guarding e7) and gives a concrete plan; answer 1 is a dump of factor scores and line shifts with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p029": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 leads with the verdict and the idea of Nxd5 (remove Black's best piece, trade queens, c3 shores up d4) and gives a plan, despite some repetition; answer 2 opens with the inferior O-O-O line and spends most of its length on factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p030": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 tells the story plainly (b2 falls, f6 comes back, White is left with isolated a3/c3 pawns, avoid c4) and ends with a plan; answer 1 covers the same ground buried in centipawn and factor numbers. Answer 2's 'idea is to unpin' is its own gloss but not contradicted.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p031": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains cxd5 as resolving the central tension on White's terms and what each move in the line does (Bf4 outside the chain, Bd3 at h7), compares development and gives a plan; answer 2 is a bulleted list of factor scores and per-line deltas.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p032": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 gives the verdict and the idea of Qe7+ up front, explains the knight's route to a5 against c6 and gives a plan; answer 2 recites factor scores and both alternative lines with little explanation.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p033": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains the idea behind Re1 and Bf4 (finish development; what each move guards or hits), puts White's edge in plain terms and gives a plan including the d5 break; answer 1 is accurate but mostly factor numbers and line deltas.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p034": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains why taking the bishop works and points to the open h-file and the f6 pin as what to use next; answer 1 reports the same lines with meta-commentary about missing factors and gives no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p035": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 gives the idea of a4 (hit b5, open the queenside), explains the line's trade (b4 pawn for a passed b6 pawn, isolated a6, more active Black pieces) and gives a plan; answer 1 is accurate but spends most of its length on factor comparisons with the alternatives.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p036": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains Rxa5 (pinned pawn), what the line wins (a5 then e5) and why, sets White's passed pawns against Black's king-safety and mobility edge, and gives a plan; answer 1 is mostly scores and line listings, though it usefully notes gxf5 is legal but unsearched.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p037": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate and similar; answer 2 is better organised, ties Bb2 to Black's one edge (mobility) and to building a d4/e3/c4 centre, and gives a plan, while answer 1 is more number-heavy and gives no aim beyond the lines.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p038": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both explain the Bxd4 tactic correctly (d4 attacked twice, defended once); answer 1 is more cleanly organised and gives a plan (take the pawn, trade rooks), while answer 2 adds factor numbers and ends without a forward-looking aim.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p039": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains the e5 knight tension and the Bd3 line in words, names the resulting trade-off (White's doubled f-pawns vs Black's passed d5 pawn) and gives a plan; answer 2 is accurate but lists all three lines with factor deltas and no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p040": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both correctly say Kxd2 grabs the loose rook and White is still lost; answer 2 is clearer about what each line gives and ends with a concrete aim (take d2, then trade the last rooks), while answer 1 is more cluttered and leaks a label from the facts (\"KIND: positional\").",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p041": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains the idea of Bxa5 (trade for the offside knight and wreck Black's queenside pawns), what Qe5 hits at the end of the line and gives a plan; answer 2 leads with the third-ranked a4 line, leaks brief-style wording and leans on factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p042": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate on the mates; answer 1 explains how the pinned c2 pawn and exposed king decide it and gives a takeaway, while answer 2 lists the lines and spends its second half on irrelevant factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p043": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 names the material gap concretely (extra rook and pawn), explains Bxc6 as removing the knight hitting e5 and resolving the attacked bishop, with Rc1 gaining time on the queen and Nc4 guarding e5, and gives a plan; answer 2 buries this under factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p044": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 names the material gap concretely (an extra rook and pawn), sets it against White's activity and Black's undeveloped c8 bishop and g8 knight, and gives a plan; answer 2 is accurate but mostly factor numbers and line deltas with no aim.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p045": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains f4's idea (hit e5, Nd5 backed by e4, f5 for space), puts the Qh5 complication in a sentence and gives a clear plan; answer 1 is accurate but leads with the side line and lists factor numbers with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p046": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains the plan behind Qd2 (regroup, c3 to kick the d4 knight, Ne3 guarding d5 and f5) and gives concrete next steps, despite repeating brief-style phrasing; answer 2 checks the loose-piece details well but never says what Qd2 is for and gives no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p047": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains the a5 idea (Ba4 keeps the d7 pin, queen recaptures on f3) and gives a sensible plan (deal with the d4 knight, d3, develop c1, castle); answer 1 is factor numbers and all three lines with no plan, and garbles the Bd3 line by saying d5 'falls too'.",
+  "false_in_1": "In the Bd3 line, 'later the Pawn on d5 falls too' suggests a second pawn is won; Black recaptures with Nxd5 and White is only 1 point up.",
+  "false_in_2": ""
+ },
+ "p048": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both say exd5 simply wins the queen; answer 2 adds useful context (the queen was left hanging by 31...Qxd5, the g5 bishop's pin on d2 doesn't stop it) and a plan for converting, while answer 1 follows the tactic with a paragraph of factor scores that adds little.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p049": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both explain cxd6 fixing White's doubled c-pawns and leaving an isolated d6 pawn to hit; answer 1 puts this up front, tells it as one story and ends with a plan, while answer 2 walks through all three lines before reaching the point and has no concrete aim beyond developing.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p050": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains why Qxd3 still loses (Nxe3 forks d1 and the pinned g2 bishop) and that the others hang the queen; answer 1 lists the three lines with point totals and no explanation of the mechanism.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p051": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 gives the idea of f4 (hit e5, open lines, trade structure for activity: doubled a-pawns vs mobility) and a plan; answer 1 opens by calling Qe1 a losing tactic although the engine rates it about equal (Ba3 hits the pinned c5 bishop) and then dumps factor numbers.",
+  "false_in_1": "Says the Qe1 line 'shows losing material' and is a warning, though the engine rates Qe1 at -10cp, roughly equal.",
+  "false_in_2": ""
+ },
+ "p052": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains why the pawns fall (Bxh5 gains time on the g6 rook; b6 is hit twice and defended once), summarises the alternatives briefly and gives a plan; answer 1 is accurate but walks every line and lists factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p053": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate, but answer 1 explains the check, why Qd2/Nd2 drop the knight and how the Nc3 line goes in a clear order with a concrete aim; answer 2 is a label-led block with raw numbers and meta-commentary about not inventing reasons.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p054": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 centres the explanation on the d4 pawn (why Nxd4 resolves it, what White gets) and gives a plan including watching h3; answer 2 has the same accurate facts but as factor deltas for every line with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p055": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains the tension on c6 and why exchanging there is natural, why b3 is needed (Rc6 hits the passed c4 pawn), what goes wrong with Bf3 (Qb6 hits d4 and pins f2), and gives a plan; answer 1 lists lines and factor scores with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p056": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate and close; answer 2 is cleaner (queen forks pawns with check, Kd5 loses less) and ends with a concrete aim, while answer 1 opens with a muddled eval range and explains the missing factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p057": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 turns the factors into board terms (passive Nh2 and Bd2, Black's space), explains f4's idea (space, Nh2-f3 hitting d4, king to c1) and gives a plan; answer 1 is accurate but a factor-score list ending with 'choice of preference'.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p058": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 gives the idea of Kc1 (step off the b-file pin), explains the knight as the loose point, why e5 is a mistake, and gives an aim; answer 2 has the same facts but in a number-heavy dump with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p059": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 turns the line into chess ideas (isolated pawns on d4 and d5, Bg4 pin, Qa4+ just loses time while Black develops) and gives a plan; answer 2 has the same facts but as factor deltas for every line, with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p060": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 2 explains clearly why the f3 pawn must go now (b6 and Kg3 both let it queen and draw by checks) and gives the plan of ignoring the queenside to queen the e-pawn, while answer 1 spends its second half on factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p061": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 ties Kf2 to the actual problem (it guards g2, e3 and f1 against Black's active queen and bishop), explains the line's point (trade the e6 bishop, Qb3 hits d5 and b7) and gives a plan; answer 1 lists factor scores and all three lines with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p062": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 gives the idea of Be2 (develop the last minor piece), what the line achieves (bishop trade, knight on f3 guarding d4 and h4, better rooks) and a plan; answer 1 leads with the third-ranked Bc4 line and lists factor scores without a plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p063": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains g4's idea (space, Rg1 behind it, Bb2) and its king-safety cost in plain words and gives a plan; answer 2 is accurate but reads as factor deltas for every line with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p064": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 2 gives the point of Rf6+ (check plus h6), explains why d5 and the queenside pawns are weak, briefly ranks the alternatives and gives an aim, while answer 1 adds two paragraphs of factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p065": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 identifies White's exposed king as the problem and explains the point of Nf4 and its line (trade queens to remove the b2 attacker), with a clear plan; answer 1 has the same facts but reports them as factor scores and line deltas without drawing the lesson.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p066": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains the quiet position in chess terms (c3-d4-e5 chain, isolated a-pawn, active Black rooks) and gives a plan; answer 2 repeats factor numbers and recites all three lines without saying what to do.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p067": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains g3 as the answer to the bishop's attack on the h4 knight (it supports h4 and f4), describes the knight's reroute, flags the Nxg6 trap briefly and gives a plan; answer 2 covers the trap well but otherwise lists factor numbers and lines without explaining g3 or giving a plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p068": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains the king pressure on b5, why c4 just drops a pawn and gives a practical aim; answer 2 says the same facts as a number-heavy summary (point totals, factor scores) with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p069": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains castling's purpose and the space edge from the c4-d4-e4 centre in plain words and gives a plan (Be3, connect rooks, c-file); answer 2 is accurate but bullets factor scores and per-line deltas.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p070": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate and neither explains much of why White is better; answer 2 is cleaner, names the target (b6) and the c-file pin to avoid, and gives an aim, while answer 1 opens with the side line and leans on factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p071": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains exd4 as the natural recapture, says in chess terms what goes wrong with Bb5+ and Nxd4, flags the ...Qb6xb2 raid as the danger, and gives a plan; answer 2 leads with the inferior Bb5+ line, is number-heavy and ends with a confusingly attributed sentence.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p072": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both get the mates right; answer 2 explains the mating pattern (f3 pawn backing Qg2), says Qxe6+ is the best practical try and draws a lesson, while answer 1 adds a factor-score paragraph that says nothing new.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p073": {
+  "better": "claude-sonnet-edit-board-round9-instructions",
+  "why": "Answer 2 reads better but never mentions White's extra pawn and calls the advantage purely positional, and it implies White's king is not in the centre; answer 1 is a clunky number list but keeps the material edge and the facts straight.",
+  "false_in_1": "",
+  "false_in_2": "'The advantage is positional' while White is a pawn up; contrasts White's king with Black's 'still in the centre' though both are on their home squares."
+ },
+ "p074": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains gxh5 as hitting the queen and opening Black's king, describes the check sequence ending in the g7 pin, and gives a plan; answer 1 leads with the lower-ranked lines and then lists king-safety and other factor deltas.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p075": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains d4's idea (support e5, cramp Black, who has one piece out) in plain words and gives a plan; answer 2 is accurate but reads as factor scores and a walk through every line.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p076": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains what Qa1 does (keeps f1 and a3 defended, eyes e5), names the a-pawn as White's counterplay and gives an aim; answer 2 states the same facts as factor scores and line shifts with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p077": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains Bg2 as completing the fianchetto so White can castle, ties Black's small king-safety edge to White's uncastled king, describes the line's plan (d4, castle) and gives clear next steps; answer 2 is accurate but adds factor numbers and per-line deltas that teach little.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p078": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 2 explains Kd6 (escape the check while guarding e6), what the line trades (e6 for a4) and gives a plan with the b- and g-pawns, while answer 1 walks through all three lines and their end-pawn details with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p079": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 frames the choice in chess terms (dxe6 trades White's cramping d5/e4 space edge for a simpler queenless game) and gives a plan; answer 1 is accurate but walks through all three lines with factor deltas and no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p080": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 gives the idea of Rge1 (challenge the active e2 rook, trade a pair to relieve c2), sums up the long-term balance in plain terms and gives a concrete plan; answer 1 has the same content but buries it in factor scores and line deltas with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p081": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains the kingside pawn tension and the alternatives in chess terms (Be3 guards d4 against the g7 bishop, gxh5 leaves an isolated h-pawn) and gives a plan around the ...c5 break; answer 2 converts every line into factor deltas with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p082": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 1 explains the hanging knight and the advanced d/e pawns, summarises the worse alternatives in a sentence each and gives a practical defensive aim, while answer 2 quotes all three long lines in full and repeats factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p083": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate and neither explains much behind a3; answer 1 reads more naturally, ties the slight Black mobility edge to White's undeveloped c1 bishop and b1 knight and gives a plan, while answer 2 lists factor numbers per line.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p084": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 1 tells the same story (take the queen, a2 queens, White ends a pawn up; Nc3/Bc1 lose) more compactly and with a plan, while answer 2 spends a paragraph on factor scores and line shifts.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p085": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains dxc5 concretely (win c5, hold it with b4, Bxb8 at the right moment, b7 left isolated), says what Nc3/c3 aim at and gives a development plan; answer 1 reports the lines and factor numbers with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p086": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 gives the purpose of Kf2 (guards both attacked pawns f3 and g3), the payoff (a passed b-pawn at the cost of doubled b-pawns) and a plan; answer 1 is accurate but opens with the third-choice line and explains through factor deltas.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p087": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 2 gives b4's idea (challenge c5, open the queenside), describes the balance without numbers and gives a plan (develop f1, support e4, b4/d4 breaks), while answer 1 is a factor-score walk through all three lines.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p088": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 gives the shared idea (trade queens, then push the d-pawn with rook and bishop) and a clear plan; answer 2 has accurate lines but is a numbers-and-labels report with no plan. Answer 1's 'material stays level' slip is minor (it means unchanged, and the answer says White is 10 up).",
+  "false_in_1": "Says material 'stays level' through the Qe5+ line; it stays unchanged, with White 10 points ahead.",
+  "false_in_2": ""
+ },
+ "p089": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 explains the e4 line in chess terms (isolated d5 pawn vs Black activity) and gives a development plan; answer 2 lists factor deltas for all three lines with numbers a club player cannot use.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p090": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 is clearer: verdict and idea first, the pin and triple attack on e5 explained, the resulting supported passed e5 pawn and a plan; answer 1 is accurate but cluttered with scores and line-by-line factor numbers and gives no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p091": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains where the edge comes from in board terms (Black's king stuck on d8 with the e-file open, three undeveloped minors), notes the queen trade is coming and gives a plan; answer 1 is factor scores and per-line shifts.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p092": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 names the material edge plus the passed pawns, explains Nxa4 and the alternatives briefly and gives a conversion plan; answer 2 frames the edge as structural (the four-point material lead goes unstated) and leans on factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p093": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Close: answer 1 explains the idea of dxc5 (resolve the tension on d4) and what happens in the line (b4 holds c5, e4 kicks the f3 knight) and gives a plan, though it leaks a brief-style phrase; answer 2 is accurate and notes the doubled c-pawns but is more of a line listing with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p094": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate and similar in substance; answer 1 states the idea of Rc2 up front, describes the main line's pressure on b6 and c5 in plain words and ends with a concrete plan, while answer 2 tails off into factor deltas for the alternatives with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p095": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 gives the shared idea (finish development, rook to d1, then e4), explains the balance in plain terms and names Black's ideas to watch; answer 1 is accurate but a list of factor numbers and line shifts with no plan.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p096": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Both are accurate; answer 1 explains why bxc3 (keep queens, passed d-pawn) beats Qxc3 and why dxe6 is a mistake, then gives a plan, while answer 2 repeats 'material ends level' three times and ends on factor scores.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p097": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 gives the idea of c3 (prepare d4, b4 hitting the bishop), notes the cost of pawn pushes and gives a concrete plan (Nbd2, Re1, d4, watch f2); answer 2 is a factor-number report that says the c3 line 'gains ground' while its own figures move toward Black.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p098": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 2 explains up front why a position four points down is equal (the c2 knight is about to be taken), why Nxc6 is a trap, and gives a plan; answer 1 covers the same accurate facts in a label-and-number format.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p099": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 gives the idea of O-O-O (king off the e-file, rook to d1 behind d4), White's compensation in plain terms and a plan including ...f6; answer 2 repeats factor scores and walks through every line without a plan. Answer 1 undersells the extra pawn by calling Black's edge 'mostly structural'.",
+  "false_in_1": "",
+  "false_in_2": ""
+ },
+ "p100": {
+  "better": "claude-sonnet-edit-board",
+  "why": "Answer 1 opens with the verdict and why (extra material, passed pawns), explains Kb3 hitting c3 and b4 and the d4-for-b4 trade, and ends with a plan; answer 2 has no clear verdict up front, leads with the inferior lines and lists factor numbers.",
+  "false_in_1": "",
+  "false_in_2": ""
+ }
+}

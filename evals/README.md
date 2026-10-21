@@ -214,6 +214,29 @@ to understand the position and play it better, or `same`, judging only what
 is true by the facts. The questions: does the new arm win more pairs than it
 loses, and is it wrong no more often?
 
+Result: the judges preferred the new arm in 97 of 100 pairs (`pairs.json`):
+the old arm's answers read as reports, factor scores and every line in turn,
+with no plan; the new arm's explained the idea in pieces and squares and said
+what to aim for. The new arm was also wrong less often, 1 of 100 against 3
+(both at a median of 27 seconds, 242 words against 287; the checker rejected
+none). But it invented a reason for the engine's ranking in 10 of 66 answers
+against 1 (`why_first.json`): asked what goes wrong with another move, it
+offered a true feature of that move's line ("Why not exd5? White ends up with
+an isolated pawn") as the reason, where the brief gives another; and it warned
+against moves called about as good ("be careful with that one"). It also kept
+closing with how a club player would see the position, which a grounding rule
+told it to describe whenever it mentioned it.
+
+Fixed after round 10, not yet measured: the instructions say a worse move is
+worse for the reason the brief gives, and what its line does is not to be
+offered as that reason; a move about as good is not to be warned against,
+including in what to aim for; and the human-intuition reading is described
+that way only if mentioned. The material note now also fires when the
+engine's evaluation barely favours the side ahead (p051: Black 3 points up at
+-10cp, the pinned bishop won back next move): below half a pawn a point, up
+to a clear advantage (100cp), since evaluations do not grow with material.
+It fires on 87 of rounds 9 and 10's 595 lines.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes

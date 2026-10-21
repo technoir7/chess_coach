@@ -1,0 +1,424 @@
+{
+ "claude-sonnet-edit-board-round9-instructions": {
+  "p001": {
+   "why_first": "invents",
+   "quote": "White also has an isolated pawn on d4 at the end. It is still a slight advantage, but it gives up more of White's positional edge than the other two moves.",
+   "why": "The prompt gives only mobility 0.18 better for White at the end of e5's line as why it beats exd5, and calls cxd5 about as good; the isolated d4 pawn and a comparison with cxd5's line are not given."
+  },
+  "p004": {
+   "why_first": "follows"
+  },
+  "p007": {
+   "why_first": "follows"
+  },
+  "p010": {
+   "why_first": "follows"
+  },
+  "p013": {
+   "why_first": "follows"
+  },
+  "p019": {
+   "why_first": "follows"
+  },
+  "p025": {
+   "why_first": "follows"
+  },
+  "p028": {
+   "why_first": "follows"
+  },
+  "p031": {
+   "why_first": "follows"
+  },
+  "p037": {
+   "why_first": "follows"
+  },
+  "p043": {
+   "why_first": "follows"
+  },
+  "p046": {
+   "why_first": "follows"
+  },
+  "p055": {
+   "why_first": "follows"
+  },
+  "p061": {
+   "why_first": "follows"
+  },
+  "p067": {
+   "why_first": "follows"
+  },
+  "p070": {
+   "why_first": "follows"
+  },
+  "p073": {
+   "why_first": "follows"
+  },
+  "p076": {
+   "why_first": "follows"
+  },
+  "p079": {
+   "why_first": "follows"
+  },
+  "p088": {
+   "why_first": "follows"
+  },
+  "p091": {
+   "why_first": "follows"
+  },
+  "p094": {
+   "why_first": "follows"
+  },
+  "p097": {
+   "why_first": "follows"
+  },
+  "p100": {
+   "why_first": "follows"
+  },
+  "p008": {
+   "why_first": "follows"
+  },
+  "p011": {
+   "why_first": "follows"
+  },
+  "p017": {
+   "why_first": "follows"
+  },
+  "p023": {
+   "why_first": "follows"
+  },
+  "p026": {
+   "why_first": "follows"
+  },
+  "p029": {
+   "why_first": "follows"
+  },
+  "p032": {
+   "why_first": "follows"
+  },
+  "p035": {
+   "why_first": "follows"
+  },
+  "p041": {
+   "why_first": "follows"
+  },
+  "p044": {
+   "why_first": "follows"
+  },
+  "p047": {
+   "why_first": "follows"
+  },
+  "p059": {
+   "why_first": "follows"
+  },
+  "p062": {
+   "why_first": "follows"
+  },
+  "p065": {
+   "why_first": "follows"
+  },
+  "p068": {
+   "why_first": "follows"
+  },
+  "p071": {
+   "why_first": "follows"
+  },
+  "p074": {
+   "why_first": "follows"
+  },
+  "p077": {
+   "why_first": "follows"
+  },
+  "p083": {
+   "why_first": "follows"
+  },
+  "p086": {
+   "why_first": "follows"
+  },
+  "p089": {
+   "why_first": "follows"
+  },
+  "p095": {
+   "why_first": "follows"
+  },
+  "p003": {
+   "why_first": "follows"
+  },
+  "p018": {
+   "why_first": "follows"
+  },
+  "p021": {
+   "why_first": "follows"
+  },
+  "p027": {
+   "why_first": "follows"
+  },
+  "p030": {
+   "why_first": "follows"
+  },
+  "p033": {
+   "why_first": "follows"
+  },
+  "p039": {
+   "why_first": "follows"
+  },
+  "p045": {
+   "why_first": "follows"
+  },
+  "p051": {
+   "why_first": "follows"
+  },
+  "p054": {
+   "why_first": "follows"
+  },
+  "p057": {
+   "why_first": "follows"
+  },
+  "p063": {
+   "why_first": "follows"
+  },
+  "p066": {
+   "why_first": "follows"
+  },
+  "p069": {
+   "why_first": "follows"
+  },
+  "p075": {
+   "why_first": "follows"
+  },
+  "p078": {
+   "why_first": "follows"
+  },
+  "p081": {
+   "why_first": "follows"
+  },
+  "p087": {
+   "why_first": "follows"
+  },
+  "p093": {
+   "why_first": "follows"
+  },
+  "p099": {
+   "why_first": "follows"
+  }
+ },
+ "claude-sonnet-edit-board": {
+  "p001": {
+   "why_first": "invents",
+   "quote": "**Why not 8. exd5?** After 8... exd5 9. O-O dxc4 10. Bxc4 c6, White ends up with an isolated pawn on d4. Space, knight activity and mobility all drift toward Black.",
+   "why": "The prompt's only reason e5 beats exd5 is that e5's line ends with mobility 0.18 better for White; the isolated d4 pawn and the space and knight drift are exd5's changes from the current position, not reasons given for the ranking."
+  },
+  "p004": {
+   "why_first": "invents",
+   "quote": "Re1 is worse still: although White wins material in the line, the engine sees Black getting enough back.",
+   "why": "The prompt says Na3's line beats Re1's because it ends with king safety 0.81 and mobility 0.24 better for White (passed pawns 0.46 better for Black), not that Black gets material or compensation back."
+  },
+  "p007": {
+   "why_first": "follows"
+  },
+  "p010": {
+   "why_first": "follows"
+  },
+  "p013": {
+   "why_first": "follows"
+  },
+  "p019": {
+   "why_first": "follows"
+  },
+  "p025": {
+   "why_first": "follows"
+  },
+  "p028": {
+   "why_first": "follows"
+  },
+  "p031": {
+   "why_first": "follows"
+  },
+  "p037": {
+   "why_first": "follows"
+  },
+  "p043": {
+   "why_first": "follows"
+  },
+  "p046": {
+   "why_first": "follows"
+  },
+  "p055": {
+   "why_first": "invents",
+   "quote": "Bf3 is worse, 28cp behind: after 15... Qb6 Black's queen hits d4 and later pins the f2 pawn to the king.",
+   "why": "The prompt's reason is that Nxc6's line ends with mobility 0.37 better for White than Bf3's line; it gives no tactical reason about Qb6 or a pin on f2."
+  },
+  "p061": {
+   "why_first": "follows"
+  },
+  "p067": {
+   "why_first": "follows"
+  },
+  "p070": {
+   "why_first": "follows"
+  },
+  "p073": {
+   "why_first": "follows"
+  },
+  "p076": {
+   "why_first": "follows"
+  },
+  "p079": {
+   "why_first": "follows"
+  },
+  "p088": {
+   "why_first": "follows"
+  },
+  "p091": {
+   "why_first": "follows"
+  },
+  "p094": {
+   "why_first": "follows"
+  },
+  "p097": {
+   "why_first": "follows"
+  },
+  "p100": {
+   "why_first": "follows"
+  },
+  "p008": {
+   "why_first": "follows"
+  },
+  "p011": {
+   "why_first": "follows"
+  },
+  "p017": {
+   "why_first": "follows"
+  },
+  "p023": {
+   "why_first": "invents",
+   "quote": "7. d3 is about 37cp worse. The engine's line has White winning a pawn and trading queens, but Black's king safety improves relative to White's and White's bishops do worse.",
+   "why": "The prompt compares d4's line with d3's only on king safety (0.64 for White), knights (0.29 for White) and passed pawns (0.18 for Black); bishops are not part of that comparison."
+  },
+  "p026": {
+   "why_first": "invents",
+   "quote": "That is the tactical danger: the f2 pawn is undefended.",
+   "why": "The prompt says Rf6 is about as good as Ra6 (4cp behind) and not to call either better, yet the answer presents Rf6's line as a danger."
+  },
+  "p029": {
+   "why_first": "follows"
+  },
+  "p032": {
+   "why_first": "follows"
+  },
+  "p035": {
+   "why_first": "invents",
+   "quote": "The engine rates this above 9. Bxh6, which trades the bishop for the knight after gxh6 but leaves Black with the bishop pair",
+   "why": "The prompt ranks a4 over Bxh6 on passed pawns, rooks and mobility, and says a4's line ends with bishops 0.51 better for Black than Bxh6's, so the bishop pair is not a reason it gives."
+  },
+  "p041": {
+   "why_first": "follows"
+  },
+  "p044": {
+   "why_first": "follows"
+  },
+  "p047": {
+   "why_first": "follows"
+  },
+  "p059": {
+   "why_first": "invents",
+   "quote": "the queen simply goes there and back while Black develops the bishop with a tempo. That is why the engine prefers cxd5",
+   "why": "The prompt gives bishops 0.48 and mobility 0.26 better for White (queen 0.17 better for Black) at the end of cxd5's line as the reason; lost tempi are not given."
+  },
+  "p062": {
+   "why_first": "follows"
+  },
+  "p065": {
+   "why_first": "follows"
+  },
+  "p068": {
+   "why_first": "follows"
+  },
+  "p071": {
+   "why_first": "invents",
+   "quote": "Nxd4 invites ...Bf6 and later ...Bxb2, leaving White with isolated a- and c-pawns.",
+   "why": "The prompt gives rooks 0.23 and king safety 0.17 better for White as why exd4's line beats Nxd4's; isolated pawns are not given, and exd4's own line also ends with an isolated a2 pawn."
+  },
+  "p074": {
+   "why_first": "follows"
+  },
+  "p077": {
+   "why_first": "follows"
+  },
+  "p083": {
+   "why_first": "follows"
+  },
+  "p086": {
+   "why_first": "follows"
+  },
+  "p089": {
+   "why_first": "follows"
+  },
+  "p095": {
+   "why_first": "follows"
+  },
+  "p003": {
+   "why_first": "follows"
+  },
+  "p018": {
+   "why_first": "invents",
+   "quote": "The d5 line has a concrete drawback: in 31. d5 Qxf5 32. Qxf5 gxf5 33. Rb1 Ra7 34. Ra4 Bxd5 the queens come off and Black ends up 4 points ahead, so be careful with that one.",
+   "why": "The prompt says d5 is about as good as f6 (6cp behind, too little to matter) and not to call either better, so warning the player off d5 ranks moves the prompt calls about as good."
+  },
+  "p021": {
+   "why_first": "follows"
+  },
+  "p027": {
+   "why_first": "follows"
+  },
+  "p030": {
+   "why_first": "follows"
+  },
+  "p033": {
+   "why_first": "silent"
+  },
+  "p039": {
+   "why_first": "follows"
+  },
+  "p045": {
+   "why_first": "follows"
+  },
+  "p051": {
+   "why_first": "follows"
+  },
+  "p054": {
+   "why_first": "follows"
+  },
+  "p057": {
+   "why_first": "follows"
+  },
+  "p063": {
+   "why_first": "invents",
+   "quote": "From here, aim to finish development, with Bd3, and keep a flexible plan. Pushing g4 is playable, but it costs some king safety.",
+   "why": "The prompt calls Bd3 about as good as g4 and says not to call either better, yet the answer steers to Bd3 and marks g4 down for king safety, when Bd3's own line also moves king safety 0.25 towards Black."
+  },
+  "p066": {
+   "why_first": "follows"
+  },
+  "p069": {
+   "why_first": "follows"
+  },
+  "p075": {
+   "why_first": "follows"
+  },
+  "p078": {
+   "why_first": "follows"
+  },
+  "p081": {
+   "why_first": "follows"
+  },
+  "p087": {
+   "why_first": "follows"
+  },
+  "p093": {
+   "why_first": "follows"
+  },
+  "p099": {
+   "why_first": "follows"
+  }
+ }
+}
