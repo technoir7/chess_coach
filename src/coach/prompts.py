@@ -55,10 +55,12 @@ GROUNDING_RULES = """INSTRUCTIONS:
    mobility, king safety, space or passed pawns only as POSITIONAL FACTORS
    says, and that a line improves or worsens one only as its POSITIONAL CHANGE
    says. Explain a factor by what it scores (given in brackets beside it),
-   with pieces and squares taken from the facts above. Where a line's
-   WHAT THE FACTORS SHOW says they do not explain it, say plainly that the
-   engine prefers it for reasons these factors do not show, and give no reason
-   of your own: a made-up reason teaches the wrong lesson."""
+   with pieces and squares taken from the facts above. Say why the engine
+   ranks a quiet move first only as WHY THE ENGINE RANKS IT FIRST says: a move
+   it calls about as good is about as good, so do not call either better; and
+   where it says reasons these factors do not show, say plainly that the
+   engine sees something they do not, and give no reason of your own - a
+   made-up reason teaches the wrong lesson."""
 
 PIECE_NAMES = {
     "P": "Pawn", "N": "Knight", "B": "Bishop",
@@ -258,60 +260,81 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
         # exchanged in a line where nothing was captured.
         facts = line_facts.describe(board, line.line_san)
         rendered.append(f"    FACTS: {facts.summary()}")
-        rendered.append(f"    KIND: {_kind(facts)}")
+        rendered.append(f"    KIND: {_kind(facts, line)}")
         rendered.append(f"    POSITIONAL CHANGE BY THE END OF THIS LINE{_positional_change(board, line, facts, packet)}")
-        if _is_positional(facts):
-            rendered.append(f"    WHAT THE FACTORS SHOW: {_what_the_factors_show(board, line, packet)}")
+        if line is packet.candidate_lines[0] and len(packet.candidate_lines) > 1 and _is_quiet(facts, line):
+            rendered.append(f"    WHY THE ENGINE RANKS IT FIRST: {_why_first(board, packet)}")
         rendered.append(walkthrough.describe(board, line.line_san))
     return "\n".join(rendered)
+
+
+# Below this, two moves are as good as each other: a depth-15 evaluation
+# moves by about this much from one depth to the next. Below SMALL_GAP the
+# difference stays inside the scale's "equal" band.
+ABOUT_AS_GOOD = 20
+SMALL_GAP = 50
+
+
+def _why_first(board: chess.Board, packet: TruthPacket) -> str:
+    """Why the engine puts a quiet move above each of its other lines, from
+    what is known to be true: the two are about as good, the other loses
+    material, or the factors where the lines end differ. Otherwise the model
+    is told to say the reason is not shown: an engine's search often sees
+    something no static factor scores, and an invented reason teaches the
+    wrong lesson."""
+    first, mover = packet.candidate_lines[0], board.turn
+    side = "White" if mover == chess.WHITE else "Black"
+    sign = 1 if mover == chess.WHITE else -1
+    parts = []
+    for other in packet.candidate_lines[1:]:
+        if first.eval_cp is None or other.eval_cp is None:
+            parts.append(f"{other.move_san} has no evaluation to compare")
+            continue
+        gap = int(sign * (first.eval_cp - other.eval_cp))
+        if gap < ABOUT_AS_GOOD:
+            parts.append(f"{other.move_san} is about as good ({gap}cp behind, too little to matter); do not call either better")
+            continue
+        lost = -sign * line_facts.describe(board, other.line_san).material_won
+        if lost > 0:
+            parts.append(f"{other.move_san} is {gap}cp worse: its line loses {line_facts.points(lost)} of material for {side}")
+            continue
+        compared = positional.contrast(mover, first.factors_after, other.factors_after)
+        if compared and compared[0] >= positional.SHOWN:
+            detail = compared[1] or (
+                f"small differences in several factors that add up to {compared[0]:.2f} for {side}"
+            )
+            parts.append(f"{other.move_san} is {gap}cp worse; where the lines end, {first.move_san}'s has {detail}")
+            continue
+        worse = f"is slightly worse ({gap}cp, a small difference)" if gap < SMALL_GAP else f"is {gap}cp worse"
+        parts.append(
+            f"{other.move_san} {worse}, for reasons these factors do not show; say the engine "
+            f"sees something they do not, and {_NO_REASON}"
+        )
+    return "; ".join(parts)
 
 
 _NO_REASON = "do not give a reason of your own"
 
 
-def _what_the_factors_show(board: chess.Board, line: CandidateLine, packet: TruthPacket) -> str:
-    """Whether the static factors account for a positional line at all, and,
-    for the engine's first choice, for preferring it to the quieter lines it
-    rates lower. Where they do not, the model is told to say so: the engine
-    often sees something deeper in its search that no static factor scores,
-    and an invented reason is worse than none."""
-    mover = board.turn
-    side = "White" if mover == chess.WHITE else "Black"
-    gained = positional.gain(mover, packet.factors, line.factors_after)
-    if gained is None:
-        return (
-            "nothing they can be compared on, so they cannot explain this line; say the "
-            f"engine prefers it for reasons these factors do not show and {_NO_REASON}"
-        )
-    if gained < positional.SHOWN:
-        if abs(gained) < 0.005:
-            movement = "they do not move at all"
-        elif gained < 0:
-            movement = f"they move {abs(gained):.2f} towards {'Black' if mover == chess.WHITE else 'White'} in all"
-        else:
-            movement = f"they move only {gained:.2f} towards {side} in all"
-        return (
-            f"they do not show what this line gains for {side} ({movement}). "
-            f"Say the engine prefers it for reasons these factors do not show, and {_NO_REASON}"
-        )
-    text = f"they move {gained:.2f} towards {side} in all"
-    if line is packet.candidate_lines[0]:
-        for other in packet.candidate_lines[1:]:
-            other_gain = positional.gain(mover, packet.factors, other.factors_after)
-            if other_gain is not None and other_gain >= gained \
-                    and _is_positional(line_facts.describe(board, other.line_san)):
-                return (
-                    f"{text}, but they do not explain why the engine prefers {line.move_san} to "
-                    f"{other.move_san}, which moves them {other_gain:.2f} towards {side}. Say so, and {_NO_REASON}"
-                )
-    return text
+# The engine reports a mate in n as 10000 - n centipawns.
+_MATE_SCORES = 9000
+
+
+def _is_mate_score(eval_cp: Optional[float]) -> bool:
+    return eval_cp is not None and abs(eval_cp) >= _MATE_SCORES
+
+
+def _is_quiet(facts: line_facts.LineFacts, line: CandidateLine) -> bool:
+    return _is_positional(facts) and not _is_mate_score(line.eval_cp)
 
 
 def _is_positional(facts: line_facts.LineFacts) -> bool:
     return not facts.material_won and not any(move.is_mate for move in facts.moves)
 
 
-def _kind(facts: line_facts.LineFacts) -> str:
+def _kind(facts: line_facts.LineFacts, line: CandidateLine) -> str:
+    if _is_mate_score(line.eval_cp) and not any(move.is_mate for move in facts.moves):
+        return "tactical (the engine sees a forced mate beyond the moves shown)"
     if _is_positional(facts):
         return "positional (no material is won; what the line gains is in the position)"
     if any(move.is_mate for move in facts.moves):
@@ -390,8 +413,9 @@ belong here, even if it has captures or checks in it. If nothing is forcing,
 say so in one sentence.
 Position: the long-term picture - where a side is ahead in POSITIONAL FACTORS,
 and the lines marked KIND: positional: what each changes (its POSITIONAL
-CHANGE) and why that matters. Take most care here: say why a quiet move is good,
-or, where its WHAT THE FACTORS SHOW says they do not explain it, say that plainly.
+CHANGE) and why that matters. Take most care here: for a quiet first choice,
+say why it is ranked first as its WHY THE ENGINE RANKS IT FIRST gives it -
+including that other moves are about as good, where it says so.
 Each engine line goes in the part its KIND names. Keep the two apart, and
 mention one in the other only where they meet - a tactic that also changes the
 position, or a positional factor a tactic rests on.

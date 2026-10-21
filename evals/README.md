@@ -98,14 +98,26 @@ attacker was called pinned.
 The prompt also now says each engine line goes in the part its KIND names,
 for the 12 answers that mixed them.
 
-Also changed after round 7, and not yet measured. Each positional line now
-says whether Stockfish 16's factors account for it. Over round 7's
-positions, the engine's first choice was a quiet line in 51, and the factors
-moved towards the side to move, and more than for its lower-rated quiet
-lines, in only 17. For the rest, the answer is told to say the engine's
-reason is not shown rather than invent one. p001 had done exactly that:
-White gets "a centralised knight on d4" for a line whose factors moved
-towards Black. Pawn structure now lists candidate passed pawns by Stockfish
+Also changed after round 7, and not yet measured. A quiet first choice now
+comes with why the engine ranks it above each of its other lines. The first
+version asked whether the line improved Stockfish 16's factors on the
+position now; of round 7's 51 quiet first choices it explained 17, and p001
+shows what filled the gap - White gets "a centralised knight on d4" for a
+line whose factors moved towards Black. That was the wrong question: an
+engine compares its moves with each other, and often every move gives a
+little ground. Over rounds 6 and 7 (400 positions, 203 quiet first choices),
+comparing the moves instead: in 77 every other line is within 20cp, about as
+good (p001's d4 and Be2 are 2cp apart); in 60 each worse line loses material
+or ends with factors worse for the side to move; in 48 the only gaps the
+factors do not explain are under 50cp, called small; in 18 (9%) a gap of 50cp
+or more is unexplained, and the answer is told to say so. Two other routes
+did not help. Classical Stockfish 16, searching on the same factors, chose
+moves that its own factors at the end of its lines explained no more often
+(11 of 51). Turning each of its terms off in turn to see which one decides
+the choice gave results swamped by search noise (one "drop" of 27 pawns in a
+1.6-pawn preference). A line heading for a forced mate beyond its eight moves
+is now tactical; it had been called quiet.
+Pawn structure now lists candidate passed pawns by Stockfish
 16's rule. Over every round's positions and line ends (3,572 boards), a side
 has a passed or candidate passed pawn in the list exactly when Stockfish 16
 scores one; 80 of the 1,800 sides had a candidate and no passed pawn, which

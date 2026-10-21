@@ -346,6 +346,13 @@ class TestTacticalAndPositionalLines:
         )
         assert "KIND: positional" in text
 
+    def test_a_line_heading_for_mate_beyond_its_moves_is_tactical(self):
+        text = prompts.engine_lines(
+            packet(candidate_lines=[CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], eval_cp=9985)]),
+            board_after("e4", "e5"),
+        )
+        assert "KIND: tactical (the engine sees a forced mate beyond the moves shown)" in text
+
     def test_an_even_trade_is_positional(self):
         board = board_after("e4", "d5")
         text = prompts.engine_lines(
@@ -378,76 +385,69 @@ class TestTacticalAndPositionalLines:
         ) in text
 
 
-class TestOwningUpWhenTheFactorsDoNotExplainALine:
-    """Stockfish 16's static factors cannot always say why the engine prefers
-    a quiet move. The answer should say so rather than make a reason up."""
+def quiet(move, eval_cp, after=None, line=None):
+    return CandidateLine(move_san=move, line_san=line or [move, "Nc6"], eval_cp=eval_cp,
+                         factors_after=factors(**(after or {})))
 
-    def test_a_positional_line_the_factors_explain_says_what_they_show(self):
-        text = prompts.engine_lines(
-            packet(factors=factors(), candidate_lines=[
-                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors(Mobility=0.4)),
-            ]),
-            board_after("e4", "e5"),
-        )
-        assert "WHAT THE FACTORS SHOW: they move 0.40 towards White in all" in text
 
-    def test_a_positional_line_that_gains_nothing_by_them_says_they_do_not_explain_it(self):
-        text = prompts.engine_lines(
-            packet(factors=factors(Mobility=0.3), candidate_lines=[
-                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors()),
-            ]),
-            board_after("e4", "e5"),
-        )
-        assert (
-            "WHAT THE FACTORS SHOW: they do not show what this line gains for White "
-            "(they move 0.30 towards Black in all)"
-        ) in text
-        assert "do not give a reason of your own" in text
+def why_first(*lines, board=None):
+    text = prompts.engine_lines(packet(factors=factors(), candidate_lines=list(lines)),
+                                board or board_after("e4", "e5"))
+    return [l for l in text.splitlines() if "WHY THE ENGINE RANKS IT FIRST" in l]
 
-    def test_factors_that_do_not_move_are_called_still(self):
-        text = prompts.engine_lines(
-            packet(factors=factors(), candidate_lines=[
-                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors()),
-            ]),
-            board_after("e4", "e5"),
-        )
-        assert "(in all they do not move at all)" not in text
-        assert "they do not show what this line gains for White (they do not move at all)" in text
 
-    def test_says_so_when_a_lower_rated_line_gains_more_by_them(self):
-        lines = [
-            CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors(Space=0.2)),
-            CandidateLine(move_san="Nc3", line_san=["Nc3", "Nc6"], factors_after=factors(Space=0.5)),
-        ]
-        text = prompts.engine_lines(packet(factors=factors(), candidate_lines=lines), board_after("e4", "e5"))
-        first = text.split("- after Nc3")[0]
-        assert (
-            "they do not explain why the engine prefers Nf3 to Nc3, which moves them 0.50 towards White"
-        ) in first
+class TestWhyTheEngineRanksAQuietMoveFirst:
+    """The engine chooses by comparing moves, not by what one move gains on
+    the position now. Asked "does it gain anything by the factors?", two in
+    three quiet first choices came out unexplained; most had a second move
+    within 0.2 pawns, where there is nothing to explain."""
 
-    def test_a_line_with_no_factors_to_compare_says_they_cannot_explain_it(self):
-        text = prompts.engine_lines(
-            packet(factors=None, candidate_lines=[
-                CandidateLine(move_san="Nf3", line_san=["Nf3", "Nc6"], factors_after=factors()),
-            ]),
-            board_after("e4", "e5"),
-        )
-        assert "WHAT THE FACTORS SHOW: nothing they can be compared on" in text
+    def test_a_move_within_20cp_is_about_as_good(self):
+        [line] = why_first(quiet("Nf3", 30), quiet("Nc3", 15))
+        assert "Nc3 is about as good (15cp behind, too little to matter); do not call either better" in line
 
-    def test_a_tactical_line_gets_no_such_statement(self):
+    def test_a_worse_move_that_loses_material_is_explained_by_that(self):
+        [line] = why_first(quiet("Nf3", 30), quiet("Ba6", -250, line=["Ba6", "bxa6"]))
+        assert "Ba6 is 280cp worse: its line loses 3 points of material for White" in line
+
+    def test_a_worse_move_is_explained_by_the_factors_where_the_lines_end(self):
+        [line] = why_first(quiet("Nf3", 30, after={"Mobility": 0.4}), quiet("Nc3", -20))
+        assert "Nc3 is 50cp worse; where the lines end, Nf3's has mobility 0.40 better for White" in line
+
+    def test_small_differences_that_add_up_are_stated_as_such(self):
+        [line] = why_first(quiet("Nf3", 30, after={"Mobility": 0.1, "Space": 0.1}), quiet("Nc3", -20))
+        assert "where the lines end, Nf3's has small differences in several factors that add up to 0.20 for White" in line
+
+    def test_otherwise_it_says_the_factors_do_not_show_why(self):
+        [line] = why_first(quiet("Nf3", 30), quiet("Nc3", -20))
+        assert "Nc3 is 50cp worse, for reasons these factors do not show" in line
+        assert "do not give a reason of your own" in line
+
+    def test_is_given_once_on_the_first_line_only(self):
+        assert len(why_first(quiet("Nf3", 30), quiet("Nc3", 15), quiet("d4", 10))) == 1
+
+    def test_a_small_gap_the_factors_do_not_explain_is_called_small(self):
+        [line] = why_first(quiet("Nf3", 30), quiet("Nc3", 0))
+        assert "Nc3 is slightly worse (30cp, a small difference), for reasons these factors do not show" in line
+
+    def test_a_first_choice_heading_for_mate_has_none(self):
+        """From the eval: a line whose mate came after its eight moves was
+        called quiet, and Rd7+ "8982cp worse, for reasons not shown"."""
+        assert why_first(quiet("Nf3", 9990), quiet("Nc3", 1000)) == []
+
+    def test_a_tactical_first_choice_has_none(self):
         board = chess.Board("4k3/8/8/3p4/8/8/8/3QK3 w - - 0 1")
-        text = prompts.engine_lines(
-            packet(factors=factors(), candidate_lines=[
-                CandidateLine(move_san="Qxd5", line_san=["Qxd5", "Ke7"], factors_after=factors()),
-            ]),
-            board,
-        )
-        assert "WHAT THE FACTORS SHOW" not in text
+        assert why_first(quiet("Qxd5", 900, line=["Qxd5", "Ke7"]), quiet("Kd2", 0, line=["Kd2", "Ke7"]), board=board) == []
 
-    def test_the_rules_say_to_own_up(self):
+    def test_the_rules_say_to_own_up_and_not_to_rank_equal_moves(self):
         rules = prompts.explain_prompt("facts", "Game just started").split("INSTRUCTIONS:")[1]
-        assert "WHAT THE FACTORS SHOW" in rules
+        assert "WHY THE ENGINE RANKS IT FIRST" in rules
         assert "reasons these factors do not show" in rules
+        assert "about as good" in rules
+
+    def test_the_position_part_asks_for_it(self):
+        position = prompts.explain_prompt("facts", "Game just started").split("Position:")[1]
+        assert "WHY THE ENGINE RANKS IT FIRST" in position
 
 
 class TestPositionalFactors:
@@ -470,10 +470,3 @@ class TestPositionalFactors:
         facts = prompts.position_facts(chess.Board(), packet(), "")
         rules = prompts.explain_prompt(facts, "Game just started").split("INSTRUCTIONS:")[1]
         assert "POSITIONAL FACTORS" in rules
-
-
-class TestThePositionPartAllowsNoReason:
-    def test_asks_for_the_plain_statement_where_the_factors_do_not_explain_a_move(self):
-        text = prompts.explain_prompt("facts", "Game just started")
-        position = text.split("Position:")[1]
-        assert "WHAT THE FACTORS SHOW says they do not explain it, say that plainly" in position

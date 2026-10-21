@@ -78,4 +78,4 @@ class TestBoard:
 class TestChecklist:
     def test_a_reason_the_factors_do_not_give_counts_as_false(self):
         from src.coach import review
-        assert "WHAT THE FACTORS SHOW" in review.CHECKLIST
+        assert "WHY THE ENGINE RANKS IT FIRST" in review.CHECKLIST

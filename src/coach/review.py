@@ -37,10 +37,12 @@ lines against the facts in the brief:
   that reply is forced
 - checks, captures, trades and material over a line: that line's FACTS
 - a side being better in a positional factor, or a line improving one:
-  POSITIONAL FACTORS and the line's POSITIONAL CHANGE; where its
-  WHAT THE FACTORS SHOW says they do not explain the line, any reason the
-  draft gives for it is unsupported - replace it with the plain statement that the engine
-  prefers the line for reasons these factors do not show
+  POSITIONAL FACTORS and the line's POSITIONAL CHANGE
+- why the engine ranks a quiet move first, or calling one move better than
+  another: WHY THE ENGINE RANKS IT FIRST. Moves it calls about as good are not
+  better or worse than each other; where it says reasons these factors do not
+  show, any reason the draft gives is unsupported - replace it with the plain
+  statement that the engine sees something the factors do not
 - how big an advantage is: the words given beside each evaluation
 - move sequences: only the ENGINE LINES, quoted exactly, or the moves played"""
 

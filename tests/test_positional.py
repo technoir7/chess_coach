@@ -76,19 +76,24 @@ class TestWhatALineChanges:
         assert "the line ends with White in check" in positional.change(end, EVEN, None)
 
 
-class TestWhatALineGainsForTheMover:
-    def test_adds_up_every_factor_towards_the_side_moving(self):
-        before = dict(EVEN)
-        after = with_scores(Mobility=(0.4, 0.0), Space=(0.0, 0.1))
-        assert positional.gain(chess.WHITE, before, after) == pytest.approx(0.3)
-        assert positional.gain(chess.BLACK, before, after) == pytest.approx(-0.3)
+class TestComparingTwoLineEnds:
+    def test_names_each_factor_that_differs_and_for_whom(self):
+        ours = with_scores(Mobility=(0.4, 0.0), Space=(0.0, 0.2))
+        total, text = positional.contrast(chess.WHITE, ours, dict(EVEN))
+        assert total == pytest.approx(0.2)
+        assert text == "mobility 0.40 better for White, space 0.20 better for Black"
+
+    def test_is_from_the_side_to_move(self):
+        total, _ = positional.contrast(chess.BLACK, with_scores(Mobility=(0.4, 0.0)), dict(EVEN))
+        assert total == pytest.approx(-0.4)
 
     def test_only_factors_scored_at_both_ends_count(self):
-        assert positional.gain(chess.WHITE, EVEN, {"Pawns": (0.2, 0.0)}) == pytest.approx(0.2)
+        total, text = positional.contrast(chess.WHITE, {"Pawns": (0.3, 0.0)}, dict(EVEN))
+        assert total == pytest.approx(0.3) and text == "pawn structure 0.30 better for White"
 
-    def test_there_is_none_without_scores_at_both_ends(self):
-        assert positional.gain(chess.WHITE, None, EVEN) is None
-        assert positional.gain(chess.WHITE, EVEN, None) is None
+    def test_nothing_to_compare_without_scores_at_both_ends(self):
+        assert positional.contrast(chess.WHITE, None, dict(EVEN)) is None
+        assert positional.contrast(chess.WHITE, dict(EVEN), None) is None
 
 
 class TestPassedPawnsWording:

@@ -75,14 +75,24 @@ def _verdict(factors: Factors, name: str) -> str:
     return f"{side} (White {white:+.2f}, Black {black:+.2f})"
 
 
-def gain(mover: chess.Color, before: Optional[Factors], after: Optional[Factors]) -> Optional[float]:
-    """How far a line moves the factors towards `mover`, in pawns, added up
-    over those scored at both ends; None when there is nothing to compare.
-    Stockfish adds its terms together, so their sum is meaningful."""
-    if before is None or after is None:
+def contrast(mover: chess.Color, ours: Optional[Factors], theirs: Optional[Factors]):
+    """How one position compares with another for `mover`, over the factors
+    scored in both: the total in pawns (Stockfish adds its terms, so the sum
+    means something) and the factors that differ by SHOWN or more, biggest
+    first. None when either position has no scores."""
+    if ours is None or theirs is None:
         return None
-    total = sum(_net(after, name) - _net(before, name) for name in FACTOR_WORDS if name in before and name in after)
-    return total if mover == chess.WHITE else -total
+    sign = 1 if mover == chess.WHITE else -1
+    diffs = [
+        (sign * (_net(ours, name) - _net(theirs, name)), FACTOR_WORDS[name][0])
+        for name in FACTOR_WORDS if name in ours and name in theirs
+    ]
+    mover_side, other_side = _side(mover), _side(not mover)
+    text = ", ".join(
+        f"{short} {abs(d):.2f} better for {mover_side if d > 0 else other_side}"
+        for d, short in sorted(diffs, key=lambda item: -abs(item[0])) if abs(d) >= SHOWN
+    )
+    return sum(d for d, _ in diffs), text
 
 
 def change(end: chess.Board, before: Optional[Factors], after: Optional[Factors]) -> str:
