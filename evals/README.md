@@ -137,6 +137,28 @@ calls about as good; `silent` if it does not say why the first choice is
 preferred. Before the change, round 7's p001 would be `invents`. The question
 is how many are `invents`; `silent` is reported, not counted as wrong.
 
+Result: 3 of 100 answers wrong, none caught or rejected by the verifier, at a
+median of 30 seconds (round 7: 6 of 100; at this size the two cannot be told
+apart). One is positional: p094 gives Qc3 "mobility 0.40 better than the Qb4
+line", where the prompt's 0.40 is against Qc4. One repeats a fact the prompt
+got wrong: p095's exchange "played out" leaves White a point up, but the
+knight on d4 is then loose and Black takes it. One is a slip about the
+evaluation. 99 answers kept tactics and position apart. Of the 47 answers
+given WHY THE ENGINE RANKS IT FIRST, 41 follow it, 2 are silent and 4 invent
+(`why_first.json`): two (p019, p094) give a factor comparison made against one
+line as if it were against another, since the prompt said "where the lines
+end, e4's has…" without naming the other line; one ranks a move called about
+as good below others (p073); one calls a line about as good "not a safe way
+out" before saying all three are about as good (p046).
+
+Fixed after round 8, not yet measured: the comparison names the other line
+("compared with g3's line, e4's ends with…"); and material lost is given as
+why a line is worse only when the gap is at least 50cp per point, since p092's
+"its line loses 1 point" sat on a 24cp gap, beside a line also a point down
+and about as good. Not fixed: the exchange played out where a line stops
+still checks only that square, so a piece left loose elsewhere, as in p095,
+is missed.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes

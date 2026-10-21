@@ -1,0 +1,151 @@
+{
+ "p002": {
+  "why_first": "follows"
+ },
+ "p003": {
+  "why_first": "follows"
+ },
+ "p005": {
+  "why_first": "follows"
+ },
+ "p009": {
+  "why_first": "follows"
+ },
+ "p013": {
+  "why_first": "follows"
+ },
+ "p014": {
+  "why_first": "follows"
+ },
+ "p016": {
+  "why_first": "follows"
+ },
+ "p019": {
+  "why_first": "invents",
+  "quote": "Compared with the other lines, e4 leaves king safety 0.56 better for White and space 0.40 better for White. Pawn structure is 0.20 better for Black.",
+  "why": "The prompt gives these end-position differences only against g3 (30cp worse); Nc3 is about as good and no factor reason is given against it (Stockfish puts e4's end only about 0.12 better in king safety than Nc3's)."
+ },
+ "p023": {
+  "why_first": "follows"
+ },
+ "p024": {
+  "why_first": "follows"
+ },
+ "p025": {
+  "why_first": "follows"
+ },
+ "p026": {
+  "why_first": "silent"
+ },
+ "p031": {
+  "why_first": "follows"
+ },
+ "p034": {
+  "why_first": "follows"
+ },
+ "p041": {
+  "why_first": "silent"
+ },
+ "p043": {
+  "why_first": "follows"
+ },
+ "p045": {
+  "why_first": "follows"
+ },
+ "p046": {
+  "why_first": "invents",
+  "quote": "This is why Kh3 is not a safe way out.",
+  "why": "The prompt says Kh3 is about as good as Rc3 (16cp behind, too little to matter) and not to call either better; it gives no material-loss reason against Kh3."
+ },
+ "p049": {
+  "why_first": "follows"
+ },
+ "p050": {
+  "why_first": "follows"
+ },
+ "p053": {
+  "why_first": "follows"
+ },
+ "p055": {
+  "why_first": "follows"
+ },
+ "p056": {
+  "why_first": "follows"
+ },
+ "p057": {
+  "why_first": "follows"
+ },
+ "p058": {
+  "why_first": "follows"
+ },
+ "p059": {
+  "why_first": "follows"
+ },
+ "p061": {
+  "why_first": "follows"
+ },
+ "p063": {
+  "why_first": "follows"
+ },
+ "p065": {
+  "why_first": "follows"
+ },
+ "p067": {
+  "why_first": "follows"
+ },
+ "p069": {
+  "why_first": "follows"
+ },
+ "p072": {
+  "why_first": "follows"
+ },
+ "p073": {
+  "why_first": "invents",
+  "quote": "Rab1 or Be5 are the safe ways to keep the edge.",
+  "why": "The prompt calls b4 about as good as Rab1 (4cp behind) and says not to call either better."
+ },
+ "p075": {
+  "why_first": "follows"
+ },
+ "p077": {
+  "why_first": "follows"
+ },
+ "p079": {
+  "why_first": "follows"
+ },
+ "p081": {
+  "why_first": "follows"
+ },
+ "p083": {
+  "why_first": "follows"
+ },
+ "p085": {
+  "why_first": "follows"
+ },
+ "p086": {
+  "why_first": "follows"
+ },
+ "p089": {
+  "why_first": "follows"
+ },
+ "p091": {
+  "why_first": "follows"
+ },
+ "p092": {
+  "why_first": "follows"
+ },
+ "p094": {
+  "why_first": "invents",
+  "quote": "Qc3 (-621cp) and Qb4 (-622cp) are about as good as each other, so neither is better. Both lead to a queen trade. In the Qc3 line, king safety moves 0.50 towards White, and the end position has mobility 0.40 better for White than the Qb4 line.",
+  "why": "The prompt says Qb4 is about as good and gives the 0.40 mobility edge only as the reason Qc3 beats Qc4 (20cp worse), so the answer ranks two moves the prompt calls equal and moves the reason to the wrong comparison."
+ },
+ "p097": {
+  "why_first": "follows"
+ },
+ "p099": {
+  "why_first": "follows"
+ },
+ "p100": {
+  "why_first": "follows"
+ }
+}
