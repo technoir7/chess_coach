@@ -243,6 +243,17 @@ Round 11 measures those fixes on fresh positions, one arm, labelled as round
 66 towards rounds 8 and 9 (4 in 47, 2 in 49) while false claims stay low.
 Usefulness is not judged again: the instructions changed in two sentences.
 
+Result: `invents` fell to 2 of 56 (round 10: 10 of 66), both a worse move's
+own line changes read as the reason (`why_first.json`). 4 of 100 answers were
+wrong, at a median of 24 seconds and 242 words, none rejected: a knight on g4
+said to be on the edge (p037), an "outpost" on e5 that f7-f6 attacks (p095),
+"no immediate threat" where a pawn attacks a knight (p015), and a move said to
+develop the last minor piece at home when another is (p085). All four are the
+general chess remarks the new instructions ask for, not the engine facts
+earlier rounds got wrong; at 1 in round 10's arm and 4 here, 100 answers
+cannot say whether the style costs accuracy. The human-intuition reading
+closed 18 answers, against most of round 10's.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes

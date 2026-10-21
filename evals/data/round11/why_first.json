@@ -1,0 +1,174 @@
+{
+ "p001": {
+  "why_first": "follows"
+ },
+ "p007": {
+  "why_first": "follows"
+ },
+ "p008": {
+  "why_first": "follows"
+ },
+ "p011": {
+  "why_first": "follows"
+ },
+ "p013": {
+  "why_first": "follows"
+ },
+ "p015": {
+  "why_first": "follows"
+ },
+ "p019": {
+  "why_first": "follows"
+ },
+ "p020": {
+  "why_first": "follows"
+ },
+ "p023": {
+  "why_first": "follows"
+ },
+ "p024": {
+  "why_first": "follows"
+ },
+ "p025": {
+  "why_first": "follows"
+ },
+ "p026": {
+  "why_first": "follows"
+ },
+ "p027": {
+  "why_first": "follows"
+ },
+ "p028": {
+  "why_first": "follows"
+ },
+ "p029": {
+  "why_first": "follows"
+ },
+ "p033": {
+  "why_first": "follows"
+ },
+ "p035": {
+  "why_first": "follows"
+ },
+ "p037": {
+  "why_first": "follows"
+ },
+ "p039": {
+  "why_first": "follows"
+ },
+ "p040": {
+  "why_first": "follows"
+ },
+ "p042": {
+  "why_first": "follows"
+ },
+ "p043": {
+  "why_first": "follows"
+ },
+ "p044": {
+  "why_first": "follows"
+ },
+ "p046": {
+  "why_first": "follows"
+ },
+ "p047": {
+  "why_first": "follows"
+ },
+ "p051": {
+  "why_first": "follows"
+ },
+ "p053": {
+  "why_first": "follows"
+ },
+ "p054": {
+  "why_first": "follows"
+ },
+ "p055": {
+  "why_first": "follows"
+ },
+ "p057": {
+  "why_first": "follows"
+ },
+ "p059": {
+  "why_first": "follows"
+ },
+ "p060": {
+  "why_first": "follows"
+ },
+ "p061": {
+  "why_first": "follows"
+ },
+ "p063": {
+  "why_first": "follows"
+ },
+ "p064": {
+  "why_first": "follows"
+ },
+ "p065": {
+  "why_first": "follows"
+ },
+ "p066": {
+  "why_first": "follows"
+ },
+ "p067": {
+  "why_first": "follows"
+ },
+ "p068": {
+  "why_first": "follows"
+ },
+ "p069": {
+  "why_first": "follows"
+ },
+ "p075": {
+  "why_first": "follows"
+ },
+ "p077": {
+  "why_first": "follows"
+ },
+ "p078": {
+  "why_first": "follows"
+ },
+ "p080": {
+  "why_first": "follows"
+ },
+ "p081": {
+  "why_first": "invents",
+  "quote": "4. g3 is a bit weaker. In its line the space edge shifts towards Black, and the c-file opens.",
+  "why": "The prompt says g3 is 20cp worse because, compared with g3's line, Nc3's ends with mobility 0.33 and king safety 0.24 better for White (pawn structure 0.19 better for Black); the space shift is only what g3's own line does."
+ },
+ "p082": {
+  "why_first": "follows"
+ },
+ "p083": {
+  "why_first": "follows"
+ },
+ "p085": {
+  "why_first": "follows"
+ },
+ "p087": {
+  "why_first": "follows"
+ },
+ "p089": {
+  "why_first": "follows"
+ },
+ "p090": {
+  "why_first": "invents",
+  "quote": "**Why h4:** The engine's line is 16. h4 Qa6+ 17. Ne2 f3 18. gxf3 gxh4 19. a3 Kc7. Over that line White's king safety and pawn structure improve, while Black gets a passed pawn and some extra mobility.",
+  "why": "The prompt says Ne2 is worse for reasons the factors do not show, and compared with a3's line h4's ends with king safety 0.46 better for Black, so an improving king safety is not the reason h4 is ranked first."
+ },
+ "p092": {
+  "why_first": "follows"
+ },
+ "p093": {
+  "why_first": "follows"
+ },
+ "p094": {
+  "why_first": "follows"
+ },
+ "p095": {
+  "why_first": "follows"
+ },
+ "p097": {
+  "why_first": "follows"
+ }
+}
