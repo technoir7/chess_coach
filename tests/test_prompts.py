@@ -369,21 +369,6 @@ class TestTacticalAndPositionalLines:
         )
         assert "POSITIONAL CHANGE BY THE END OF THIS LINE: mobility moves 0.40 towards White" in text
 
-    def test_a_line_stopping_mid_exchange_is_compared_once_it_is_played_out(self):
-        """A static score with a piece still to be taken back describes a
-        position nobody would leave on the board."""
-        board = board_after("e4", "d5")
-        text = prompts.engine_lines(
-            packet(factors=factors(), candidate_lines=[
-                CandidateLine(move_san="exd5", line_san=["exd5"], factors_after=factors(Space=0.5)),
-            ]),
-            board,
-        )
-        assert (
-            "POSITIONAL CHANGE BY THE END OF THIS LINE (with the exchange on d5 played out: Qxd5): "
-            "space moves 0.50 towards White"
-        ) in text
-
 
 def quiet(move, eval_cp, after=None, line=None):
     return CandidateLine(move_san=move, line_san=line or [move, "Nc6"], eval_cp=eval_cp,

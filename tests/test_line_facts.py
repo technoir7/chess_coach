@@ -93,21 +93,6 @@ class TestMaterialBalance:
         assert "afterwards material is level" in summary
 
 
-class TestLinesCutMidExchange:
-    def test_a_line_ending_on_a_capture_says_the_recapture_is_not_shown(self):
-        """Found running the app: 2. d4 d5 3. e5 Bf5 4. h4 h5 5. Bd3 Bxd3 ends
-        before White takes back, and "Black is 3 pawns ahead" read as real."""
-        board = board_after("e4", "c6")
-        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
-        assert "the line stops right after a capture" in line_facts.describe(board, line).summary()
-
-    def test_no_note_when_nothing_can_take_back(self):
-        """Kxd8 is a capture, but no white piece can retake on d8."""
-        for line in (["dxc5", "dxc5", "Qxd8+", "Kxd8"], ["c3", "e6"]):
-            summary = line_facts.describe(SICILIAN_D6, line).summary()
-            assert "stops right after a capture" not in summary, line
-
-
 class TestSummary:
     def test_summary_names_checks_and_captures(self):
         facts = line_facts.describe(SICILIAN_D6, ["dxc5", "Nf6", "Nc3", "Qa5"])
@@ -140,24 +125,6 @@ class TestWhoseQueen:
         assert "both queens are captured, so the queens are traded" in summary
 
 
-class TestRecapture:
-    def test_states_the_material_after_the_cheapest_recapture(self):
-        """From the eval: a line ending "Black is 2 pawns ahead" read as the
-        outcome, when White's recapture leaves White a pawn up."""
-        board = board_after("e4", "c6")
-        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
-        summary = line_facts.describe(board, line).summary()
-        assert "if the exchange on d3 is played out (cxd3), material is level" in summary
-
-    def test_a_recapture_that_loses_more_is_not_offered_as_the_outcome(self):
-        """Pilot on round 6: "if White takes back with Qxd4, White is 3 pawns
-        ahead" when Bxd4 then wins the queen."""
-        board = chess.Board("6k1/6b1/8/1n6/3N4/8/8/3QK3 b - - 0 1")
-        summary = line_facts.describe(board, ["Nxd4"]).summary()
-        assert "taking back on d4 does not pay (Qxd4 is answered by Bxd4)" in summary
-        assert "Qxd4, White" not in summary
-
-
 class TestRobustness:
     def test_an_illegal_line_stops_cleanly(self):
         """Never raises on bad input - the caller may pass a model's text."""
@@ -165,14 +132,40 @@ class TestRobustness:
         assert [m.san for m in facts.moves] == ["d5"]
 
 
-class TestSettledPosition:
-    def test_plays_out_the_exchange_a_line_stops_in(self):
-        board = chess.Board()
-        for san in ("e4", "d5"):
-            board.push_san(san)
-        end = line_facts.settled(board, ["exd5"])
-        assert end.fen().split()[0] == "rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR"
+def moves(board: chess.Board, *sans: str):
+    replay, played = board.copy(), []
+    for san in sans:
+        played.append(replay.push_san(san))
+    return played
 
-    def test_a_quiet_line_ends_where_it_ends(self):
-        end = line_facts.settled(chess.Board(), ["e4", "e5"])
-        assert end.fen().split()[0] == "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR"
+
+class TestWhereALineIsCut:
+    """Round 8, p095: the line stopped on ...Nxd5, and playing out only the
+    captures on d5 left White a point up. The engine's own line goes Nxd5
+    exd5 Rd1: Bxd5 would lose the knight on d4. Where the material settles
+    is the engine's call, so the line runs on while the engine keeps
+    capturing or checking."""
+
+    def test_runs_on_through_the_engines_captures_and_stops_before_its_first_quiet_move(self):
+        pv = moves(chess.Board(), "e4", "d5", "Nc3", "dxe4", "Nxe4", "Nf6")
+        assert line_facts.cut(chess.Board(), pv, plies=3, most=20) == 5
+
+    def test_a_quiet_line_is_cut_where_asked(self):
+        pv = moves(chess.Board(), "e4", "d5", "Nc3", "Nf6")
+        assert line_facts.cut(chess.Board(), pv, plies=2, most=20) == 2
+
+    def test_follows_checks_and_the_answers_to_them(self):
+        pv = moves(chess.Board(), "e4", "e5", "Bc4", "Bc5", "Bxf7+", "Kxf7", "Qh5+", "g6", "Qxe5", "d6", "Nf3")
+        assert line_facts.cut(chess.Board(), pv, plies=4, most=20) == 9
+
+    def test_a_line_that_runs_out_before_it_settles_needs_more_from_the_engine(self):
+        pv = moves(chess.Board(), "e4", "d5", "exd5")
+        assert line_facts.cut(chess.Board(), pv, plies=3, most=20) is None
+
+    def test_a_line_ending_the_game_needs_nothing_more(self):
+        pv = moves(chess.Board(), "e4", "e5", "Bc4", "Nc6", "Qh5", "Nf6", "Qxf7#")
+        assert line_facts.cut(chess.Board(), pv, plies=7, most=20) == 7
+
+    def test_stops_at_the_most_it_may_show(self):
+        pv = moves(chess.Board(), "e4", "d5", "exd5", "Qxd5", "Nc3", "Qxa2")
+        assert line_facts.cut(chess.Board(), pv, plies=2, most=4) == 4

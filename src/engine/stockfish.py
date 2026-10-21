@@ -54,3 +54,10 @@ class AnalysisEngine:
             "depth": best_info.get("depth"),
             "multipv_lines": multipv_data 
         }
+
+    def search_line(self, board: chess.Board) -> List[chess.Move]:
+        """The engine's best line from `board`: one search at the usual depth,
+        for a line that ran out before it settled."""
+        if not self.engine:
+            raise RuntimeError("Engine not started")
+        return self.engine.analyse(board, chess.engine.Limit(depth=self.depth)).get("pv", [])

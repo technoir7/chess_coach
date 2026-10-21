@@ -23,7 +23,6 @@ from typing import List, Optional, Sequence
 
 import chess
 
-from src.coach import line_facts
 
 # Piece moves, pawn captures and castling are unambiguous claims about a move.
 #
@@ -147,16 +146,13 @@ def find_illegal_moves(
 ) -> List[str]:
     """Distinct moves named in `text` that the position cannot justify.
 
-    A move is justified if it is available now to either side, if it appears
-    in a line the engine actually searched, or if it takes back on the square
-    where a line stops mid-exchange (the line's facts invite naming it). Deduplicated: a move
+    A move is justified if it is available now to either side, or if it
+    appears in a line the engine actually searched. Deduplicated: a move
     repeated four times is one invention, not four.
     """
     claimable = {_normalise(san) for san in _claimable_san(board)}
     for line in [*(sanctioned_lines or []), _game_so_far(board)]:
         claimable |= {_normalise(san) for san in line}
-    for facts in _line_facts(board, sanctioned_lines or []):
-        claimable |= {_normalise(san) for san in facts.recapture_options}
 
     illegal = []
     for match in _MOVE_PATTERN.finditer(text):
@@ -185,10 +181,6 @@ def find_unsanctioned_lines(
     return unsanctioned
 
 
-def _line_facts(board: chess.Board, sanctioned_lines: Sequence[Sequence[str]]):
-    return [line_facts.describe(board, line) for line in sanctioned_lines]
-
-
 def verify(
     text: str,
     board: chess.Board,
@@ -203,13 +195,7 @@ def verify(
     # Each side's own moves are quotable too: "White has played 1.e4 2.c4
     # 3.Nc3" lists the game truthfully while skipping Black's replies.
     game = _game_so_far(board)
-    # A line cut mid-exchange may be quoted with the exchange its facts play out.
-    played_out = [
-        [*line, *facts.exchange]
-        for line, facts in zip(sanctioned_lines or [], _line_facts(board, sanctioned_lines or []))
-        if facts.exchange
-    ]
-    quotable = [*(sanctioned_lines or []), *played_out, game, game[0::2], game[1::2]]
+    quotable = [*(sanctioned_lines or []), game, game[0::2], game[1::2]]
     for line in find_unsanctioned_lines(text, quotable):
         violations.append(f"gave a line the engine did not search: {line}")
 

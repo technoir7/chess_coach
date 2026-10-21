@@ -20,6 +20,9 @@ class CountingEngine:
             "multipv_lines": [{"pv": [move], "score": None, "depth": 15}],
         }
 
+    def search_line(self, board):
+        return []
+
 
 class SilentIntuition:
     def get_vibe(self, board):
@@ -85,3 +88,30 @@ def test_without_stockfish_16_there_are_no_factors(coach):
     packet = coach.build_truth_packet()
     assert packet.factors is None
     assert packet.candidate_lines[0].factors_after is None
+
+
+class CapturingEngine:
+    """Its line stops on a capture; asked to go on, it takes back and then
+    plays a quiet move."""
+
+    def __init__(self):
+        self.continued_from = []
+
+    def analyze(self, board):
+        return {"eval_cp": 0, "multipv_lines": [{"pv": [chess.Move.from_uci("e4d5")], "score": None}]}
+
+    def search_line(self, board):
+        self.continued_from.append(board.fen())
+        return [chess.Move.from_uci("d8d5"), chess.Move.from_uci("b1c3")]
+
+
+def test_a_line_that_runs_out_mid_exchange_is_continued_by_the_engine(coach):
+    coach.engine = CapturingEngine()
+    coach.board = chess.Board()
+    for san in ("e4", "d5"):
+        coach.board.push_san(san)
+    coach.LINE_PLIES = 1
+    packet = coach.build_truth_packet()
+
+    assert packet.candidate_lines[0].line_san == ["exd5", "Qxd5"]
+    assert len(coach.engine.continued_from) == 1

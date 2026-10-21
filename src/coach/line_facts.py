@@ -7,8 +7,7 @@ said to lead to "exchanges of Queens" in which no queen is ever captured.
 
 Both are decidable by replaying the moves, so the facts go into the prompt and
 the model has no need to guess. (The verifier once also read checks and trades
-out of the prose against these facts; after round 6 it only uses them to accept
-the recaptures where a line stops.)
+out of the prose against these facts; after round 6 it no longer does.)
 """
 
 from dataclasses import dataclass, field
@@ -42,16 +41,6 @@ class LineFacts:
     # Material balance in pawns, White minus Black, before and after the line.
     material_before: int = 0
     material_after: int = 0
-    # Set when the last move captures on a square the other side can take back.
-    cut_mid_exchange: Optional[str] = None
-    # Every legal recapture, and every capture of the exchange played out.
-    recapture_options: List[str] = field(default_factory=list)
-    # The captures on that square, cheapest piece first, up to where a side
-    # does better to stop; the balance then; and the refused first two
-    # captures when taking back does not pay at all.
-    exchange: List[str] = field(default_factory=list)
-    material_after_exchange: int = 0
-    refused: List[str] = field(default_factory=list)
 
     @property
     def material_swing(self) -> int:
@@ -60,10 +49,9 @@ class LineFacts:
 
     @property
     def material_won(self) -> int:
-        """Material White gains over the line (negative: Black gains), counting
-        any exchange it stops in as played out. An even trade is zero."""
-        final = self.material_after_exchange if self.exchange else self.material_after
-        return final - self.material_before
+        """Material White gains over the line (negative: Black gains). An even
+        trade is zero."""
+        return self.material_swing
 
     def checking_moves(self) -> List[str]:
         return [m.san for m in self.moves if m.is_check]
@@ -110,28 +98,7 @@ class LineFacts:
             side = "White" if self.material_swing > 0 else "Black"
             parts.append(f"{side} gains {points(abs(self.material_swing))} of material")
 
-        if self.cut_mid_exchange:
-            parts.append(
-                f"the line stops right after a capture on {self.cut_mid_exchange} that can be "
-                "taken back, so the material count leaves out the recapture"
-            )
-
         parts.append(f"afterwards {_balance(self.material_after)}")
-
-        # The count at the end of a line cut mid-exchange was repeated as the
-        # outcome: "White ends up 2 pawns behind" in a line White was winning.
-        # One recapture is not enough either: "if White takes back with Qxd4,
-        # White is 3 pawns ahead" was stated where Bxd4 then won the queen.
-        if self.exchange:
-            parts.append(
-                f"if the exchange on {self.cut_mid_exchange} is played out "
-                f"({' '.join(self.exchange)}), {_balance(self.material_after_exchange)}"
-            )
-        elif self.refused:
-            parts.append(
-                f"taking back on {self.cut_mid_exchange} does not pay "
-                f"({self.refused[0]} is answered by {self.refused[1]})"
-            )
 
         return "; ".join(parts)
 
@@ -203,56 +170,42 @@ def describe(board: chess.Board, line_san: Sequence[str]) -> LineFacts:
         )
 
     facts.material_after = material_balance(replay)
-    if facts.moves and facts.moves[-1].captured:
-        square = replay.peek().to_square
-        recaptures = [m for m in replay.legal_moves if m.to_square == square and replay.is_capture(m)]
-        if recaptures:
-            facts.cut_mid_exchange = chess.square_name(square)
-            sequence, played, balance = _exchange(replay, square)
-            facts.recapture_options = sorted({replay.san(m) for m in recaptures} | set(sequence))
-            facts.exchange, facts.material_after_exchange = sequence[:played], balance
-            if not played:
-                facts.refused = sequence[:2]
     return facts
 
 
-def settled(board: chess.Board, line_san: Sequence[str]) -> chess.Board:
-    """The position after the line, with any exchange it stops in played out.
-
-    Engine lines often end on a capture. A static score taken there, with a
-    piece still to be taken back, describes a position nobody would leave on
-    the board.
-    """
+def end_of(board: chess.Board, line_san: Sequence[str]) -> chess.Board:
+    """The position after the line."""
     end = board.copy()
-    for san in [*line_san, *describe(board, line_san).exchange]:
+    for san in line_san:
         end.push_san(san)
     return end
 
 
-def _exchange(board: chess.Board, square: int):
-    """Captures on `square`, each side taking with its cheapest piece, and how
-    many of them are played when each side stops as soon as going on would
-    leave it worse off. Returns (captures, how many are played, balance then).
+def cut(board: chess.Board, pv: Sequence[chess.Move], plies: int, most: int) -> Optional[int]:
+    """How many of the engine's moves to show: `plies`, then on while its line
+    keeps capturing, giving check or answering one, up to `most`. None when
+    the line runs out before then, and the engine must be asked to go on.
+
+    A line cut mid-exchange was once played out here by taking on the last
+    square, cheapest piece first. That missed whatever else was loose: round
+    8's p095 had White a point up after Nxd5 exd5 Bxd5, where Bxd4 wins the
+    knight, and the engine itself plays Nxd5 exd5 Rd1. Where the material
+    settles is the engine's call, not a static guess.
     """
-    replay, sequence, balances = board.copy(), [], [material_balance(board)]
-    while len(sequence) < 32:
-        captures = [m for m in replay.legal_moves if m.to_square == square and replay.is_capture(m)]
-        if not captures:
-            break
-        move = min(captures, key=lambda m: _value(replay.piece_type_at(m.from_square)))
-        sequence.append(replay.san(move))
+    replay = board.copy()
+    for shown, move in enumerate(pv):
+        if shown == most:
+            return most
+        if shown >= plies and not _forcing(replay, move):
+            return shown
         replay.push(move)
-        balances.append(material_balance(replay))
+    if replay.is_game_over() or len(pv) >= most:
+        return len(pv)
+    return None
 
-    # Backwards: whoever makes capture i compares stopping before it with
-    # what the rest of the exchange is worth, White maximising the balance.
-    value, goes_on = balances[-1], [False] * len(sequence)
-    for i in range(len(sequence) - 1, -1, -1):
-        white = (board.turn == chess.WHITE) == (i % 2 == 0)
-        goes_on[i] = value > balances[i] if white else value < balances[i]
-        value = value if goes_on[i] else balances[i]
-    played = next((i for i, go in enumerate(goes_on) if not go), len(sequence))
-    return sequence, played, balances[played]
 
-def _value(piece_type: int) -> int:
-    return PIECE_VALUES.get(piece_type, 100)
+def _forcing(board: chess.Board, move: chess.Move) -> bool:
+    return (
+        board.is_capture(move) or board.gives_check(move) or board.is_check()
+        or move.promotion is not None
+    )

@@ -172,22 +172,15 @@ class TestVerify:
         assert result.ok is False
 
 
-class TestRecaptureNamedInTheFacts:
-    def test_the_recapture_the_facts_name_may_be_named(self):
-        """Round 5's first position: the facts said "if White takes back with
-        fxe3", the answer repeated it, and the checker called fxe3 illegal."""
+class TestCapturesBeyondTheLine:
+    def test_a_recapture_the_engines_line_does_not_play_is_not_accepted(self):
+        """Lines now run on to where the engine stops capturing. A capture it
+        did not play is one it rejected: round 8's p095 offered Bxd5, which
+        loses the knight on d4."""
         board = board_after("e4", "c6")
         line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
-        text = "The line stops before the recapture. If White takes back with cxd3, material is level."
-        assert verifier.find_illegal_moves(text, board, [line]) == []
-
-    def test_every_legal_recapture_may_be_named(self):
-        """Round 6: "White can take it back with Nxd4 or Bxd4" was rejected
-        because only the cheapest recapture was accepted."""
-        board = board_after("e4", "c6")
-        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
-        text = "White can take back with cxd3 or Qxd3."
-        assert verifier.find_illegal_moves(text, board, [line]) == []
+        text = "White can take back with Qxd3."
+        assert verifier.find_illegal_moves(text, board, [line]) == ["Qxd3"]
 
 
 class TestProseIsLeftToTheSelfCheck:
@@ -197,8 +190,3 @@ class TestProseIsLeftToTheSelfCheck:
         answers and caught no wrong one, so verify() no longer runs them."""
         text = "This leads to exchanges of Queens, and Nc3 is check."
         assert verifier.verify(text, D6_BOARD, D6_LINES).ok
-
-    def test_the_line_with_its_exchange_played_out_may_be_quoted(self):
-        board = board_after("e4", "c6")
-        line = ["d4", "d5", "e5", "Bf5", "h4", "h5", "Bd3", "Bxd3"]
-        assert verifier.verify("The line ends 5. Bd3 Bxd3 6. cxd3 with material level.", board, [line]).ok

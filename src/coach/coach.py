@@ -209,6 +209,10 @@ class ChessCoach:
     # Deep enough to answer "what happens after this move?", short enough that
     # three of them do not crowd out the rest of the prompt.
     LINE_PLIES = 8
+    # Past LINE_PLIES a line runs on while the engine keeps capturing or
+    # checking, so its material is where the engine settles it. Exchanges and
+    # checks rarely run longer; the cap keeps a perpetual check short.
+    MOST_PLIES = 20
 
     def _top_moves_san(self, analysis: Dict) -> List[str]:
         """Convert the engine's principal variations to SAN."""
@@ -229,7 +233,7 @@ class ChessCoach:
 
             board = self.board.copy()
             san = []
-            for move in pv[: self.LINE_PLIES]:
+            for move in self._shown(pv):
                 san.append(board.san(move))
                 board.push(move)
 
@@ -239,10 +243,25 @@ class ChessCoach:
                     move_san=san[0],
                     eval_cp=score.white().score(mate_score=10000) if score else None,
                     line_san=san,
-                    factors_after=self._factors(line_facts.settled(self.board, san)),
+                    factors_after=self._factors(board),
                 )
             )
         return lines
+
+    def _shown(self, pv: List[chess.Move]) -> List[chess.Move]:
+        """The part of an engine line to show. When the engine's line runs out
+        before it settles, the engine is searched again from where it stops
+        (one more search, at the same depth)."""
+        pv = list(pv)
+        while (shown := line_facts.cut(self.board, pv, self.LINE_PLIES, self.MOST_PLIES)) is None:
+            end = self.board.copy()
+            for move in pv:
+                end.push(move)
+            more = self.engine.search_line(end)
+            if not more:
+                return pv
+            pv += more
+        return pv[:shown]
 
     def _factors(self, board: chess.Board) -> Optional[Factors]:
         return self.classical_engine.factors(board) if self.classical_engine else None

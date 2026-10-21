@@ -261,7 +261,7 @@ def engine_lines(packet: TruthPacket, board: chess.Board) -> str:
         facts = line_facts.describe(board, line.line_san)
         rendered.append(f"    FACTS: {facts.summary()}")
         rendered.append(f"    KIND: {_kind(facts, line)}")
-        rendered.append(f"    POSITIONAL CHANGE BY THE END OF THIS LINE{_positional_change(board, line, facts, packet)}")
+        rendered.append(f"    POSITIONAL CHANGE BY THE END OF THIS LINE: {_positional_change(board, line, packet)}")
         if line is packet.candidate_lines[0] and len(packet.candidate_lines) > 1 and _is_quiet(facts, line):
             rendered.append(f"    WHY THE ENGINE RANKS IT FIRST: {_why_first(board, packet)}")
         rendered.append(walkthrough.describe(board, line.line_san))
@@ -350,15 +350,8 @@ def _kind(facts: line_facts.LineFacts, line: CandidateLine) -> str:
     return f"tactical ({side} wins {line_facts.points(abs(facts.material_won))} of material)"
 
 
-def _positional_change(
-    board: chess.Board, line: CandidateLine, facts: line_facts.LineFacts, packet: TruthPacket,
-) -> str:
-    change = positional.change(
-        line_facts.settled(board, line.line_san), packet.factors, line.factors_after
-    )
-    if facts.exchange:
-        return f" (with the exchange on {facts.cut_mid_exchange} played out: {' '.join(facts.exchange)}): {change}"
-    return f": {change}"
+def _positional_change(board: chess.Board, line: CandidateLine, packet: TruthPacket) -> str:
+    return positional.change(line_facts.end_of(board, line.line_san), packet.factors, line.factors_after)
 
 
 def position_facts(board: chess.Board, packet: TruthPacket, opening_info: str) -> str:

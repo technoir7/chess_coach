@@ -155,9 +155,17 @@ Fixed after round 8, not yet measured: the comparison names the other line
 ("compared with g3's line, e4's ends with…"); and material lost is given as
 why a line is worse only when the gap is at least 50cp per point, since p092's
 "its line loses 1 point" sat on a 24cp gap, beside a line also a point down
-and about as good. Not fixed: the exchange played out where a line stops
-still checks only that square, so a piece left loose elsewhere, as in p095,
-is missed.
+and about as good. Also fixed, not yet measured: a line stopping mid-exchange was played out
+by taking on that square only, which missed a piece left loose elsewhere, as
+in p095. A capture-only search over the whole board was no answer: on 160
+line ends where it changed the count, it was further from Stockfish's
+evaluation than the old count 54 times, misled by checks that come first and
+quiet moves that defend. Each line now runs past its 8 moves while the
+engine's own line keeps capturing or checking, up to 20, and the engine is
+searched again where its line runs out first. Over round 8's positions, 94
+of the 300 lines run on (40 needing another search), and the facts take 0.45
+seconds at the median. The played-out exchange is gone, and with it the
+checker's allowance for naming a recapture no line plays.
 
 ## Board-check pilot
 
