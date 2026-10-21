@@ -172,6 +172,16 @@ class TestVerify:
         assert result.ok is False
 
 
+class TestPiecesNamedWhereALineLeavesThem:
+    def test_a_piece_named_where_it_stands_at_a_lines_end_is_not_a_move(self):
+        """Round 9, p029: "From e7 that queen attacks ... the Rf8" was
+        rejected, where Black's rook reaches f8 by castling in the line."""
+        board = board_after("e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6")
+        line = ["O-O", "Bc5", "d3", "O-O"]
+        text = "At the end of that line the bishop eyes the Rf8."
+        assert verifier.find_illegal_moves(text, board, [line]) == []
+
+
 class TestCapturesBeyondTheLine:
     def test_a_recapture_the_engines_line_does_not_play_is_not_accepted(self):
         """Lines now run on to where the engine stops capturing. A capture it

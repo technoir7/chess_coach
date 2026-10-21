@@ -125,18 +125,39 @@ def _is_quoted_from(run: Sequence[str], sanctioned_lines: Sequence[Sequence[str]
     return False
 
 
-def _names_a_standing_piece(token: str, board: chess.Board) -> bool:
-    """Whether `token` names a piece where it already stands ("White's Nf3").
+def _names_a_standing_piece(token: str, boards: Sequence[chess.Board]) -> bool:
+    """Whether `token` names a piece where it stands ("White's Nf3"), now or at
+    some point in a searched line.
 
     Prose names pieces in move notation - "supported by Nc3, Nf3 and Bd3" - and
     a piece cannot move to a square it occupies, so such a token is a reference
     rather than a claimed move. A capture always moves, so it never qualifies.
+    The prompt describes where each line leaves the pieces, and answers name
+    them there: round 9's "the queen attacks ... the Rf8", a rook that reaches
+    f8 by castling in the line, was rejected.
     """
     token = token.rstrip("+#")
     if token[0] not in "KQRBN" or "x" in token:
         return False
-    piece = board.piece_at(chess.parse_square(token[-2:]))
-    return piece is not None and piece.symbol().upper() == token[0]
+    square = chess.parse_square(token[-2:])
+    return any(
+        (piece := board.piece_at(square)) is not None and piece.symbol().upper() == token[0]
+        for board in boards
+    )
+
+
+def _positions(board: chess.Board, lines: Sequence[Sequence[str]]) -> List[chess.Board]:
+    """The board now and after each move of each line, as far as it plays."""
+    positions = [board]
+    for line in lines:
+        replay = board.copy()
+        for san in line:
+            try:
+                replay.push_san(san)
+            except ValueError:
+                break
+            positions.append(replay.copy(stack=False))
+    return positions
 
 
 def find_illegal_moves(
@@ -154,10 +175,11 @@ def find_illegal_moves(
     for line in [*(sanctioned_lines or []), _game_so_far(board)]:
         claimable |= {_normalise(san) for san in line}
 
+    positions = _positions(board, sanctioned_lines or [])
     illegal = []
     for match in _MOVE_PATTERN.finditer(text):
         claimed = match.group(0)
-        if _names_a_standing_piece(claimed, board):
+        if _names_a_standing_piece(claimed, positions):
             continue
         if _normalise(claimed) not in claimable and claimed not in illegal:
             illegal.append(claimed)
