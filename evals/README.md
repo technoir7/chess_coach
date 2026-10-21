@@ -18,6 +18,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 5 | 100 (2030) | `claude-sonnet-rewrite`, `claude-sonnet-edit` | as round 4; the prompt adds each evaluation's band in words, whose piece each capture takes, the material after a line's cheapest recapture, where each line move's piece came from, and which minor pieces are still at home |
 | 6 | 300 (2031) | `claude-sonnet-claims` | as round 5, with the pin note reworded ("it may only move along that line"); the self-check also lists the answer's claims in a fixed form, the board decides each, and a sentence the board contradicts is rewritten with the truth or deleted |
 | 7 | 100 (2032) | `claude-sonnet-edit-board` | as the app after round 6: the edit self-check, then the board pass; the verifier's prose checks removed; the prompt adds Stockfish 16's positional factors, marks each line tactical or positional, and asks for tactics and position in separate parts |
+| 8 | 100 (2033) | `claude-sonnet-edit-board` | as round 7, with the fixes its reviewers prompted; the prompt adds why the engine ranks a quiet first choice above its other lines, candidate passed pawns, and material in points |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
@@ -124,6 +125,17 @@ scores one; 80 of the 1,800 sides had a candidate and no passed pawn, which
 is where "passed pawns favour White" sat beside "White passed pawns: none".
 Material is counted in points rather than "pawns": "6 pawns ahead" was
 repeated for a side a bishop and a knight up.
+
+Round 8 measures those changes on fresh positions, run as round 7 was.
+Besides false claims, its reviewers record for each answer whose prompt gives
+WHY THE ENGINE RANKS IT FIRST whether the answer follows it (`why_first`):
+`follows` if every reason it gives for the first choice over another line is
+one the prompt gives, it calls no "about as good" line better or worse, and
+where the prompt says the factors do not show the reason it says so;
+`invents` if it gives a reason the prompt does not, or ranks moves the prompt
+calls about as good; `silent` if it does not say why the first choice is
+preferred. Before the change, round 7's p001 would be `invents`. The question
+is how many are `invents`; `silent` is reported, not counted as wrong.
 
 ## Board-check pilot
 
