@@ -19,6 +19,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 6 | 300 (2031) | `claude-sonnet-claims` | as round 5, with the pin note reworded ("it may only move along that line"); the self-check also lists the answer's claims in a fixed form, the board decides each, and a sentence the board contradicts is rewritten with the truth or deleted |
 | 7 | 100 (2032) | `claude-sonnet-edit-board` | as the app after round 6: the edit self-check, then the board pass; the verifier's prose checks removed; the prompt adds Stockfish 16's positional factors, marks each line tactical or positional, and asks for tactics and position in separate parts |
 | 8 | 100 (2033) | `claude-sonnet-edit-board` | as round 7, with the fixes its reviewers prompted; the prompt adds why the engine ranks a quiet first choice above its other lines, candidate passed pawns, and material in points |
+| 9 | 100 (2034) | `claude-sonnet-edit-board` | as round 8, with the fixes its reviewers prompted; each line runs on while the engine keeps capturing or checking, and the played-out exchange and the checker's allowance for recaptures are gone |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
@@ -166,6 +167,11 @@ searched again where its line runs out first. Over round 8's positions, 94
 of the 300 lines run on (40 needing another search), and the facts take 0.45
 seconds at the median. The played-out exchange is gone, and with it the
 checker's allowance for naming a recapture no line plays.
+
+Round 9 measures those fixes on fresh positions, run and labelled as round
+8 was, `why_first` included. Because the checker no longer accepts a
+recapture that no line plays, it also reports how many answers the checker
+rejected and whether those rejections were false alarms.
 
 ## Board-check pilot
 
