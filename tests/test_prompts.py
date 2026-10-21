@@ -467,9 +467,9 @@ class TestWhyTheEngineRanksAQuietMoveFirst:
         assert "reasons these factors do not show" in rules
         assert "about as good" in rules
 
-    def test_the_position_part_asks_for_it(self):
-        position = prompts.explain_prompt("facts", "Game just started").split("Position:")[1]
-        assert "WHY THE ENGINE RANKS IT FIRST" in position
+    def test_the_explanation_asks_for_it(self):
+        task = prompts.explain_prompt("facts", "Game just started").split("Explain the current position")[1]
+        assert "WHY THE ENGINE RANKS IT FIRST" in task
 
 
 class TestPositionalFactors:
@@ -478,15 +478,38 @@ class TestPositionalFactors:
         assert "POSITIONAL FACTORS" in facts
         assert "Space (" in facts and "favours White by 0.30" in facts
 
-    def test_the_explanation_keeps_tactics_and_position_apart(self):
-        text = prompts.explain_prompt("facts", "Game just started")
-        assert "Tactics:" in text and "Position:" in text
 
-    def test_each_line_goes_in_the_part_its_kind_names(self):
-        """Round 7: 12 of 100 answers walked through a positional line under
-        Tactics."""
-        text = prompts.explain_prompt("facts", "Game just started")
-        assert "Each engine line goes in the part its KIND names" in text
+
+class TestWhatTheExplanationAsksFor:
+    """Round 9's answers were accurate but read as reports on the brief:
+    every line walked through, factor scores quoted to two decimals, the
+    brief's own labels named ("the one line marked tactical"), and no
+    takeaway."""
+
+    def task(self):
+        return prompts.explain_prompt("facts", "Game just started").split("Explain the current position")[1]
+
+    def test_it_opens_with_the_verdict_and_the_idea(self):
+        assert "Start with the verdict" in self.task()
+
+    def test_tactics_and_position_are_told_together_when_they_are_one_idea(self):
+        task = self.task()
+        assert "when a tactic and the position are one idea" in task
+        assert "Each engine line goes in the part its KIND names" not in task
+
+    def test_factors_are_put_in_chess_terms_without_their_scores(self):
+        task = self.task()
+        assert "chess terms" in task
+        assert "leave out factor scores" in task
+
+    def test_other_moves_only_where_they_teach_something(self):
+        assert "only where it teaches something" in self.task()
+
+    def test_it_finishes_with_what_to_aim_for(self):
+        assert "what to aim for" in self.task()
+
+    def test_it_does_not_talk_about_the_brief(self):
+        assert "not about this brief" in self.task()
 
     def test_the_rules_point_positional_claims_at_the_factors(self):
         facts = prompts.position_facts(chess.Board(), packet(), "")

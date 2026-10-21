@@ -24,7 +24,7 @@ import chess
 
 from evals.positions import positions_path
 from evals.score import round_argument, round_dir
-from src.coach import review, verifier
+from src.coach import prompts, review, verifier
 from src.coach.coach import verified_completion
 from src.coach.llm import LLMClient
 
@@ -49,6 +49,15 @@ def judge(text: str, board: chess.Board, lines) -> dict:
     return {"text": text, "ok": result.ok, "violations": result.violations}
 
 
+def with_instructions(prompt: str, instructions: str) -> str:
+    """The prompt with everything after the grounding rules replaced: the same
+    facts and rules, answered as another round's instructions asked."""
+    facts, found, _ = prompt.partition(prompts.GROUNDING_RULES)
+    if not found:
+        raise ValueError("the prompt has no grounding rules to split at")
+    return facts + found + instructions
+
+
 def responses_path(number: int, model: str) -> Path:
     return round_dir(number) / f"responses-{model.replace(':', '-').replace('/', '-')}.jsonl"
 
@@ -60,8 +69,12 @@ def main() -> None:
     parser.add_argument("--check", required=True, choices=["rewrite", "edit"])
     parser.add_argument("--board", action="store_true", help="add the board pass, as the app does for Claude")
     parser.add_argument("--part", default="1/1", help="k/n: this run takes every n-th position from the k-th")
+    parser.add_argument("--instructions", type=Path,
+                        help="answer with these instructions in place of the prompt's own (round 10's comparison arm)")
     args = parser.parse_args()
     name = f"{args.model}-{args.check}" + ("-board" if args.board else "")
+    if args.instructions:
+        name += "-" + args.instructions.stem.replace("_", "-")
     part, parts = map(int, args.part.split("/"))
 
     llm = LLMClient(model_name=args.model)
@@ -120,8 +133,11 @@ def main() -> None:
 
             recorder.calls.clear()
             checked.clear()
+            prompt = position["prompt"]
+            if args.instructions:
+                prompt = with_instructions(prompt, args.instructions.read_text())
             shown = verified_completion(
-                recorder, position["prompt"], board, position["lines"], check=recording_check,
+                recorder, prompt, board, position["lines"], check=recording_check,
                 board_check=recording_board if args.board else None,
             )
 

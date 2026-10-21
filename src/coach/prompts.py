@@ -428,20 +428,31 @@ MOVES PLAYED SO FAR (no other move has been played, apart from any marked as omi
 
 {GROUNDING_RULES}
 
-Explain the current position in two short parts, each starting on its own line:
-Tactics: what is forcing right now - threats, pins, and the lines marked
-KIND: tactical (what they win and how). A line marked KIND: positional does not
-belong here, even if it has captures or checks in it. If nothing is forcing,
-say so in one sentence.
-Position: the long-term picture - where a side is ahead in POSITIONAL FACTORS,
-and the lines marked KIND: positional: what each changes (its POSITIONAL
-CHANGE) and why that matters. Take most care here: for a quiet first choice,
-say why it is ranked first as its WHY THE ENGINE RANKS IT FIRST gives it -
-including that other moves are about as good, where it says so.
-Each engine line goes in the part its KIND names. Keep the two apart, and
-mention one in the other only where they meet - a tactic that also changes the
-position, or a positional factor a tactic rests on.
-A few sentences per part. Be accurate, and talk about the current position only.
+Explain the current position to a player who wants to understand it and play it better.
+- Start with the verdict in a sentence or two: who is better, in the scale's
+  words; the engine's first choice; and the idea behind it.
+- Then explain why, in the order that teaches best: what is forcing (threats,
+  pins, and what the lines marked KIND: tactical win and how), and the
+  long-term picture (where a side is ahead in POSITIONAL FACTORS, and what the
+  positional lines change). Keep the two apart when they are separate stories,
+  and tell them together when a tactic and the position are one idea. If
+  nothing is forcing, say so briefly.
+- Say why the engine prefers its first choice only as
+  WHY THE ENGINE RANKS IT FIRST gives it: that other moves are about as good,
+  where it says so; and plainly that the engine sees something the factors do
+  not, where it says that.
+- Mention another engine move only where it teaches something: that it is
+  about as good, or what goes wrong with it.
+- Put the factors in chess terms - the pieces, pawns, squares and files behind
+  them, taken only from the facts above. Give the evaluation once;
+  leave out factor scores and other numbers unless the point needs one.
+- Mention the human-intuition reading only where it differs from the engine's
+  verdict.
+- Finish with one or two sentences on what to aim for from here, drawn from the
+  engine's lines and the factors.
+- Write about the chess, not about this brief: do not name its sections or
+  labels.
+About 120 to 220 words. Be accurate, and talk about the current position only.
 """
 
 

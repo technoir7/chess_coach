@@ -20,6 +20,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 7 | 100 (2032) | `claude-sonnet-edit-board` | as the app after round 6: the edit self-check, then the board pass; the verifier's prose checks removed; the prompt adds Stockfish 16's positional factors, marks each line tactical or positional, and asks for tactics and position in separate parts |
 | 8 | 100 (2033) | `claude-sonnet-edit-board` | as round 7, with the fixes its reviewers prompted; the prompt adds why the engine ranks a quiet first choice above its other lines, candidate passed pawns, and material in points |
 | 9 | 100 (2034) | `claude-sonnet-edit-board` | as round 8, with the fixes its reviewers prompted; each line runs on while the engine keeps capturing or checking, and the played-out exchange and the checker's allowance for recaptures are gone |
+| 10 | 100 (2035) | `claude-sonnet-edit-board`, `claude-sonnet-edit-board-round9-instructions` | as round 9, with the fixes its reviewers prompted; the new arm is asked to open with the verdict, explain in chess terms rather than factor scores, join tactics and position where they are one idea, and end with what to aim for; the other arm answers the same prompts with round 9's instructions |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
@@ -197,6 +198,21 @@ Instead, a line whose count leaves one side ahead, where the engine's
 evaluation of the line does not favour that side, now says so, and that the
 side ahead is not to be called the one who keeps it (26 of round 9's 298
 lines). Not yet measured.
+
+Round 10 asks whether the answers can be made more useful without making
+them less accurate. The player asked for what is most useful rather than a
+strict split into tactics and position, and round 9's answers were accurate
+but read as reports on the brief: every line walked through, factor scores to
+two decimals, the brief's labels named, no takeaway. The new instructions
+change only the text after the grounding rules; the comparison arm answers
+the same prompts with round 9's text (`evals/round9_instructions.txt`,
+`collect --instructions`). Both arms' answers are labelled for false claims,
+shuffled together as before, with `why_first`; `separation` is no longer
+asked for. Separately, judges see each position's two answers in random order
+(`python -m evals.pairs`) and pick the one more useful to a player who wants
+to understand the position and play it better, or `same`, judging only what
+is true by the facts. The questions: does the new arm win more pairs than it
+loses, and is it wrong no more often?
 
 ## Board-check pilot
 
