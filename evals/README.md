@@ -21,6 +21,7 @@ each round has its own positions, answers and labels in `data/round<N>/`.
 | 8 | 100 (2033) | `claude-sonnet-edit-board` | as round 7, with the fixes its reviewers prompted; the prompt adds why the engine ranks a quiet first choice above its other lines, candidate passed pawns, and material in points |
 | 9 | 100 (2034) | `claude-sonnet-edit-board` | as round 8, with the fixes its reviewers prompted; each line runs on while the engine keeps capturing or checking, and the played-out exchange and the checker's allowance for recaptures are gone |
 | 10 | 100 (2035) | `claude-sonnet-edit-board`, `claude-sonnet-edit-board-round9-instructions` | as round 9, with the fixes its reviewers prompted; the new arm is asked to open with the verdict, explain in chess terms rather than factor scores, join tactics and position where they are one idea, and end with what to aim for; the other arm answers the same prompts with round 9's instructions |
+| 11 | 100 (2036) | `claude-sonnet-edit-board` | as round 10's new arm, with the fixes its reviewers prompted: a worse move's own line not offered as why it is worse, no warning against a move about as good, the material note when the evaluation barely favours the side ahead |
 
 Round 2 runs Claude only: it is now the default, and the local model was
 deleted after round 1 to free the disk.
@@ -236,6 +237,11 @@ engine's evaluation barely favours the side ahead (p051: Black 3 points up at
 -10cp, the pinned bishop won back next move): below half a pawn a point, up
 to a clear advantage (100cp), since evaluations do not grow with material.
 It fires on 87 of rounds 9 and 10's 595 lines.
+
+Round 11 measures those fixes on fresh positions, one arm, labelled as round
+10 was. The question is whether `invents` falls back from round 10's 10 in
+66 towards rounds 8 and 9 (4 in 47, 2 in 49) while false claims stay low.
+Usefulness is not judged again: the instructions changed in two sentences.
 
 ## Board-check pilot
 
