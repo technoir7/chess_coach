@@ -281,6 +281,12 @@ wrong and no false claim about any of them. `invents` was 2 of 53 (round 11:
 2 of 56), both a worse or equal move's own line given as a drawback (p011,
 p060). The human-intuition reading closed 15 answers.
 
+With so few false answers left, one reviewer per answer may miss some. A
+second set of reviewers labels round 12's answers again, in the same batches
+(`round12/second/`), without seeing the first labels. Answers either set
+labels false are then settled against the board; the count each set missed
+says how far one reviewer's 1 in 100 can be trusted.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes
