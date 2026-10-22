@@ -1,0 +1,165 @@
+{
+ "p002": {
+  "why_first": "follows"
+ },
+ "p006": {
+  "why_first": "follows"
+ },
+ "p007": {
+  "why_first": "follows"
+ },
+ "p009": {
+  "why_first": "follows"
+ },
+ "p011": {
+  "why_first": "invents",
+  "why_first_quote": "Why h3 first? ... Be2 is also about as good ... Its line keeps both of White's bishops, but it leaves White's rooks slightly worse placed.",
+  "why_first_why": "The prompt calls Be2 about as good as h3 (11cp, too little to matter) and gives no reason to prefer h3; the rook shift is only Be2's own line change, offered here under 'Why h3 first?' as a drawback."
+ },
+ "p013": {
+  "why_first": "follows"
+ },
+ "p014": {
+  "why_first": "follows"
+ },
+ "p015": {
+  "why_first": "follows"
+ },
+ "p017": {
+  "why_first": "follows"
+ },
+ "p019": {
+  "why_first": "follows"
+ },
+ "p022": {
+  "why_first": "follows"
+ },
+ "p023": {
+  "why_first": "follows"
+ },
+ "p024": {
+  "why_first": "follows"
+ },
+ "p027": {
+  "why_first": "follows"
+ },
+ "p028": {
+  "why_first": "follows"
+ },
+ "p029": {
+  "why_first": "follows"
+ },
+ "p030": {
+  "why_first": "follows"
+ },
+ "p033": {
+  "why_first": "follows"
+ },
+ "p035": {
+  "why_first": "follows"
+ },
+ "p039": {
+  "why_first": "follows"
+ },
+ "p042": {
+  "why_first": "follows"
+ },
+ "p044": {
+  "why_first": "follows"
+ },
+ "p045": {
+  "why_first": "follows"
+ },
+ "p047": {
+  "why_first": "follows"
+ },
+ "p051": {
+  "why_first": "follows"
+ },
+ "p053": {
+  "why_first": "follows"
+ },
+ "p054": {
+  "why_first": "follows"
+ },
+ "p055": {
+  "why_first": "follows"
+ },
+ "p057": {
+  "why_first": "follows"
+ },
+ "p059": {
+  "why_first": "follows"
+ },
+ "p060": {
+  "why_first": "invents",
+  "why_first_quote": "Qf8+ is a little worse (45cp). Its line ends with the queens traded, and the passed pawns and king safety both move towards Black.",
+  "why_first_why": "The prompt's reason is only that, compared with Qf8+'s line, Qb8's ends with passed pawns 1.25 and bishops 0.16 better for White; the queen trade and king safety (which also moves towards Black in Qb8's own line) are not given as reasons."
+ },
+ "p061": {
+  "why_first": "follows"
+ },
+ "p063": {
+  "why_first": "follows"
+ },
+ "p065": {
+  "why_first": "follows"
+ },
+ "p067": {
+  "why_first": "follows"
+ },
+ "p068": {
+  "why_first": "follows"
+ },
+ "p072": {
+  "why_first": "follows"
+ },
+ "p074": {
+  "why_first": "follows"
+ },
+ "p076": {
+  "why_first": "follows"
+ },
+ "p077": {
+  "why_first": "follows"
+ },
+ "p079": {
+  "why_first": "follows"
+ },
+ "p081": {
+  "why_first": "follows"
+ },
+ "p082": {
+  "why_first": "follows"
+ },
+ "p083": {
+  "why_first": "follows"
+ },
+ "p084": {
+  "why_first": "follows"
+ },
+ "p085": {
+  "why_first": "follows"
+ },
+ "p086": {
+  "why_first": "follows"
+ },
+ "p089": {
+  "why_first": "follows"
+ },
+ "p095": {
+  "why_first": "follows"
+ },
+ "p096": {
+  "why_first": "follows"
+ },
+ "p097": {
+  "why_first": "follows"
+ },
+ "p099": {
+  "why_first": "follows"
+ },
+ "p100": {
+  "why_first": "follows"
+ }
+}

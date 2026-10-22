@@ -271,6 +271,16 @@ The question is whether false claims fall back from round 11's 4 towards
 round 10's 1, with no new kind of mistake about threats, outposts or castling,
 and `invents` stays near round 11's 2 in 56.
 
+Result: 1 of 100 answers was wrong (round 11: 4), at a median of 23 seconds
+and 242 words, none rejected. The one mistake is of an older kind: "White gets
+enough for the pawn it gives up" in a line where White takes the pawn straight
+back (p002). The answers now use the new facts far more: outposts come up in
+27 answers (round 11: 1), threats in 62 (13), castling in 31 (27), and the
+reviewers, who checked the new facts against the board, found none of them
+wrong and no false claim about any of them. `invents` was 2 of 53 (round 11:
+2 of 56), both a worse or equal move's own line given as a drawback (p011,
+p060). The human-intuition reading closed 15 answers.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes
