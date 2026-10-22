@@ -2,30 +2,34 @@
 
 A chess coach in which Stockfish and Leela establish the facts about a position and a language model only puts them into words. What the model says about moves is checked against the board before the player sees it.
 
-## Measured
+![A position explained: the verdict, the engine's idea, what is forcing, and what to aim for](docs/screenshot.png)
 
-In short, over six rounds on fresh positions, labelled blind:
+## Result
 
-- Explanations that say something false about the position went from 33 in 100 (Claude, as first built) to 7 in 300 (2.3%).
-- What worked was having the model check its own draft against facts read off the board: 24 false drafts in 100 became 6. Giving it more facts on their own, a larger model (Opus), having it list its claims for the board to judge, and pattern-matching its prose did not help, and the last two were removed.
-- In a pilot, letting that check look positions up on a board fixed 4 of the 7 errors left and harmed none of 43 correct answers. It is on, but not yet measured on a full round.
+**Explanations that say something false: from 32 in 100 to 1 in 100.** Twelve rounds, each on fresh positions, every answer labelled blind by reviewers who checked each claim against the board. In the last round a second, independent set of reviewers labelled the same 100 answers and found the same single mistake. Every change was planned in writing before its round ran ([method and data](evals/README.md)).
 
-The rounds in full: how often an explanation says something false about the position, labelled blind by reviewers who checked every claim against the board ([method and data](evals/README.md)):
+| Round | What changed | Wrong, as the player saw it |
+|---|---|---:|
+| 1 | Claude Sonnet as first built (a local 12B model: 68) | 32 of 100 |
+| 2 | Fixes to the facts the model was given | 20 of 100 |
+| 3 | What each piece attacks, defends and pins | 26 of 100 |
+| 4 | The model checks its own draft against the facts | 5 of 100 |
+| 5 | Facts for round 4's last mistakes | 3 of 100 |
+| 6 | Same, three times the positions | 7 of 300 |
+| 7 | A board the check can query; Stockfish 16's positional factors | 6 of 100 |
+| 8 | Why the engine ranks its first choice first | 3 of 100 |
+| 9 | Lines run on until the captures and checks stop | 2 of 100 |
+| 10 | A clearer explanation style, preferred by blind judges in 97 of 100 pairs | 1 of 100 (old style: 3) |
+| 11 | Fixes to the new style | 4 of 100 |
+| 12 | Threats, outposts and castling stated from the board | 1 of 100 |
 
-| | Wrong, as the model wrote it | Wrong, as the player saw it | Fell back to engine-only summary |
-|---|---:|---:|---:|
-| Round 1, `gemma3:12b` | 72 of 100 | 68 of 100 | 4 |
-| Round 1, Claude Sonnet | 33 of 100 | 32 of 100 | 7 |
-| Round 2, Claude Sonnet, fixes below, fresh positions | 21 of 100 | 20 of 100 | 1 |
-| Round 3, Claude Sonnet, + piece relations, fresh positions | 25 of 100 | 26 of 100 | 0 |
-| Round 3, Claude Opus, same prompt | 28 of 100 | 27 of 100 | 1 |
-| Round 4, Claude Sonnet, + facts inside lines, first draft, fresh positions | 24 of 100 | — | — |
-| Round 4, Claude Sonnet, same, after checking its own draft | 6 of 100 | 5 of 100 | 0 |
-| Round 5, Claude Sonnet, + fixes below, check rewrites the answer, fresh positions | 3 of 100 | 3 of 100 | 0 |
-| Round 5, Claude Sonnet, same, check returns only changed sentences | 5 of 100 | 5 of 100 | 0 |
-| Round 6, Claude Sonnet, check also lists claims for the board to decide, 300 fresh positions | 7 of 300 | 7 of 300 | 1 |
+What made the difference:
 
-What this showed:
+- **Checking, not more facts.** Giving the model more facts read off the board did not help on its own (round 3). Handing its draft back with those facts and asking it to correct what they don't support cut false answers from 24 to 6 on the same positions.
+- **Each round's mistakes became the next round's facts.** When reviewers found the model getting something wrong (whether a line wins material, what stands in the way of castling, whether a square is an outpost), the next round's prompt states that fact from the board, so the model reads it instead of working it out.
+- **Several plausible ideas failed and were removed.** A larger model (Opus) was no more accurate. Having the model list its own claims for the board to check caught none of the mistakes reviewers found, because it only listed claims it believed. Pattern checks on the prose, once the model checked its own drafts, rejected 20 correct answers and caught no wrong one.
+
+## Notes from rounds 1 to 6
 
 - **The model mattered most.** Gemma got the evaluation's size wrong in 40 answers and invented trades in 35. Claude made half as many mistakes in a sixth of the time, so it is now the default.
 - **The checker caught little and blocked good answers.** In round 1 it rejected 11 of Gemma's 72 wrong answers and 4 of Claude's 33. Of the 30 Claude answers it rejected, 25 were correct: it read "White's Nf3" as a move and "no queens are exchanged" as a claim that they are. Those false alarms are fixed, and in round 2 it rejected 4 answers.
@@ -92,7 +96,7 @@ env/bin/python -m pytest tests
 
 ## Limitations
 
-- The verifier only judges moves and move sequences, and skips bare pawn moves ("e4") because they look like square names. Everything else an answer says rests on the facts in the prompt and the model's check of its own draft; measured, about 2 to 5 answers in 100 still say something false (see above).
+- The verifier only judges moves and move sequences, and skips bare pawn moves ("e4") because they look like square names. Everything else an answer says rests on the facts in the prompt and the model's check of its own draft; measured, 1 to 6 answers in 100 still said something false over the last six rounds (see above).
 - The gate's chaos-score and null-move triggers never fire: nothing computes those values yet.
 - Game phase is the opening by move count and the endgame by material left; threat detection looks one move deep.
 - The opening book has names and ECO codes, no game statistics.
