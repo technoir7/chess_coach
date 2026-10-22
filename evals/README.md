@@ -287,6 +287,14 @@ second set of reviewers labels round 12's answers again, in the same batches
 labels false are then settled against the board; the count each set missed
 says how far one reviewer's 1 in 100 can be trusted.
 
+Result: the second reviewers labelled the same one answer false (p002, the
+same sentence) and no other, so the two sets agree exactly on false claims.
+Both checked the new threat, outpost and castling facts against the board and
+found none wrong. They disagree on `why_first` for three answers: the second
+set called p011 and p060 `follows` (each a drawback taken from a move's own
+line, which both sets flagged as borderline) and p099 `silent`. So `invents`
+is 0 to 2 in 53, depending on the reader.
+
 ## Board-check pilot
 
 `python -m evals.board_pilot` gives the model's check a tool that describes
