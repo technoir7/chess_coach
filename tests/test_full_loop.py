@@ -1,6 +1,9 @@
 import sys
 import os
 import logging
+import shutil
+
+import pytest
 
 # Add current directory to path
 sys.path.append(os.getcwd())
@@ -11,6 +14,7 @@ from src.coach.coach import ChessCoach
 # Configure logging to see engine output
 logging.basicConfig(level=logging.INFO)
 
+@pytest.mark.skipif(shutil.which("stockfish") is None, reason="Stockfish not installed")
 def test_advice_loop():
     print("Loading config...")
     config = load_config("system_config.yaml")

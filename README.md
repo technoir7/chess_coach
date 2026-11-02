@@ -1,5 +1,7 @@
 # Chess Coach
 
+[![CI](https://github.com/technoir7/chess_coach/actions/workflows/ci.yml/badge.svg)](https://github.com/technoir7/chess_coach/actions/workflows/ci.yml)
+
 A chess coach in which Stockfish and Leela establish the facts about a position and a language model only puts them into words. What the model says about moves is checked against the board before the player sees it.
 
 ![A position explained: the verdict, the engine's idea, what is forcing, and what to aim for](docs/screenshot.png)
