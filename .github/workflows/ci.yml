@@ -34,6 +34,8 @@ jobs:
           cache: pnpm
           cache-dependency-path: cards_app/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      # The real deck holds one player's games and stays out of git; an empty one builds.
+      - run: mkdir -p src/generated && echo '{"cards": []}' > src/generated/deck.json
       - run: pnpm exec tsc --noEmit
       - run: pnpm test
       - run: python3 -m unittest
