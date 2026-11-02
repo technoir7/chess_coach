@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>local.chesscards.app-server</string>
+  <key>ProgramArguments</key>
+  <array><string>__PYTHON__</string><string>__APP__/tools/serve_app.py</string></array>
+  <key>WorkingDirectory</key><string>__APP__</string>
+  <!-- launchd starts with a bare PATH; updates need claude, stockfish, node and pnpm. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>__PATH__</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>__APP__/tools/serve.log</string>
+  <key>StandardErrorPath</key><string>__APP__/tools/serve.log</string>
+</dict>
+</plist>

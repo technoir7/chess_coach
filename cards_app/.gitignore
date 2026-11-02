@@ -1,0 +1,7 @@
+node_modules/
+dist/
+# The deck names the player's games: it stays out of git, like out/.
+src/generated/
+tools/serve.log
+tools/lichess_user
+tools/update.log

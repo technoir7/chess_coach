@@ -85,6 +85,23 @@ On macOS 27 the link step fails with "tapi error: malformed file"; pointing it a
 
 `start_server.sh` expects the virtualenv at `./env` and kills whatever is on port 8000. A terminal version runs with `env/bin/python main.py` and reads the Stockfish path from `CHESS_ENGINE_PATH`.
 
+## Reviewing your own games
+
+Two commands work on a Lichess player's games rather than a game played here:
+
+```bash
+env/bin/python review_games.py <lichess-username>   # out/<user>-report.md
+env/bin/python make_cards.py <lichess-username>     # out/<user>-cards.apkg, for Anki
+```
+
+`make_cards.py` also writes `out/<user>-cards.json` for `cards_app/`, a phone app in which you play each card's move on a board and then step through the answer ([cards_app/README.md](cards_app/README.md)).
+
+The games are downloaded once and Stockfish judges every position at depth 16, cached in `out/` (the first run on a few hundred games takes 15-30 minutes on 8 cores). A mistake is a move that cuts the player's winning chances by 10 points or more on Lichess's curve. Each is given one cause: they missed a threat the opponent already had, gave the opponent a tactic, missed their own tactic, made a quiet (positional) error, or was short of time. The report sums these by time control, phase, clock, opening and year, and links the biggest mistakes.
+
+The cards come from the tactical mistakes made with time on the clock, at most two per game: "what is your opponent threatening?", "you're about to play this, what does it allow?", and "find the best move" (only when the best move is clearly better than the runner-up). The back gives the line, what it wins, what was played and what was better.
+
+`--commentary` adds two or three sentences on why, and a one-line lesson, about 25 seconds a card with Claude. The coach's general explanation of a position was tried first and dropped: it doesn't know what a card is teaching, and twice said "no threat" on a card about a threat. Commentary gets a brief built for the card instead (its lines played out move by move, what the move played changed, where attacked pieces can go, tactical events, overloaded defenders, net material) and is checked as the coach's explanations are. Over three blind rounds of 40 fresh cards, false commentary went from 2 to 2 to 1 in 40 (drafts: 12, 9, 6), and commentary that teaches the card's point from 27 to 27 to 31; a second set of reviewers found 2 and 35 in round 3 ([method and data](evals/cards/README.md)).
+
 ## Tests
 
 ```bash
@@ -92,7 +109,7 @@ env/bin/pip install pytest
 env/bin/python -m pytest tests
 ```
 
-298 tests, mostly with stand-in engines; those that need Stockfish 16 are skipped without it. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
+409 tests, mostly with stand-in engines; those that need Stockfish 16 (or Stockfish, for the game review) are skipped without it. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
 
 ## Limitations
 

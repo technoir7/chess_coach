@@ -1,0 +1,23 @@
+{
+ "draft": {
+  "commentaries": 40,
+  "wrong": 9,
+  "teaches": {
+   "partly": 14,
+   "yes": 26
+  },
+  "lesson_fits": 39
+ },
+ "text": {
+  "commentaries": 40,
+  "wrong": 2,
+  "teaches": {
+   "partly": 13,
+   "yes": 27
+  },
+  "lesson_fits": 39
+ },
+ "without_commentary": 0,
+ "median_seconds": 24.05,
+ "changed_by_checks": 18
+}
