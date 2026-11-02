@@ -67,7 +67,7 @@ Requires Python 3.10+ (tested on 3.13), Stockfish on `PATH`, optionally lc0 and 
 
 ```bash
 python -m venv env
-env/bin/pip install -r requirements_backup.txt
+env/bin/pip install -r requirements.txt
 cp .env.template .env   # set GOOGLE_API_KEY; LEELA_ENGINE_PATH defaults to /opt/homebrew/bin/lc0
 ./start_server.sh       # http://localhost:8000
 ```
@@ -109,7 +109,7 @@ env/bin/pip install pytest
 env/bin/python -m pytest tests
 ```
 
-409 tests, mostly with stand-in engines; those that need Stockfish 16 (or Stockfish, for the game review) are skipped without it. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
+417 tests, mostly with stand-in engines; those that need Stockfish 16 (or Stockfish, for the game review) are skipped without it. `test_full_loop.py` starts the real Stockfish and is a smoke test with no assertions.
 
 ## Limitations
 
